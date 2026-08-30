@@ -80,6 +80,11 @@ export const translations = {
       transcribeErrorBody: 'Rekodi yako haijahifadhiwa. Jaribu tena au tumia kuingiza kwa mkono.',
       transcriptLabel: 'Ulisema',
       close: 'Funga',
+      extracting: 'Naelewa…',
+      extractErrorTitle: 'Imeshindikana kuchakata ulichosema.',
+      extractErrorBody: 'Jaribu tena au tumia kuingiza kwa mkono.',
+      clarifyTitle: 'Sikuelewa vizuri.',
+      clarifyBody: 'Jaribu tena kwa uwazi zaidi, au tumia kuingiza kwa mkono.',
     },
     error: {
       genericTitle: 'Hitilafu imetokea.',
@@ -171,6 +176,11 @@ export const translations = {
       transcribeErrorBody: 'Your recording was not saved. Try again or use manual entry.',
       transcriptLabel: 'You said',
       close: 'Close',
+      extracting: 'Understanding…',
+      extractErrorTitle: "Couldn't process what you said.",
+      extractErrorBody: 'Try again or use manual entry.',
+      clarifyTitle: "Didn't quite catch that.",
+      clarifyBody: 'Try again more clearly, or use manual entry.',
     },
     error: {
       genericTitle: 'Something went wrong.',
@@ -248,6 +258,11 @@ type Dict = {
     transcribeErrorBody: string
     transcriptLabel: string
     close: string
+    extracting: string
+    extractErrorTitle: string
+    extractErrorBody: string
+    clarifyTitle: string
+    clarifyBody: string
   }
   error: { genericTitle: string; genericBody: string; retry: string }
   language: { switchTo: string }

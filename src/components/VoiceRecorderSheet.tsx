@@ -4,6 +4,9 @@ import { useLanguage } from '@/i18n/useLanguage'
 import type { TranslationPath } from '@/i18n/translations'
 import { useAudioRecorder, type RecorderErrorReason } from '@/hooks/useAudioRecorder'
 import { transcribeAudio } from '@/services/transcriptionService'
+import { extractTransaction } from '@/services/extractionService'
+import { normalizeLanguage } from '@/lib/language'
+import type { TransactionDraft } from '@/components/TransactionFields'
 
 const ERROR_COPY: Record<RecorderErrorReason, { title: TranslationPath; body: TranslationPath }> = {
   'permission-denied': {
@@ -31,29 +34,40 @@ function formatDuration(ms: number): string {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
 
-type TranscribeState =
+export interface VoiceExtraction {
+  draft: TransactionDraft
+  rawTranscript: string
+  language?: 'sw' | 'en'
+  confidence: number
+}
+
+type FlowState =
   | { status: 'idle' }
   | { status: 'transcribing' }
-  | { status: 'done'; transcript: string }
-  | { status: 'error' }
+  | { status: 'transcribeError' }
+  | { status: 'extracting'; transcript: string }
+  | { status: 'extractError' }
+  | { status: 'clarify' }
 
 interface VoiceRecorderSheetProps {
   onClose: () => void
-  /** Phase 7 will use this to move into structured extraction. */
-  onTranscribed?: (transcript: string) => void
+  /** Called once with a confident extraction — the parent owns the preview/confirm UI. */
+  onExtracted: (result: VoiceExtraction) => void
 }
 
 /**
- * Real microphone capture (Phase 5) plus Groq transcription (Phase 6):
- * permission, live waveform, timer, cancel/retry, playback review, then
- * "Tumia" sends the recording for transcription and shows the result.
- * No structured extraction yet — that's Phase 7 (Gemini).
+ * Real microphone capture (Phase 5), Groq transcription (Phase 6), and
+ * Gemini extraction (Phase 7): permission -> record -> review -> transcript
+ * -> structured draft. Gemini's output is Zod-validated server-side and
+ * never trusted directly; ambiguous results ask for clarification instead
+ * of guessing (AI_SPEC.md § 4). The sheet hands off to the parent once it
+ * has a confident draft — it never saves anything itself.
  */
-export function VoiceRecorderSheet({ onClose, onTranscribed }: VoiceRecorderSheetProps) {
+export function VoiceRecorderSheet({ onClose, onExtracted }: VoiceRecorderSheetProps) {
   const { t } = useLanguage()
   const { phase, error, durationMs, levels, audioUrl, audioBlob, start, stop, cancel, retry } =
     useAudioRecorder()
-  const [transcribeState, setTranscribeState] = useState<TranscribeState>({ status: 'idle' })
+  const [flow, setFlow] = useState<FlowState>({ status: 'idle' })
 
   useEffect(() => {
     start()
@@ -66,26 +80,43 @@ export function VoiceRecorderSheet({ onClose, onTranscribed }: VoiceRecorderShee
   }
 
   const handleRetry = () => {
-    setTranscribeState({ status: 'idle' })
+    setFlow({ status: 'idle' })
     retry()
+  }
+
+  const runExtraction = async (transcript: string, language: 'sw' | 'en' | undefined) => {
+    setFlow({ status: 'extracting', transcript })
+    try {
+      const result = await extractTransaction(transcript)
+      if (result.needsClarification || !result.type || result.amount === null) {
+        setFlow({ status: 'clarify' })
+        return
+      }
+      onExtracted({
+        draft: {
+          type: result.type,
+          amount: result.amount,
+          category: result.category,
+          description: result.description,
+        },
+        rawTranscript: transcript,
+        language,
+        confidence: result.confidence,
+      })
+    } catch {
+      setFlow({ status: 'extractError' })
+    }
   }
 
   const handleUse = async () => {
     if (!audioBlob) return
-    setTranscribeState({ status: 'transcribing' })
+    setFlow({ status: 'transcribing' })
     try {
-      const result = await transcribeAudio(audioBlob)
-      setTranscribeState({ status: 'done', transcript: result.transcript })
-      onTranscribed?.(result.transcript)
+      const { transcript, language } = await transcribeAudio(audioBlob)
+      await runExtraction(transcript, normalizeLanguage(language))
     } catch {
-      setTranscribeState({ status: 'error' })
+      setFlow({ status: 'transcribeError' })
     }
-  }
-
-  const handleClose = () => {
-    setTranscribeState({ status: 'idle' })
-    retry()
-    onClose()
   }
 
   return (
@@ -145,7 +176,7 @@ export function VoiceRecorderSheet({ onClose, onTranscribed }: VoiceRecorderShee
           </>
         )}
 
-        {phase === 'reviewing' && audioUrl && transcribeState.status === 'idle' && (
+        {phase === 'reviewing' && audioUrl && flow.status === 'idle' && (
           <>
             <p className="text-lg font-semibold text-text">{formatDuration(durationMs)}</p>
             {/* eslint-disable-next-line jsx-a11y/media-has-caption -- voice memo, no captionable track */}
@@ -169,46 +200,28 @@ export function VoiceRecorderSheet({ onClose, onTranscribed }: VoiceRecorderShee
           </>
         )}
 
-        {transcribeState.status === 'transcribing' && (
+        {flow.status === 'transcribing' && (
           <div className="flex flex-col items-center gap-3 py-8">
             <Loader2 size={32} className="animate-spin text-text-muted" aria-hidden="true" />
             <p className="text-sm text-text-muted">{t('recorder.transcribing')}</p>
           </div>
         )}
 
-        {transcribeState.status === 'done' && (
-          <>
-            <p className="text-sm font-medium text-text-muted">{t('recorder.transcriptLabel')}</p>
-            <p className="text-center text-lg text-text">
-              {transcribeState.transcript || '—'}
-            </p>
-            <div className="flex w-full gap-3">
-              <button
-                type="button"
-                onClick={handleRetry}
-                className="flex-1 rounded-xl border border-border py-3.5 text-base font-medium text-text-muted"
-              >
-                {t('recorder.retry')}
-              </button>
-              <button
-                type="button"
-                onClick={handleClose}
-                className="flex-1 rounded-xl bg-text py-3.5 text-base font-semibold text-bg"
-              >
-                {t('recorder.close')}
-              </button>
-            </div>
-          </>
+        {flow.status === 'extracting' && (
+          <div className="flex flex-col items-center gap-3 py-8">
+            <Loader2 size={32} className="animate-spin text-text-muted" aria-hidden="true" />
+            <p className="text-sm text-text-muted">{t('recorder.extracting')}</p>
+          </div>
         )}
 
-        {transcribeState.status === 'error' && (
+        {flow.status === 'transcribeError' && (
           <div className="flex flex-col items-center gap-3 py-4 text-center">
             <p className="text-base font-medium text-text">{t('recorder.transcribeErrorTitle')}</p>
             <p className="text-sm text-text-muted">{t('recorder.transcribeErrorBody')}</p>
             <div className="mt-2 flex w-full gap-3">
               <button
                 type="button"
-                onClick={handleClose}
+                onClick={onClose}
                 className="flex-1 rounded-xl border border-border py-3.5 text-base font-medium text-text-muted"
               >
                 {t('recorder.cancel')}
@@ -219,6 +232,52 @@ export function VoiceRecorderSheet({ onClose, onTranscribed }: VoiceRecorderShee
                 className="flex-1 rounded-xl bg-text py-3.5 text-base font-semibold text-bg"
               >
                 {t('error.retry')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {flow.status === 'extractError' && (
+          <div className="flex flex-col items-center gap-3 py-4 text-center">
+            <p className="text-base font-medium text-text">{t('recorder.extractErrorTitle')}</p>
+            <p className="text-sm text-text-muted">{t('recorder.extractErrorBody')}</p>
+            <div className="mt-2 flex w-full gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 rounded-xl border border-border py-3.5 text-base font-medium text-text-muted"
+              >
+                {t('recorder.cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={handleRetry}
+                className="flex-1 rounded-xl bg-text py-3.5 text-base font-semibold text-bg"
+              >
+                {t('recorder.retry')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {flow.status === 'clarify' && (
+          <div className="flex flex-col items-center gap-3 py-4 text-center">
+            <p className="text-base font-medium text-text">{t('recorder.clarifyTitle')}</p>
+            <p className="text-sm text-text-muted">{t('recorder.clarifyBody')}</p>
+            <div className="mt-2 flex w-full gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 rounded-xl border border-border py-3.5 text-base font-medium text-text-muted"
+              >
+                {t('recorder.cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={handleRetry}
+                className="flex-1 rounded-xl bg-text py-3.5 text-base font-semibold text-bg"
+              >
+                {t('recorder.retry')}
               </button>
             </div>
           </div>

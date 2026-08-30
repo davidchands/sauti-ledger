@@ -6,7 +6,8 @@ import { EmptyState } from '@/components/EmptyState'
 import { LoadingIndicator } from '@/components/LoadingIndicator'
 import { ErrorState } from '@/components/ErrorState'
 import { TransactionSheet } from '@/components/TransactionSheet'
-import { VoiceRecorderSheet } from '@/components/VoiceRecorderSheet'
+import { TransactionConfirmation } from '@/components/TransactionConfirmation'
+import { VoiceRecorderSheet, type VoiceExtraction } from '@/components/VoiceRecorderSheet'
 import { useLanguage } from '@/i18n/useLanguage'
 import { useTransactions } from '@/hooks/useTransactions'
 import type { TransactionDraft } from '@/components/TransactionFields'
@@ -27,6 +28,7 @@ export function MiamalaPage() {
   >(null)
   const [saving, setSaving] = useState(false)
   const [isRecorderOpen, setIsRecorderOpen] = useState(false)
+  const [voiceExtraction, setVoiceExtraction] = useState<VoiceExtraction | null>(null)
 
   const closeSheet = () => setSheet(null)
 
@@ -46,6 +48,22 @@ export function MiamalaPage() {
     const ok = await remove(sheet.transaction.id)
     setSaving(false)
     if (ok) closeSheet()
+  }
+
+  const handleVoiceExtracted = (result: VoiceExtraction) => {
+    setIsRecorderOpen(false)
+    setVoiceExtraction(result)
+  }
+
+  const handleVoiceConfirm = async (draft: TransactionDraft) => {
+    if (!voiceExtraction) return
+    const ok = await create(draft, {
+      source: 'VOICE',
+      rawTranscript: voiceExtraction.rawTranscript,
+      language: voiceExtraction.language,
+      confidence: voiceExtraction.confidence,
+    })
+    if (ok) setVoiceExtraction(null)
   }
 
   return (
@@ -103,7 +121,20 @@ export function MiamalaPage() {
         />
       )}
 
-      {isRecorderOpen && <VoiceRecorderSheet onClose={() => setIsRecorderOpen(false)} />}
+      {isRecorderOpen && (
+        <VoiceRecorderSheet
+          onClose={() => setIsRecorderOpen(false)}
+          onExtracted={handleVoiceExtracted}
+        />
+      )}
+
+      {voiceExtraction && (
+        <TransactionConfirmation
+          draft={voiceExtraction.draft}
+          onConfirm={handleVoiceConfirm}
+          onCancel={() => setVoiceExtraction(null)}
+        />
+      )}
     </div>
   )
 }

@@ -3,6 +3,7 @@ import express from 'express'
 import { resolveUser } from './resolveUser'
 import { transactionsRouter } from './routes/transactions'
 import { transcribeRouter } from './routes/transcribe'
+import { extractRouter } from './routes/extract'
 
 const app = express()
 const port = process.env.API_PORT ?? 8787
@@ -15,6 +16,7 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/transactions', resolveUser, transactionsRouter)
 app.use('/api/transcribe', resolveUser, transcribeRouter)
+app.use('/api/extract', resolveUser, extractRouter)
 
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   // express.json() throws a SyntaxError with a `status` for malformed

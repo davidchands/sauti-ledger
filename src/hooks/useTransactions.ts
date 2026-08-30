@@ -23,6 +23,13 @@ function toUiTransaction(api: ApiTransaction): Transaction {
   }
 }
 
+interface VoiceProvenance {
+  source: 'VOICE'
+  rawTranscript: string
+  language?: 'sw' | 'en'
+  confidence: number
+}
+
 type LoadState = 'loading' | 'ready' | 'error'
 
 export function useTransactions() {
@@ -48,14 +55,15 @@ export function useTransactions() {
   }, [refresh])
 
   // Optimistic create (AGENTS.md § 8): show it immediately, reconcile with
-  // the server, roll back on failure.
-  const create = useCallback(async (draft: TransactionDraft) => {
+  // the server, roll back on failure. Voice-sourced creates (Phase 7) pass
+  // provenance fields through; manual entries omit them (defaults MANUAL).
+  const create = useCallback(async (draft: TransactionDraft, voice?: VoiceProvenance) => {
     const tempId = `temp-${crypto.randomUUID()}`
     const optimistic: Transaction = { id: tempId, createdAt: new Date().toISOString(), ...draft }
     setTransactions((prev) => [optimistic, ...prev])
 
     try {
-      const created = await apiClient.post<ApiTransaction>('/transactions', draft)
+      const created = await apiClient.post<ApiTransaction>('/transactions', { ...draft, ...voice })
       setTransactions((prev) => prev.map((t) => (t.id === tempId ? toUiTransaction(created) : t)))
       return true
     } catch {
