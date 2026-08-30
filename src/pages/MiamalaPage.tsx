@@ -6,6 +6,7 @@ import { EmptyState } from '@/components/EmptyState'
 import { LoadingIndicator } from '@/components/LoadingIndicator'
 import { ErrorState } from '@/components/ErrorState'
 import { TransactionSheet } from '@/components/TransactionSheet'
+import { VoiceRecorderSheet } from '@/components/VoiceRecorderSheet'
 import { useLanguage } from '@/i18n/useLanguage'
 import { useTransactions } from '@/hooks/useTransactions'
 import type { TransactionDraft } from '@/components/TransactionFields'
@@ -25,6 +26,7 @@ export function MiamalaPage() {
     { mode: 'create' } | { mode: 'edit'; transaction: Transaction } | null
   >(null)
   const [saving, setSaving] = useState(false)
+  const [isRecorderOpen, setIsRecorderOpen] = useState(false)
 
   const closeSheet = () => setSheet(null)
 
@@ -87,7 +89,7 @@ export function MiamalaPage() {
       </div>
 
       <div className="flex justify-center py-6">
-        <VoiceButton state="idle" />
+        <VoiceButton state="idle" onPress={() => setIsRecorderOpen(true)} />
       </div>
 
       {sheet && (
@@ -100,6 +102,8 @@ export function MiamalaPage() {
           onClose={closeSheet}
         />
       )}
+
+      {isRecorderOpen && <VoiceRecorderSheet onClose={() => setIsRecorderOpen(false)} />}
     </div>
   )
 }

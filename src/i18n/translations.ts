@@ -58,6 +58,23 @@ export const translations = {
       expense: 'Matumizi',
       biggestLeak: 'Pesa inaishia wapi?',
     },
+    recorder: {
+      requesting: 'Inaomba ruhusa…',
+      cancel: 'Ghairi',
+      stop: 'Simamisha',
+      retry: 'Rekodi tena',
+      done: 'Sawa',
+      play: 'Cheza',
+      pause: 'Simamisha kucheza',
+      permissionDeniedTitle: 'Hatuwezi kufikia kipaza sauti.',
+      permissionDeniedBody: 'Ruhusu ufikiaji wa kipaza sauti kwenye mipangilio ya kivinjari chako kisha ujaribu tena.',
+      noMicrophoneTitle: 'Hakuna kipaza sauti kilichopatikana.',
+      noMicrophoneBody: 'Tumia kuingiza kwa mkono badala yake.',
+      unsupportedTitle: 'Kivinjari hiki hakitumii kurekodi sauti.',
+      unsupportedBody: 'Tumia kuingiza kwa mkono badala yake.',
+      unknownTitle: 'Imeshindikana kuanza kurekodi.',
+      unknownBody: 'Jaribu tena.',
+    },
     error: {
       genericTitle: 'Hitilafu imetokea.',
       genericBody: 'Taarifa zako ziko salama. Jaribu tena.',
@@ -126,6 +143,23 @@ export const translations = {
       expense: 'Expenses',
       biggestLeak: "Where's the money going?",
     },
+    recorder: {
+      requesting: 'Requesting permission…',
+      cancel: 'Cancel',
+      stop: 'Stop',
+      retry: 'Record again',
+      done: 'Done',
+      play: 'Play',
+      pause: 'Pause',
+      permissionDeniedTitle: "We can't reach the microphone.",
+      permissionDeniedBody: 'Allow microphone access in your browser settings, then try again.',
+      noMicrophoneTitle: 'No microphone found.',
+      noMicrophoneBody: 'Use manual entry instead.',
+      unsupportedTitle: "This browser can't record audio.",
+      unsupportedBody: 'Use manual entry instead.',
+      unknownTitle: "Couldn't start recording.",
+      unknownBody: 'Please try again.',
+    },
     error: {
       genericTitle: 'Something went wrong.',
       genericBody: 'Your data is safe. Please try again.',
@@ -179,6 +213,23 @@ type Dict = {
     income: string
     expense: string
     biggestLeak: string
+  }
+  recorder: {
+    requesting: string
+    cancel: string
+    stop: string
+    retry: string
+    done: string
+    play: string
+    pause: string
+    permissionDeniedTitle: string
+    permissionDeniedBody: string
+    noMicrophoneTitle: string
+    noMicrophoneBody: string
+    unsupportedTitle: string
+    unsupportedBody: string
+    unknownTitle: string
+    unknownBody: string
   }
   error: { genericTitle: string; genericBody: string; retry: string }
   language: { switchTo: string }
