@@ -105,7 +105,7 @@ Every AI-generated transaction must pass Zod validation before reaching the data
 
 Never invent missing financial information. If the amount or transaction type is ambiguous, request clarification from the user instead of guessing.
 
-The AI must support Swahili, English, and Swahili/English code-switching. See [AI_SPEC.md](AI_SPEC.md) for the full set of expected inputs/outputs — treat it as the evaluation dataset for any prompt or model change.
+The AI must support Swahili, English, and Swahili/English code-switching. See [AI_SPEC.md](AI_SPEC.md) for the full set of expected inputs/outputs — treat it as the evaluation dataset for any prompt or model change. Run `npm run eval:ai` before and after touching the extraction prompt or model — it replays every AI_SPEC.md example against the live pipeline and fails non-zero on any regression.
 
 Gemini never writes directly to the database. The server validates the structured result first, then the user confirms it in the UI, then it is persisted.
 

@@ -69,13 +69,17 @@ No verb indicates income or expense. Correct behavior: ask whether this was mone
 
 ## 5. Evaluation Workflow
 
+`npm run eval:ai` runs every example below against the live extraction pipeline ([eval/dataset.ts](eval/dataset.ts), [eval/run.ts](eval/run.ts)) and reports pass/fail per case. It requires the API server running (`npm run dev:api`) and a working `DATABASE_URL`/`GEMINI_API_KEY`.
+
 When the extraction prompt or model changes:
 
-1. Run every example in this file through the pipeline.
-2. Compare actual output to expected output.
+1. Run `npm run eval:ai`.
+2. Compare actual output to expected output — the script does this automatically and exits non-zero on any failure.
 3. Only deploy if accuracy improves or stays flat — never regress silently.
 
-As real (anonymized, consented) merchant utterances are collected, add them here with their expected output. The goal is 1,000+ real Tanzanian utterances over time.
+Last full run (Phase 9, gemini-3.6-flash): 23/23 passed.
+
+As real (anonymized, consented) merchant utterances are collected, add them to both this file and `eval/dataset.ts` with their expected output. The goal is 1,000+ real Tanzanian utterances over time.
 
 ## 6. Examples
 
@@ -99,6 +103,9 @@ As real (anonymized, consented) merchant utterances are collected, add them here
 
 "Mafuta ya gari elfu kumi na tano"
 → EXPENSE, 15000, Operational, "Mafuta"
+
+"Nimeuza bidhaa elfu tano."
+→ INCOME, 5000, Sales, "Bidhaa"
 ```
 
 ### English

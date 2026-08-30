@@ -15,7 +15,8 @@
     "preview": "vite preview",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "eval:ai": "tsx eval/run.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
