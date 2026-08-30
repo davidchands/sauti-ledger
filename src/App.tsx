@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from '@/components/AppShell'
 import { MiamalaPage } from '@/pages/MiamalaPage'
 import { RipotiPage } from '@/pages/RipotiPage'
+import { DesignSystemPage } from '@/pages/DesignSystemPage'
 
 export default function App() {
   return (
@@ -12,6 +13,8 @@ export default function App() {
         <Route path="ripoti" element={<RipotiPage />} />
         <Route path="*" element={<Navigate to="/miamala" replace />} />
       </Route>
+      {/* Internal QA only — not part of the merchant-facing product, not in nav. */}
+      <Route path="design-system" element={<DesignSystemPage />} />
     </Routes>
   )
 }
