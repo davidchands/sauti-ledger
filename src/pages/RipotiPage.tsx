@@ -1,3 +1,4 @@
+import { BalanceCard } from '@/components/BalanceCard'
 import { CashFlowSummary } from '@/components/CashFlowSummary'
 import { TopLeakCard } from '@/components/TopLeakCard'
 import { EmptyState } from '@/components/EmptyState'
@@ -16,9 +17,15 @@ function isThisWeek(iso: string): boolean {
   return date >= weekStart
 }
 
+/**
+ * Answers the four questions DESIGN.md § 18 sets out: Nina kiasi gani?
+ * (balance — shown regardless of this week's activity), Wiki hii
+ * nimeingiza kiasi gani? (income), Nimetumia kiasi gani? (expenses),
+ * Pesa yangu inaishia wapi? (biggest leak).
+ */
 export function RipotiPage() {
   const { t } = useLanguage()
-  const { transactions, state, refresh } = useTransactions()
+  const { transactions, balance, state, refresh } = useTransactions()
 
   if (state === 'loading') {
     return (
@@ -36,15 +43,15 @@ export function RipotiPage() {
     )
   }
 
-  const weekly = transactions.filter((tx) => isThisWeek(tx.createdAt))
-
-  if (weekly.length === 0) {
+  if (transactions.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center px-5">
         <EmptyState message={t('ripoti.empty')} />
       </div>
     )
   }
+
+  const weekly = transactions.filter((tx) => isThisWeek(tx.createdAt))
 
   const income = weekly
     .filter((tx) => tx.type === 'INCOME')
@@ -64,21 +71,36 @@ export function RipotiPage() {
   const leaks = [...expenseByCategory.entries()]
     .sort((a, b) => b[1] - a[1])
     .map(([category, amount]) => ({ category, amount }))
+  const topLeak = leaks[0]
 
   return (
-    <div className="flex-1 overflow-y-auto px-5 pb-8">
-      <h1 className="pt-6 text-2xl font-semibold text-text">{t('nav.ripoti')}</h1>
-      <p className="mt-1 text-sm text-text-muted">{t('ripoti.thisWeek')}</p>
+    <div className="flex-1 overflow-y-auto pb-8">
+      <BalanceCard balance={balance} />
 
-      <div className="mt-4">
-        <CashFlowSummary income={income} expense={expense} />
+      <div className="px-5 pt-4">
+        <h2 className="text-sm font-medium text-text-muted">{t('ripoti.thisWeek')}</h2>
+
+        {weekly.length === 0 ? (
+          <p className="mt-4 text-center text-sm text-text-muted">
+            {t('ripoti.thisWeekEmpty')}
+          </p>
+        ) : (
+          <>
+            <div className="mt-4">
+              <CashFlowSummary income={income} expense={expense} />
+            </div>
+
+            {topLeak && (
+              <div className="mt-8">
+                <TopLeakCard leaks={leaks} />
+                <p className="mt-3 text-sm text-text-muted">
+                  {t(`category.${topLeak.category}`)} {t('ripoti.leakInsightSuffix')}
+                </p>
+              </div>
+            )}
+          </>
+        )}
       </div>
-
-      {leaks.length > 0 && (
-        <div className="mt-8">
-          <TopLeakCard leaks={leaks} />
-        </div>
-      )}
     </div>
   )
 }

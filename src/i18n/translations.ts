@@ -54,9 +54,11 @@ export const translations = {
     ripoti: {
       empty: 'Bado hakuna ripoti ya kuonyesha.',
       thisWeek: 'Wiki hii',
+      thisWeekEmpty: 'Bado hakuna muamala wiki hii.',
       income: 'Mapato',
       expense: 'Matumizi',
       biggestLeak: 'Pesa inaishia wapi?',
+      leakInsightSuffix: 'ndiyo matumizi yako makubwa wiki hii.',
     },
     recorder: {
       requesting: 'Inaomba ruhusa…',
@@ -150,9 +152,11 @@ export const translations = {
     ripoti: {
       empty: 'Nothing to report yet.',
       thisWeek: 'This week',
+      thisWeekEmpty: 'No transactions this week yet.',
       income: 'Income',
       expense: 'Expenses',
       biggestLeak: "Where's the money going?",
+      leakInsightSuffix: 'is your biggest expense this week.',
     },
     recorder: {
       requesting: 'Requesting permission…',
@@ -232,9 +236,11 @@ type Dict = {
   ripoti: {
     empty: string
     thisWeek: string
+    thisWeekEmpty: string
     income: string
     expense: string
     biggestLeak: string
+    leakInsightSuffix: string
   }
   recorder: {
     requesting: string
