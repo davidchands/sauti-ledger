@@ -3,8 +3,8 @@ import { db } from '../client'
 import { users } from '../schema'
 
 /**
- * Server-only. Full phone OTP auth lands in Phase 3 — this just gives
- * Phase 2 a way to obtain a valid user_id to scope transactions to.
+ * Server-only. Kept for when real phone OTP auth lands (AGENTS.md § 3a) —
+ * not called anywhere yet.
  */
 export async function getOrCreateUserByPhone(phoneNumber: string) {
   const existing = await db.query.users.findFirst({
@@ -13,5 +13,20 @@ export async function getOrCreateUserByPhone(phoneNumber: string) {
   if (existing) return existing
 
   const [created] = await db.insert(users).values({ phoneNumber }).returning()
+  return created
+}
+
+/**
+ * Server-only. MVP identity resolution (AGENTS.md § 3a): the client's
+ * self-issued device id, sent as the X-Device-Id header, resolves to a
+ * users row exactly the way a verified session will once OTP exists.
+ */
+export async function getOrCreateUserByDeviceId(deviceId: string) {
+  const existing = await db.query.users.findFirst({
+    where: eq(users.deviceId, deviceId),
+  })
+  if (existing) return existing
+
+  const [created] = await db.insert(users).values({ deviceId }).returning()
   return created
 }

@@ -73,6 +73,15 @@ Never trust a `user_id` supplied by the client. The authenticated session determ
 
 Use parameterized queries via Drizzle. Never construct SQL from string concatenation.
 
+### 3a. MVP identity decision — OTP deferred
+
+Real phone OTP authentication is deferred past the MVP (user decision). Until it's built, identity works like this:
+
+* The client generates a random UUID on first launch, stores it in `localStorage`, and sends it on every API request as the `X-Device-Id` header.
+* The server resolves that header to a `users` row (creating one on first sight) and treats it exactly as it would treat a verified session's user id — every query is still scoped to it, the client still never gets to claim a different user's id directly.
+* This is weaker than real auth: whoever holds the device id can act as that user, and it isn't tied to a verified phone number. That's an accepted MVP tradeoff, not an oversight — don't silently strengthen or weaken it without asking.
+* When real OTP is built, it replaces *only* the identity-resolution step (device id → verified session). The API route shapes, the `db/queries` layer, and everything downstream stay the same — that's the point of scoping by a resolved `userId` from the start.
+
 ## 4. i18n Rules
 
 Never hard-code user-facing text inside React components. All UI strings must use the i18n system.
@@ -246,7 +255,7 @@ Work through phases in order. Do not start a later phase until the current one's
 PHASE 0   Project foundation (Vite/React/TS/Tailwind/shadcn/ESLint/routing/i18n/PWA shell — no auth, AI, DB, voice, or reports yet)
 PHASE 1   Design system (components from DESIGN.md, no dashboard-template look)
 PHASE 2   Neon + Drizzle (schema, migrations, CRUD for an authenticated user)
-PHASE 3   Phone OTP authentication (login, OTP, session, protected routes, profile, logout)
+PHASE 3   Identity (MVP DECISION: real phone OTP deferred post-MVP — see § 3a below. Built instead: anonymous per-device identity + the Express API server, so Phase 4 has a real backend to wire to)
 PHASE 4   Real transaction experience (UI wired to Neon — list, balance, detail, edit, delete; still no AI)
 PHASE 5   Voice recording (mic permission, capture, waveform, timer, cancel/retry — no Gemini/Groq yet, prove capture works on Android Chrome + iPhone Safari)
 PHASE 6   Groq transcription (audio → transcript, store transcript only, no transaction saved yet)

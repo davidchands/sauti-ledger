@@ -32,10 +32,16 @@ export const languageEnum = pgEnum('language', ['sw', 'en'])
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
-  phoneNumber: text('phone_number').notNull(),
+  // Nullable until Phase 3's real OTP auth lands (AGENTS.md § 3a) — MVP
+  // identity is device-based instead.
+  phoneNumber: text('phone_number'),
+  deviceId: text('device_id'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-}, (table) => [uniqueIndex('users_phone_number_idx').on(table.phoneNumber)])
+}, (table) => [
+  uniqueIndex('users_phone_number_idx').on(table.phoneNumber),
+  uniqueIndex('users_device_id_idx').on(table.deviceId),
+])
 
 export const profiles = pgTable('profiles', {
   id: uuid('id').primaryKey().defaultRandom(),

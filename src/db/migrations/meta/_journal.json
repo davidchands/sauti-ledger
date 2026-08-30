@@ -8,6 +8,13 @@
       "when": 1788123907369,
       "tag": "0000_large_sasquatch",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788124802845,
+      "tag": "0001_nasty_jean_grey",
+      "breakpoints": true
     }
   ]
 }
