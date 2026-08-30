@@ -1,21 +1,11 @@
 import { useState } from 'react'
 import { formatTSh } from '@/lib/currency'
 import { useLanguage } from '@/i18n/useLanguage'
-import type { Transaction, TransactionCategory, TransactionType } from '@/types/transaction'
-
-type DraftTransaction = Pick<Transaction, 'type' | 'amount' | 'category' | 'description'>
-
-const CATEGORIES: TransactionCategory[] = [
-  'Sales',
-  'Inventory',
-  'Rent',
-  'Operational',
-  'Other',
-]
+import { TransactionFields, type TransactionDraft } from '@/components/TransactionFields'
 
 interface TransactionConfirmationProps {
-  draft: DraftTransaction
-  onConfirm: (draft: DraftTransaction) => void
+  draft: TransactionDraft
+  onConfirm: (draft: TransactionDraft) => void
   onCancel: () => void
 }
 
@@ -43,77 +33,7 @@ export function TransactionConfirmation({
       <div className="w-full max-w-[430px] rounded-t-3xl bg-surface p-6 sm:rounded-3xl">
         {isEditing ? (
           <div className="flex flex-col gap-4">
-            <div className="flex gap-2">
-              {(['INCOME', 'EXPENSE'] as TransactionType[]).map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setEditable((prev) => ({ ...prev, type }))}
-                  aria-pressed={editable.type === type}
-                  className={`flex-1 rounded-xl border py-2 text-sm font-medium ${
-                    editable.type === type
-                      ? type === 'INCOME'
-                        ? 'border-income bg-income-bg text-income'
-                        : 'border-expense bg-expense-bg text-expense'
-                      : 'border-border text-text-muted'
-                  }`}
-                >
-                  {type === 'INCOME' ? '+' : '−'}{' '}
-                  {t(type === 'INCOME' ? 'confirmation.typeIncome' : 'confirmation.typeExpense')}
-                </button>
-              ))}
-            </div>
-
-            <label className="flex flex-col gap-1">
-              <span className="text-xs font-medium text-text-muted">
-                {t('confirmation.amountLabel')}
-              </span>
-              <input
-                type="number"
-                inputMode="numeric"
-                value={editable.amount}
-                onChange={(event) =>
-                  setEditable((prev) => ({ ...prev, amount: Number(event.target.value) || 0 }))
-                }
-                className="rounded-xl border border-border px-3 py-2 text-lg font-semibold text-text"
-              />
-            </label>
-
-            <label className="flex flex-col gap-1">
-              <span className="text-xs font-medium text-text-muted">
-                {t('confirmation.categoryLabel')}
-              </span>
-              <select
-                value={editable.category}
-                onChange={(event) =>
-                  setEditable((prev) => ({
-                    ...prev,
-                    category: event.target.value as TransactionCategory,
-                  }))
-                }
-                className="rounded-xl border border-border px-3 py-2 text-sm text-text"
-              >
-                {CATEGORIES.map((category) => (
-                  <option key={category} value={category}>
-                    {t(`category.${category}`)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="flex flex-col gap-1">
-              <span className="text-xs font-medium text-text-muted">
-                {t('confirmation.descriptionLabel')}
-              </span>
-              <input
-                type="text"
-                value={editable.description}
-                onChange={(event) =>
-                  setEditable((prev) => ({ ...prev, description: event.target.value }))
-                }
-                className="rounded-xl border border-border px-3 py-2 text-sm text-text"
-              />
-            </label>
+            <TransactionFields value={editable} onChange={setEditable} />
 
             <button
               type="button"

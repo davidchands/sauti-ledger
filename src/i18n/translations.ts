@@ -38,6 +38,18 @@ export const translations = {
     },
     miamala: {
       empty: 'Bado hakuna miamala.',
+      addManually: 'Ongeza kwa mkono',
+      loading: 'Inapakia miamala…',
+    },
+    transactionSheet: {
+      addTitle: 'Muamala mpya',
+      editTitle: 'Hariri muamala',
+      save: 'Hifadhi',
+      delete: 'Futa',
+      deleteConfirm: 'Una uhakika unataka kufuta?',
+      deleteConfirmYes: 'Ndiyo, futa',
+      deleteConfirmNo: 'Hapana',
+      saving: 'Inahifadhi…',
     },
     ripoti: {
       empty: 'Bado hakuna ripoti ya kuonyesha.',
@@ -94,6 +106,18 @@ export const translations = {
     },
     miamala: {
       empty: 'No transactions yet.',
+      addManually: 'Add manually',
+      loading: 'Loading transactions…',
+    },
+    transactionSheet: {
+      addTitle: 'New transaction',
+      editTitle: 'Edit transaction',
+      save: 'Save',
+      delete: 'Delete',
+      deleteConfirm: 'Are you sure you want to delete this?',
+      deleteConfirmYes: 'Yes, delete',
+      deleteConfirmNo: 'No',
+      saving: 'Saving…',
     },
     ripoti: {
       empty: 'Nothing to report yet.',
@@ -138,7 +162,17 @@ type Dict = {
     categoryLabel: string
     descriptionLabel: string
   }
-  miamala: { empty: string }
+  miamala: { empty: string; addManually: string; loading: string }
+  transactionSheet: {
+    addTitle: string
+    editTitle: string
+    save: string
+    delete: string
+    deleteConfirm: string
+    deleteConfirmYes: string
+    deleteConfirmNo: string
+    saving: string
+  }
   ripoti: {
     empty: string
     thisWeek: string
