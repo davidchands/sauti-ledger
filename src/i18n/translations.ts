@@ -64,6 +64,7 @@ export const translations = {
       stop: 'Simamisha',
       retry: 'Rekodi tena',
       done: 'Sawa',
+      use: 'Tumia',
       play: 'Cheza',
       pause: 'Simamisha kucheza',
       permissionDeniedTitle: 'Hatuwezi kufikia kipaza sauti.',
@@ -74,6 +75,11 @@ export const translations = {
       unsupportedBody: 'Tumia kuingiza kwa mkono badala yake.',
       unknownTitle: 'Imeshindikana kuanza kurekodi.',
       unknownBody: 'Jaribu tena.',
+      transcribing: 'Naelewa…',
+      transcribeErrorTitle: 'Imeshindikana kuelewa sauti.',
+      transcribeErrorBody: 'Rekodi yako haijahifadhiwa. Jaribu tena au tumia kuingiza kwa mkono.',
+      transcriptLabel: 'Ulisema',
+      close: 'Funga',
     },
     error: {
       genericTitle: 'Hitilafu imetokea.',
@@ -149,6 +155,7 @@ export const translations = {
       stop: 'Stop',
       retry: 'Record again',
       done: 'Done',
+      use: 'Use this',
       play: 'Play',
       pause: 'Pause',
       permissionDeniedTitle: "We can't reach the microphone.",
@@ -159,6 +166,11 @@ export const translations = {
       unsupportedBody: 'Use manual entry instead.',
       unknownTitle: "Couldn't start recording.",
       unknownBody: 'Please try again.',
+      transcribing: 'Understanding…',
+      transcribeErrorTitle: "Couldn't understand the recording.",
+      transcribeErrorBody: 'Your recording was not saved. Try again or use manual entry.',
+      transcriptLabel: 'You said',
+      close: 'Close',
     },
     error: {
       genericTitle: 'Something went wrong.',
@@ -220,6 +232,7 @@ type Dict = {
     stop: string
     retry: string
     done: string
+    use: string
     play: string
     pause: string
     permissionDeniedTitle: string
@@ -230,6 +243,11 @@ type Dict = {
     unsupportedBody: string
     unknownTitle: string
     unknownBody: string
+    transcribing: string
+    transcribeErrorTitle: string
+    transcribeErrorBody: string
+    transcriptLabel: string
+    close: string
   }
   error: { genericTitle: string; genericBody: string; retry: string }
   language: { switchTo: string }

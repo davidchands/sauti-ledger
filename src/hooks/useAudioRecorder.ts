@@ -29,6 +29,7 @@ export function useAudioRecorder() {
   const [durationMs, setDurationMs] = useState(0)
   const [levels, setLevels] = useState<number[]>(() => Array(LEVEL_BAR_COUNT).fill(0))
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
 
   const streamRef = useRef<MediaStream | null>(null)
   const recorderRef = useRef<MediaRecorder | null>(null)
@@ -119,6 +120,7 @@ export function useAudioRecorder() {
         stopMetering()
         const blob = new Blob(chunksRef.current, { type: mimeType })
         teardownStream()
+        setAudioBlob(blob)
         setAudioUrl(URL.createObjectURL(blob))
         setPhase((current) => (current === 'recording' ? 'reviewing' : current))
       }
@@ -162,6 +164,7 @@ export function useAudioRecorder() {
       if (prev) URL.revokeObjectURL(prev)
       return null
     })
+    setAudioBlob(null)
     setDurationMs(0)
     setPhase('idle')
   }, [stopMetering, teardownStream])
@@ -171,6 +174,7 @@ export function useAudioRecorder() {
       if (prev) URL.revokeObjectURL(prev)
       return null
     })
+    setAudioBlob(null)
     setDurationMs(0)
     setPhase('idle')
   }, [])
@@ -186,5 +190,5 @@ export function useAudioRecorder() {
     }
   }, [stopMetering, teardownStream])
 
-  return { phase, error, durationMs, levels, audioUrl, start, stop, cancel, retry }
+  return { phase, error, durationMs, levels, audioUrl, audioBlob, start, stop, cancel, retry }
 }
