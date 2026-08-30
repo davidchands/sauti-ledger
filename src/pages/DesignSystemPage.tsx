@@ -66,7 +66,7 @@ export function DesignSystemPage() {
         {showConfirmation && (
           <TransactionConfirmation
             draft={{ type: 'INCOME', amount: 25000, category: 'Sales', description: 'Mchele' }}
-            onConfirm={() => setShowConfirmation(false)}
+            onConfirm={async () => true}
             onCancel={() => setShowConfirmation(false)}
           />
         )}

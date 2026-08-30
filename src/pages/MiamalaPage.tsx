@@ -55,15 +55,16 @@ export function MiamalaPage() {
     setVoiceExtraction(result)
   }
 
-  const handleVoiceConfirm = async (draft: TransactionDraft) => {
-    if (!voiceExtraction) return
-    const ok = await create(draft, {
+  const handleVoiceConfirm = async (draft: TransactionDraft): Promise<boolean> => {
+    if (!voiceExtraction) return false
+    // TransactionConfirmation owns the saving/success/error UI and closes
+    // itself (via onCancel) after showing a brief success state.
+    return create(draft, {
       source: 'VOICE',
       rawTranscript: voiceExtraction.rawTranscript,
       language: voiceExtraction.language,
       confidence: voiceExtraction.confidence,
     })
-    if (ok) setVoiceExtraction(null)
   }
 
   return (
