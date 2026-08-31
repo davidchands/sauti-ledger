@@ -31,8 +31,12 @@ export function MiamalaPage() {
   >(null)
   const [saving, setSaving] = useState(false)
   const [voiceExtraction, setVoiceExtraction] = useState<VoiceExtraction | null>(null)
+  const [voiceIndex, setVoiceIndex] = useState(0)
 
-  const handleVoiceExtracted = (result: VoiceExtraction) => setVoiceExtraction(result)
+  const handleVoiceExtracted = (result: VoiceExtraction) => {
+    setVoiceExtraction(result)
+    setVoiceIndex(0)
+  }
 
   const voice = useVoiceCapture(handleVoiceExtracted)
   useSpaceToRecord(voice.start, voice.stop, voice.cancel, !voiceExtraction && !sheet)
@@ -59,14 +63,25 @@ export function MiamalaPage() {
 
   const handleVoiceConfirm = async (draft: TransactionDraft): Promise<boolean> => {
     if (!voiceExtraction) return false
-    // TransactionConfirmation owns the saving/success/error UI and closes
-    // itself (via onCancel) after showing a brief success state.
+    // TransactionConfirmation owns the saving/success/error UI and calls
+    // onSaved (below) after showing a brief success state.
     return create(draft, {
       source: 'VOICE',
       rawTranscript: voiceExtraction.rawTranscript,
       language: voiceExtraction.language,
-      confidence: voiceExtraction.confidence,
+      confidence: voiceExtraction.items[voiceIndex].confidence,
     })
+  }
+
+  // A recording can produce several transactions (AI_SPEC.md § 3a) — step
+  // through them one confirmation at a time rather than saving silently.
+  const handleVoiceSaved = () => {
+    if (!voiceExtraction) return
+    if (voiceIndex + 1 < voiceExtraction.items.length) {
+      setVoiceIndex((index) => index + 1)
+    } else {
+      setVoiceExtraction(null)
+    }
   }
 
   return (
@@ -140,8 +155,15 @@ export function MiamalaPage() {
 
       {voiceExtraction && (
         <TransactionConfirmation
-          draft={voiceExtraction.draft}
+          key={voiceIndex}
+          draft={voiceExtraction.items[voiceIndex].draft}
+          progress={
+            voiceExtraction.items.length > 1
+              ? { index: voiceIndex, total: voiceExtraction.items.length }
+              : undefined
+          }
           onConfirm={handleVoiceConfirm}
+          onSaved={handleVoiceSaved}
           onCancel={() => setVoiceExtraction(null)}
         />
       )}

@@ -11,6 +11,15 @@ interface TransactionConfirmationProps {
   /** Resolves to whether the save succeeded — the component owns the saving/success/error UI. */
   onConfirm: (draft: TransactionDraft) => Promise<boolean>
   onCancel: () => void
+  /**
+   * Called after a successful save's brief success animation finishes.
+   * Defaults to onCancel. Kept separate so a caller stepping through
+   * several transactions extracted from one recording can tell "saved,
+   * show the next one" apart from the user backing out via Cancel.
+   */
+  onSaved?: () => void
+  /** Shown as a small "2/3" indicator when a recording produced more than one transaction. */
+  progress?: { index: number; total: number }
 }
 
 type SaveState = 'idle' | 'saving' | 'success' | 'error'
@@ -24,6 +33,8 @@ export function TransactionConfirmation({
   draft,
   onConfirm,
   onCancel,
+  onSaved,
+  progress,
 }: TransactionConfirmationProps) {
   const { t } = useLanguage()
   const [editable, setEditable] = useState(draft)
@@ -39,9 +50,8 @@ export function TransactionConfirmation({
 
   useEffect(() => {
     if (saveState !== 'success') return
-    const timeout = setTimeout(onCancel, SUCCESS_DISPLAY_MS)
+    const timeout = setTimeout(onSaved ?? onCancel, SUCCESS_DISPLAY_MS)
     return () => clearTimeout(timeout)
-    // onCancel here just unmounts the sheet — the transaction is already saved.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [saveState])
 
@@ -76,9 +86,16 @@ export function TransactionConfirmation({
           </div>
         ) : (
           <>
-            <p className="text-sm font-medium text-text-muted">
-              {t(`category.${editable.category}`)}
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-text-muted">
+                {t(`category.${editable.category}`)}
+              </p>
+              {progress && (
+                <span className="rounded-full border border-border px-2 py-0.5 text-xs font-medium text-text-muted">
+                  {progress.index + 1}/{progress.total}
+                </span>
+              )}
+            </div>
 
             <p
               className={`mt-1 text-4xl font-semibold ${isIncome ? 'text-income' : 'text-expense'}`}

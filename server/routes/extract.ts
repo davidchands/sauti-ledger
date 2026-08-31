@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { z } from 'zod'
-import { extractTransaction } from '../lib/gemini'
+import { extractTransactions } from '../lib/gemini'
 
 export const extractRouter = Router()
 
@@ -16,8 +16,8 @@ extractRouter.post('/', async (req, res) => {
   }
 
   try {
-    const result = await extractTransaction(parsed.data.transcript)
-    res.json(result)
+    const transactions = await extractTransactions(parsed.data.transcript)
+    res.json({ transactions })
   } catch (error) {
     console.error('Extraction failed', error)
     res.status(502).json({ error: 'Extraction failed' })

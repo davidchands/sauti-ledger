@@ -31,12 +31,16 @@ test.describe('voice transaction', () => {
     await page.route('**/api/extract', async (route) => {
       await route.fulfill({
         json: {
-          type: 'INCOME',
-          amount: 20000,
-          category: 'Sales',
-          description: 'Mchele',
-          confidence: 0.95,
-          needsClarification: false,
+          transactions: [
+            {
+              type: 'INCOME',
+              amount: 20000,
+              category: 'Sales',
+              description: 'Mchele',
+              confidence: 0.95,
+              needsClarification: false,
+            },
+          ],
         },
       })
     })
@@ -73,6 +77,63 @@ test.describe('voice transaction', () => {
     await expect(page.getByText('Saved')).toBeVisible()
     await expect(page.getByText('+ TSh 20,000')).toBeVisible()
     await expect(page.getByText('Sales · Mchele')).toBeVisible()
+  })
+
+  test('a recording with two transactions steps through both before saving', async ({
+    page,
+  }) => {
+    // Overrides the beforeEach mock — Playwright tries the most recently
+    // registered matching route first.
+    await page.route('**/api/extract', async (route) => {
+      await route.fulfill({
+        json: {
+          transactions: [
+            {
+              type: 'INCOME',
+              amount: 20000,
+              category: 'Sales',
+              description: 'Mchele',
+              confidence: 0.95,
+              needsClarification: false,
+            },
+            {
+              type: 'EXPENSE',
+              amount: 5000,
+              category: 'Operational',
+              description: 'Mafuta',
+              confidence: 0.95,
+              needsClarification: false,
+            },
+          ],
+        },
+      })
+    })
+
+    const micButton = page.getByRole('button', { name: 'Speak' })
+    const box = await micButton.boundingBox()
+    if (!box) throw new Error('mic button not found')
+
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await page.mouse.down()
+    await expect(page.getByText('Listening…')).toBeVisible()
+    await page.waitForTimeout(600)
+    await page.mouse.up()
+
+    // First transaction shown with a "1/2" progress indicator.
+    await expect(page.getByText('1/2')).toBeVisible()
+    await expect(page.getByText('+ TSh 20,000')).toBeVisible()
+    await page.getByRole('button', { name: 'Confirm' }).click()
+    await expect(page.getByText('Saved')).toBeVisible()
+
+    // Auto-advances to the second transaction instead of closing.
+    await expect(page.getByText('2/2')).toBeVisible()
+    await expect(page.getByText('− TSh 5,000')).toBeVisible()
+    await page.getByRole('button', { name: 'Confirm' }).click()
+    await expect(page.getByText('Saved')).toBeVisible()
+
+    // Both saved and visible in the list once the queue is done.
+    await expect(page.getByText('Sales · Mchele')).toBeVisible()
+    await expect(page.getByText('Operations · Mafuta')).toBeVisible()
   })
 
   test('holding Space then pressing Escape cancels without saving', async ({ page }) => {

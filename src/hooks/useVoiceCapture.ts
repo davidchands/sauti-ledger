@@ -1,15 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAudioRecorder, type RecorderErrorReason } from './useAudioRecorder'
 import { transcribeAudio } from '@/services/transcriptionService'
-import { extractTransaction } from '@/services/extractionService'
+import { extractTransactions } from '@/services/extractionService'
 import { normalizeLanguage } from '@/lib/language'
 import type { TransactionDraft } from '@/components/TransactionFields'
 
-export interface VoiceExtraction {
+export interface VoiceExtractionItem {
   draft: TransactionDraft
+  confidence: number
+}
+
+/**
+ * One recording can describe more than one transaction (AI_SPEC.md §
+ * 3a) — items is always non-empty, usually with a single entry.
+ */
+export interface VoiceExtraction {
+  items: VoiceExtractionItem[]
   rawTranscript: string
   language?: 'sw' | 'en'
-  confidence: number
 }
 
 type PipelineFlow =
@@ -58,22 +66,31 @@ export function useVoiceCapture(onExtracted: (result: VoiceExtraction) => void) 
 
     setFlow({ status: 'extracting' })
     try {
-      const result = await extractTransaction(transcript)
-      if (result.needsClarification || !result.type || result.amount === null) {
+      const results = await extractTransactions(transcript)
+      // Drop items the model couldn't pin down rather than blocking the
+      // whole recording on one ambiguous mention — only ask the user to
+      // clarify if nothing usable came out of it at all.
+      const usable = results.filter(
+        (item): item is typeof item & { type: 'INCOME' | 'EXPENSE'; amount: number } =>
+          !item.needsClarification && item.type !== null && item.amount !== null,
+      )
+      if (usable.length === 0) {
         setFlow({ status: 'clarify' })
         return
       }
       setFlow({ status: 'idle' })
       onExtractedRef.current({
-        draft: {
-          type: result.type,
-          amount: result.amount,
-          category: result.category,
-          description: result.description,
-        },
+        items: usable.map((item) => ({
+          draft: {
+            type: item.type,
+            amount: item.amount,
+            category: item.category,
+            description: item.description,
+          },
+          confidence: item.confidence,
+        })),
         rawTranscript: transcript,
         language: normalizeLanguage(language),
-        confidence: result.confidence,
       })
     } catch {
       setFlow({ status: 'extractError' })

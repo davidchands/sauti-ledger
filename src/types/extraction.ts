@@ -20,3 +20,12 @@ export type GeminiExtraction = z.infer<typeof extractedTransactionSchema>
 export interface ExtractedTransaction extends GeminiExtraction {
   needsClarification: boolean
 }
+
+/**
+ * A recording can describe more than one transaction (AI_SPEC.md § 3a) —
+ * Gemini always returns an array, even for the common single-transaction
+ * case, so the caller never has to special-case count.
+ */
+export const geminiResponseSchema = z.object({
+  transactions: z.array(extractedTransactionSchema).min(1),
+})

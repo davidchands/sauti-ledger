@@ -34,18 +34,37 @@ Tanzanian merchants routinely mix languages and use shorthand. The AI must handl
 
 ## 3. Output Schema
 
-Gemini must return structured data matching the application's Zod schema:
+Gemini must return structured data matching the application's Zod schema — an array of transactions, even for the common single-transaction case:
 
 ```json
 {
-  "type": "INCOME" | "EXPENSE",
-  "amount": number,
-  "category": "Sales" | "Inventory" | "Rent" | "Operational" | "Other",
-  "description": string
+  "transactions": [
+    {
+      "type": "INCOME" | "EXPENSE",
+      "amount": number,
+      "category": "Sales" | "Inventory" | "Rent" | "Operational" | "Other",
+      "description": string
+    }
+  ]
 }
 ```
 
 Amounts are always integer Tanzanian shillings. Never floating point.
+
+### 3a. Multiple transactions in one recording
+
+A merchant sometimes reports more than one transaction in a single recording — e.g. "Niliuza mchele elfu ishirini kisha nikanunua mafuta elfu tano" (sold rice for 20,000, then bought fuel for 5,000). The model returns one array item per distinct event it can identify.
+
+- Only split when the transcript clearly describes separate events — never split a single amount or a single event into more than one item, and never merge two distinct events into one.
+- Each item is evaluated for ambiguity independently (Section 4) — one clear item and one ambiguous item in the same recording is normal; the clear one still gets saved, only the ambiguous one is dropped.
+- The confirmation UI steps through each returned transaction one at a time (never batch-saves silently) — see DESIGN.md's Confirmation Philosophy.
+
+Example:
+
+```text
+"I sold rice for 20k and paid rent 300 thousand"
+→ [{INCOME, 20000, Sales, "Rice"}, {EXPENSE, 300000, Rent, "Rent"}]
+```
 
 ## 4. Ambiguity and Clarification
 

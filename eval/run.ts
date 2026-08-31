@@ -15,6 +15,9 @@ interface Result {
   actual?: ExtractedTransaction
 }
 
+// Every dataset case here describes a single transaction (multi-transaction
+// extraction — AI_SPEC.md § 3a — isn't covered by this per-case dataset
+// shape), so a case fails outright if Gemini splits or merges unexpectedly.
 async function extract(transcript: string): Promise<ExtractedTransaction> {
   const response = await fetch(`${API_URL}/api/extract`, {
     method: 'POST',
@@ -24,7 +27,11 @@ async function extract(transcript: string): Promise<ExtractedTransaction> {
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}: ${await response.text()}`)
   }
-  return response.json()
+  const { transactions } = (await response.json()) as { transactions: ExtractedTransaction[] }
+  if (transactions.length !== 1) {
+    throw new Error(`expected 1 transaction, got ${transactions.length}`)
+  }
+  return transactions[0]
 }
 
 async function main() {
