@@ -468,19 +468,33 @@ The application should be installable. Use: Web App Manifest, Service Worker, Of
 
 The experience after installation should feel like an application, not a website.
 
-## 24. Motion
+## 24. Landing Page & Desktop Layout
+
+SautiLedger has a public marketing surface at `/` (separate from the app shell at `/miamala` and `/ripoti` — no bottom nav, no 430px cap). It exists to explain the product before someone opens it, not to duplicate the app.
+
+Rules for the landing page:
+
+* Real product screenshots only. Never a fabricated mockup — capture the actual running app.
+* Real example phrases only, sourced from AI_SPEC.md's verified extraction examples. Never invent an example the pipeline hasn't actually produced.
+* No fake social proof — no invented testimonials, user counts, or press logos. The product is early; the copy should be honest about that by simply not claiming otherwise.
+* Same visual language as the app (palette, radius, spacing, restrained color), but marketing typography can be bolder than in-product UI — a big, confident headline is appropriate here in a way it wouldn't be on the Miamala screen.
+* Bilingual like everything else — every string exists in Swahili and English.
+
+Desktop is not just "mobile centered in a wide viewport." At `lg+`, the app shell (`/miamala`, `/ripoti`) switches from bottom tabs to a persistent sidebar and widens its content column — DESIGN.md § 6 already asks for this ("the UI may expand on larger screens"); the sidebar is that expansion, not a departure into a generic dashboard. The landing page itself is full-width responsive from the start, since a marketing page is read on any device, not primarily a phone.
+
+## 25. Motion
 
 Motion is functional. Use it to communicate: recording, processing, success, navigation, state changes.
 
 Avoid motion for decoration. Preferred animation properties: opacity, transform. Respect `prefers-reduced-motion`. Do not animate layout properties unnecessarily. Do not use `transition: all;`.
 
-## 25. Accessibility
+## 26. Accessibility
 
 SautiLedger must remain usable with: keyboard, screen readers, reduced motion, larger text, touch.
 
 Every icon-only control must have an accessible label. Use semantic HTML before ARIA. Never communicate transaction type using color alone.
 
-## 26. Copywriting
+## 27. Copywriting
 
 Both languages should read naturally — never machine-translated or literal. See [AGENTS.md](AGENTS.md) for the i18n implementation rules (no hard-coded strings, every string ships in both languages).
 
@@ -498,7 +512,7 @@ Prefer `Balance` over `Current Account Balance`.
 
 Prefer `Sales` over `Revenue`.
 
-## 27. Currency
+## 28. Currency
 
 Currency: `TSh`
 
@@ -506,7 +520,7 @@ Examples: `TSh 25,000`, `TSh 1,250,000`
 
 Do not use inconsistent decimal formatting. Tanzanian shilling values in the MVP should normally display as whole numbers.
 
-## 28. Design Anti-Patterns
+## 29. Design Anti-Patterns
 
 The AI coding agent must NOT generate:
 
@@ -530,7 +544,7 @@ The AI coding agent must NOT generate:
 
 If a component does not improve the user's ability to record or understand their money, question whether it belongs.
 
-## 29. Core UX Test
+## 30. Core UX Test
 
 Before shipping any screen, ask:
 
@@ -542,7 +556,7 @@ Before shipping any screen, ask:
 
 If the answer is no, simplify.
 
-## 30. Design North Star
+## 31. Design North Star
 
 SautiLedger should feel like: "I told it what happened, and it took care of the rest."
 

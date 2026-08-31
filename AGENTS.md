@@ -58,6 +58,8 @@ i18n/
 
 Keep components small and composable. Avoid giant components such as a single `Dashboard.tsx` containing hundreds of lines.
 
+Routes: `/` is the public marketing landing page (own layout, no `AppShell`). `/miamala` and `/ripoti` are the app, wrapped in `AppShell` — sidebar nav at `lg+`, bottom tabs on mobile. See DESIGN.md § 24 for the landing page's content rules (real screenshots, real AI_SPEC.md examples, no fabricated social proof).
+
 ## 3. Critical Security Rules
 
 NEVER expose these to browser/client code:
