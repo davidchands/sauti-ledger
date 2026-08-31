@@ -5,7 +5,7 @@ import { EmptyState } from '@/components/EmptyState'
 import { LoadingIndicator } from '@/components/LoadingIndicator'
 import { ErrorState } from '@/components/ErrorState'
 import { useLanguage } from '@/i18n/useLanguage'
-import { useTransactions } from '@/hooks/useTransactions'
+import { useTransactionsContext } from '@/hooks/useTransactionsContext'
 import type { TransactionCategory } from '@/types/transaction'
 
 function isThisWeek(iso: string): boolean {
@@ -25,7 +25,7 @@ function isThisWeek(iso: string): boolean {
  */
 export function RipotiPage() {
   const { t } = useLanguage()
-  const { transactions, balance, state, refresh } = useTransactions()
+  const { transactions, balance, state, refresh } = useTransactionsContext()
 
   if (state === 'loading') {
     return (

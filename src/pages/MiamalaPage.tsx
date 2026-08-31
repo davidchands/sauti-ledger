@@ -9,7 +9,7 @@ import { TransactionSheet } from '@/components/TransactionSheet'
 import { TransactionConfirmation } from '@/components/TransactionConfirmation'
 import { VoiceRecorderSheet, type VoiceExtraction } from '@/components/VoiceRecorderSheet'
 import { useLanguage } from '@/i18n/useLanguage'
-import { useTransactions } from '@/hooks/useTransactions'
+import { useTransactionsContext } from '@/hooks/useTransactionsContext'
 import type { TransactionDraft } from '@/components/TransactionFields'
 import type { Transaction } from '@/types/transaction'
 
@@ -22,7 +22,8 @@ const BLANK_DRAFT: TransactionDraft = {
 
 export function MiamalaPage() {
   const { t } = useLanguage()
-  const { transactions, balance, state, refresh, create, update, remove } = useTransactions()
+  const { transactions, balance, state, refresh, create, update, remove } =
+    useTransactionsContext()
   const [sheet, setSheet] = useState<
     { mode: 'create' } | { mode: 'edit'; transaction: Transaction } | null
   >(null)

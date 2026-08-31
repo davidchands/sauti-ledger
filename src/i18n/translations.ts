@@ -93,6 +93,10 @@ export const translations = {
       genericBody: 'Taarifa zako ziko salama. Jaribu tena.',
       retry: 'Jaribu tena',
     },
+    sync: {
+      savedOnPhone: 'Imehifadhiwa kwenye simu',
+      synced: 'Imesawazishwa',
+    },
     language: {
       switchTo: 'Badilisha lugha kwenda Kiingereza',
     },
@@ -191,6 +195,10 @@ export const translations = {
       genericBody: 'Your data is safe. Please try again.',
       retry: 'Try again',
     },
+    sync: {
+      savedOnPhone: 'Saved on your phone',
+      synced: 'Synced',
+    },
     language: {
       switchTo: 'Switch language to Swahili',
     },
@@ -271,6 +279,7 @@ type Dict = {
     clarifyBody: string
   }
   error: { genericTitle: string; genericBody: string; retry: string }
+  sync: { savedOnPhone: string; synced: string }
   language: { switchTo: string }
 }
 

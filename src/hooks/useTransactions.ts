@@ -1,27 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { apiClient } from '@/lib/apiClient'
-import type { Transaction, TransactionCategory, TransactionType } from '@/types/transaction'
+import { isNetworkError } from '@/lib/isNetworkError'
+import { localDb, type LocalTransaction, type OutboxEntry } from '@/lib/localDb'
+import { toLocalTransaction, syncOutbox, type ApiTransaction } from '@/lib/transactionSync'
+import { useOnlineStatus } from '@/hooks/useOnlineStatus'
 import type { TransactionDraft } from '@/components/TransactionFields'
-
-interface ApiTransaction {
-  id: string
-  type: TransactionType
-  amount: number
-  category: TransactionCategory
-  description: string
-  createdAt: string
-}
-
-function toUiTransaction(api: ApiTransaction): Transaction {
-  return {
-    id: api.id,
-    type: api.type,
-    amount: api.amount,
-    category: api.category,
-    description: api.description,
-    createdAt: api.createdAt,
-  }
-}
 
 interface VoiceProvenance {
   source: 'VOICE'
@@ -32,83 +15,229 @@ interface VoiceProvenance {
 
 type LoadState = 'loading' | 'ready' | 'error'
 
+function byNewestFirst(a: LocalTransaction, b: LocalTransaction): number {
+  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+}
+
+/**
+ * Offline-first (AGENTS.md § 9): reads from the local Dexie cache first
+ * (instant, works offline), reconciles with the server in the background,
+ * and queues create/update/delete for later sync on a network failure
+ * instead of ever discarding the user's transaction. The UI only ever
+ * sees "pending" (saved locally, not yet synced) — never IndexedDB or
+ * outbox internals (DESIGN.md § 21-22).
+ */
 export function useTransactions() {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [transactions, setTransactions] = useState<LocalTransaction[]>([])
   const [state, setState] = useState<LoadState>('loading')
+  const [pendingCount, setPendingCount] = useState(0)
+  const isOnline = useOnlineStatus()
+
+  const reloadFromCache = useCallback(async () => {
+    const [cached, outboxCount] = await Promise.all([
+      localDb.transactions.toArray(),
+      localDb.outbox.count(),
+    ])
+    setTransactions(cached.sort(byNewestFirst))
+    setPendingCount(outboxCount)
+  }, [])
 
   const refresh = useCallback(async () => {
-    setState('loading')
+    const cachedCount = await localDb.transactions.count()
+    if (cachedCount === 0) setState('loading')
+
     try {
-      const list = await apiClient.get<ApiTransaction[]>('/transactions')
-      setTransactions(list.map(toUiTransaction))
+      const server = await apiClient.get<ApiTransaction[]>('/transactions')
+      const pendingIds = new Set((await localDb.outbox.toArray()).map((e) => e.localId))
+
+      // Replace every confirmed (non-pending) local record with the
+      // server's view; leave anything still queued for sync untouched.
+      const stale = await localDb.transactions
+        .filter((t) => !t.pending)
+        .toArray()
+      await localDb.transactions.bulkDelete(stale.map((t) => t.id))
+      await localDb.transactions.bulkPut(
+        server
+          .filter((t) => !pendingIds.has(t.id))
+          .map((t) => toLocalTransaction(t, false)),
+      )
+
+      await reloadFromCache()
       setState('ready')
-    } catch {
-      setState('error')
+    } catch (error) {
+      await reloadFromCache()
+      const cached = await localDb.transactions.count()
+      setState(cached > 0 || isNetworkError(error) ? 'ready' : 'error')
     }
-  }, [])
+  }, [reloadFromCache])
+
+  const runSync = useCallback(async () => {
+    await syncOutbox()
+    await reloadFromCache()
+  }, [reloadFromCache])
 
   useEffect(() => {
-    // Standard fetch-on-mount — refresh() is async and only calls setState
-    // after an await, not synchronously within the effect body.
+    // Mount: load the cache first (instant, works offline), then — if
+    // there's leftover unsynced data from a previous offline session and
+    // we're online right now — flush it before reconciling with the
+    // server. reloadFromCache/runSync/refresh only call setState after an
+    // await, never synchronously in the effect body.
+    async function init() {
+      await reloadFromCache()
+      if (navigator.onLine) await runSync()
+      await refresh()
+    }
+    init()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Skip the first run (the mount effect above already covers the initial
+  // online state) — this effect exists to catch actual reconnects.
+  const isFirstOnlineCheck = useRef(true)
+  useEffect(() => {
+    if (isFirstOnlineCheck.current) {
+      isFirstOnlineCheck.current = false
+      return
+    }
+    if (!isOnline) return
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    refresh()
-  }, [refresh])
+    runSync().then(refresh)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline])
 
-  // Optimistic create (AGENTS.md § 8): show it immediately, reconcile with
-  // the server, roll back on failure. Voice-sourced creates (Phase 7) pass
-  // provenance fields through; manual entries omit them (defaults MANUAL).
-  const create = useCallback(async (draft: TransactionDraft, voice?: VoiceProvenance) => {
-    const tempId = `temp-${crypto.randomUUID()}`
-    const optimistic: Transaction = { id: tempId, createdAt: new Date().toISOString(), ...draft }
-    setTransactions((prev) => [optimistic, ...prev])
+  const create = useCallback(
+    async (draft: TransactionDraft, voice?: VoiceProvenance): Promise<boolean> => {
+      const tempId = `temp-${crypto.randomUUID()}`
+      const optimistic: LocalTransaction = {
+        id: tempId,
+        createdAt: new Date().toISOString(),
+        pending: true,
+        ...draft,
+      }
+      await localDb.transactions.put(optimistic)
+      await reloadFromCache()
 
-    try {
-      const created = await apiClient.post<ApiTransaction>('/transactions', { ...draft, ...voice })
-      setTransactions((prev) => prev.map((t) => (t.id === tempId ? toUiTransaction(created) : t)))
-      return true
-    } catch {
-      setTransactions((prev) => prev.filter((t) => t.id !== tempId))
-      return false
-    }
-  }, [])
+      const payload = { ...draft, ...voice }
 
-  const update = useCallback(async (id: string, draft: TransactionDraft) => {
-    let previous: Transaction[] = []
-    setTransactions((prev) => {
-      previous = prev
-      return prev.map((t) => (t.id === id ? { ...t, ...draft } : t))
-    })
+      try {
+        const created = await apiClient.post<ApiTransaction>('/transactions', payload)
+        await localDb.transactions.delete(tempId)
+        await localDb.transactions.put(toLocalTransaction(created, false))
+        await reloadFromCache()
+        return true
+      } catch (error) {
+        if (isNetworkError(error)) {
+          const entry: OutboxEntry = {
+            id: crypto.randomUUID(),
+            op: 'create',
+            localId: tempId,
+            payload,
+            createdAt: new Date().toISOString(),
+          }
+          await localDb.outbox.put(entry)
+          await reloadFromCache()
+          return true
+        }
+        await localDb.transactions.delete(tempId)
+        await reloadFromCache()
+        return false
+      }
+    },
+    [reloadFromCache],
+  )
 
-    try {
-      const updated = await apiClient.patch<ApiTransaction>(`/transactions/${id}`, draft)
-      setTransactions((prev) => prev.map((t) => (t.id === id ? toUiTransaction(updated) : t)))
-      return true
-    } catch {
-      setTransactions(previous)
-      return false
-    }
-  }, [])
+  const update = useCallback(
+    async (id: string, draft: TransactionDraft): Promise<boolean> => {
+      const previous = await localDb.transactions.get(id)
+      if (!previous) return false
 
-  const remove = useCallback(async (id: string) => {
-    let previous: Transaction[] = []
-    setTransactions((prev) => {
-      previous = prev
-      return prev.filter((t) => t.id !== id)
-    })
+      await localDb.transactions.put({ ...previous, ...draft, pending: true })
+      await reloadFromCache()
 
-    try {
-      await apiClient.delete(`/transactions/${id}`)
-      return true
-    } catch {
-      setTransactions(previous)
-      return false
-    }
-  }, [])
+      // Still-unsynced local create — just update the queued payload.
+      if (id.startsWith('temp-')) {
+        const pendingCreate = await localDb.outbox.where('localId').equals(id).first()
+        if (pendingCreate) {
+          await localDb.outbox.update(pendingCreate.id, { payload: { ...draft } })
+        }
+        return true
+      }
+
+      try {
+        const updated = await apiClient.patch<ApiTransaction>(`/transactions/${id}`, draft)
+        await localDb.transactions.put(toLocalTransaction(updated, false))
+        await reloadFromCache()
+        return true
+      } catch (error) {
+        if (isNetworkError(error)) {
+          await localDb.outbox.put({
+            id: crypto.randomUUID(),
+            op: 'update',
+            localId: id,
+            payload: { ...draft },
+            createdAt: new Date().toISOString(),
+          })
+          await reloadFromCache()
+          return true
+        }
+        await localDb.transactions.put(previous)
+        await reloadFromCache()
+        return false
+      }
+    },
+    [reloadFromCache],
+  )
+
+  const remove = useCallback(
+    async (id: string): Promise<boolean> => {
+      const previous = await localDb.transactions.get(id)
+      if (!previous) return false
+
+      await localDb.transactions.delete(id)
+      await reloadFromCache()
+
+      // Never-synced local create — cancel it outright, nothing to tell the server.
+      if (id.startsWith('temp-')) {
+        const queued = await localDb.outbox.where('localId').equals(id).toArray()
+        await localDb.outbox.bulkDelete(queued.map((e) => e.id))
+        return true
+      }
+
+      try {
+        await apiClient.delete(`/transactions/${id}`)
+        return true
+      } catch (error) {
+        if (isNetworkError(error)) {
+          await localDb.outbox.put({
+            id: crypto.randomUUID(),
+            op: 'delete',
+            localId: id,
+            createdAt: new Date().toISOString(),
+          })
+          return true
+        }
+        await localDb.transactions.put(previous)
+        await reloadFromCache()
+        return false
+      }
+    },
+    [reloadFromCache],
+  )
 
   const balance = transactions.reduce(
     (sum, t) => sum + (t.type === 'INCOME' ? t.amount : -t.amount),
     0,
   )
 
-  return { transactions, balance, state, refresh, create, update, remove }
+  return {
+    transactions,
+    balance,
+    state,
+    pendingCount,
+    isOnline,
+    refresh,
+    create,
+    update,
+    remove,
+  }
 }
