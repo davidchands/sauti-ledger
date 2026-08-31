@@ -2,7 +2,7 @@ import 'dotenv/config'
 import { eq } from 'drizzle-orm'
 import { evalDataset } from './dataset'
 import type { ExtractedTransaction } from '../src/types/extraction'
-import { db } from '../src/db/client'
+import { getDb } from '../src/db/client'
 import { users } from '../src/db/schema'
 
 const API_URL = process.env.EVAL_API_URL ?? 'http://localhost:8787'
@@ -84,7 +84,7 @@ async function main() {
 
   // The extract endpoint resolves DEVICE_ID to a users row even though it
   // never touches transactions — clean it up so eval runs don't leave cruft.
-  await db.delete(users).where(eq(users.deviceId, DEVICE_ID))
+  await getDb().delete(users).where(eq(users.deviceId, DEVICE_ID))
 
   if (failed > 0) process.exitCode = 1
 

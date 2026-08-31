@@ -1,44 +1,20 @@
-import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { Express } from 'express'
+import { app } from '../server/app'
 
 /**
- * Vercel Node.js serverless function entry point. vercel.json rewrites
- * every /api/* request here.
+ * Vercel Node.js serverless function entry point. Vercel invokes the
+ * default export as a plain (req, res) request handler per invocation —
+ * an Express app instance satisfies that signature directly, so this is
+ * the same app server/index.ts runs locally, just without `.listen()`.
+ * vercel.json rewrites every /api/* request here.
  *
- * The app import is deliberately dynamic and wrapped in try/catch rather
- * than a static top-level `import { app } from '../server/app'`. A
- * static import that throws during module evaluation (e.g.
- * src/db/client.ts's synchronous `if (!DATABASE_URL) throw`) takes the
- * whole function down before this handler body ever runs, and Vercel
- * only reports it to the client as an opaque "FUNCTION_INVOCATION_FAILED"
- * with no detail — which is indistinguishable from a real crash. This
- * turns that into a JSON error naming what actually failed (a missing
- * env var, a bad connection string) so a misconfigured deployment is
- * diagnosable from the response itself, not just Vercel's function logs.
+ * This must be a static import, not `await import(...)` — Vercel's
+ * build-time file tracer follows static imports to decide which files
+ * ship with the function bundle, and a dynamic import here left
+ * server/app.ts (and everything it imports) out of the deployed
+ * function entirely ("Cannot find module '/var/task/server/app'").
+ * Per-request diagnosability instead comes from src/db/client.ts
+ * failing lazily on first use (see that file) rather than at import
+ * time, so a missing env var doesn't crash module evaluation for every
+ * route — including ones that never touch the database.
  */
-let appPromise: Promise<Express> | null = null
-
-function loadApp(): Promise<Express> {
-  if (!appPromise) {
-    appPromise = import('../server/app').then((m) => m.app)
-  }
-  return appPromise
-}
-
-export default async function handler(req: IncomingMessage, res: ServerResponse) {
-  try {
-    const app = await loadApp()
-    app(req, res)
-  } catch (error) {
-    appPromise = null // let the next request retry instead of caching a permanent failure
-    console.error('Serverless function failed to initialize', error)
-    res.statusCode = 500
-    res.setHeader('Content-Type', 'application/json')
-    res.end(
-      JSON.stringify({
-        error: 'Server failed to start',
-        detail: error instanceof Error ? error.message : String(error),
-      }),
-    )
-  }
-}
+export default app

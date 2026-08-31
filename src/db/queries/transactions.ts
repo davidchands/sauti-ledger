@@ -1,5 +1,5 @@
 import { and, desc, eq } from 'drizzle-orm'
-import { db } from '../client'
+import { getDb } from '../client'
 import { transactions } from '../schema'
 
 export interface NewTransactionInput {
@@ -20,19 +20,19 @@ export interface NewTransactionInput {
  * from client-supplied input (AGENTS.md § 3).
  */
 export async function createTransaction(input: NewTransactionInput) {
-  const [created] = await db.insert(transactions).values(input).returning()
+  const [created] = await getDb().insert(transactions).values(input).returning()
   return created
 }
 
 export async function listTransactions(userId: string) {
-  return db.query.transactions.findMany({
+  return getDb().query.transactions.findMany({
     where: eq(transactions.userId, userId),
     orderBy: desc(transactions.createdAt),
   })
 }
 
 export async function getTransaction(userId: string, id: string) {
-  return db.query.transactions.findFirst({
+  return getDb().query.transactions.findFirst({
     where: and(eq(transactions.id, id), eq(transactions.userId, userId)),
   })
 }
@@ -50,7 +50,7 @@ export async function updateTransaction(
   id: string,
   input: UpdateTransactionInput,
 ) {
-  const [updated] = await db
+  const [updated] = await getDb()
     .update(transactions)
     .set({ ...input, updatedAt: new Date() })
     .where(and(eq(transactions.id, id), eq(transactions.userId, userId)))
@@ -59,7 +59,7 @@ export async function updateTransaction(
 }
 
 export async function deleteTransaction(userId: string, id: string) {
-  const [deleted] = await db
+  const [deleted] = await getDb()
     .delete(transactions)
     .where(and(eq(transactions.id, id), eq(transactions.userId, userId)))
     .returning()

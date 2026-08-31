@@ -7,7 +7,7 @@ import {
   updateTransaction,
   deleteTransaction,
 } from './transactions'
-import { db } from '../client'
+import { getDb } from '../client'
 import { users } from '../schema'
 import { eq } from 'drizzle-orm'
 
@@ -25,7 +25,7 @@ describe('transaction CRUD', () => {
   })
 
   afterAll(async () => {
-    await db.delete(users).where(eq(users.id, userId))
+    await getDb().delete(users).where(eq(users.id, userId))
   })
 
   it('creates, reads, updates, and deletes a transaction', async () => {
@@ -70,6 +70,6 @@ describe('transaction CRUD', () => {
     expect(found).toBeUndefined()
 
     await deleteTransaction(otherUser.id, created.id)
-    await db.delete(users).where(eq(users.id, otherUser.id))
+    await getDb().delete(users).where(eq(users.id, otherUser.id))
   })
 })

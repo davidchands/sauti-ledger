@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { eq } from 'drizzle-orm'
 import type { Page } from '@playwright/test'
-import { db } from '../src/db/client'
+import { getDb } from '../src/db/client'
 import { users } from '../src/db/schema'
 
 export function deviceIdFor(testName: string): string {
@@ -33,5 +33,5 @@ export async function withDeviceId(
 
 /** users.transactions cascade-deletes, so removing the user is enough. */
 export async function cleanupDevice(deviceId: string) {
-  await db.delete(users).where(eq(users.deviceId, deviceId))
+  await getDb().delete(users).where(eq(users.deviceId, deviceId))
 }

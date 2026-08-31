@@ -1,4 +1,4 @@
-import { db } from '../client'
+import { getDb } from '../client'
 import { users } from '../schema'
 
 /**
@@ -11,7 +11,7 @@ import { users } from '../schema'
  * constraint — Postgres resolves that race atomically here instead.
  */
 export async function getOrCreateUserByPhone(phoneNumber: string) {
-  const [user] = await db
+  const [user] = await getDb()
     .insert(users)
     .values({ phoneNumber })
     .onConflictDoUpdate({ target: users.phoneNumber, set: { phoneNumber } })
@@ -29,7 +29,7 @@ export async function getOrCreateUserByPhone(phoneNumber: string) {
  * first requests for a new device id (caught by e2e/device-isolation.spec.ts).
  */
 export async function getOrCreateUserByDeviceId(deviceId: string) {
-  const [user] = await db
+  const [user] = await getDb()
     .insert(users)
     .values({ deviceId })
     .onConflictDoUpdate({ target: users.deviceId, set: { deviceId } })
