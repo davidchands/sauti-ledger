@@ -1,6 +1,6 @@
 /**
  * View-layer shape only — the persisted schema (Drizzle, Neon) lands in
- * Phase 2 and will map onto this for display.
+ * Phase 2 and will map onto the for display.
  */
 export type TransactionType = 'INCOME' | 'EXPENSE'
 
