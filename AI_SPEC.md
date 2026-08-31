@@ -96,7 +96,7 @@ When the extraction prompt or model changes:
 2. Compare actual output to expected output — the script does this automatically and exits non-zero on any failure.
 3. Only deploy if accuracy improves or stays flat — never regress silently.
 
-Last full run (Phase 9, gemini-3.6-flash): 23/23 passed.
+Last full run (gemini-3.6-flash): 29/29 passed.
 
 As real (anonymized, consented) merchant utterances are collected, add them to both this file and `eval/dataset.ts` with their expected output. The goal is 1,000+ real Tanzanian utterances over time.
 
@@ -183,6 +183,32 @@ As real (anonymized, consented) merchant utterances are collected, add them to b
 "Nilipata 80,000 kwa mauzo."
 
 → all three: INCOME, 80000, Sales
+```
+
+### Income vs. expense — close verb pairs
+
+The distinction most likely to trip up a weaker model isn't "sold" vs
+"bought" — it's paying someone vs. being paid, receiving vs. giving,
+where Swahili active/passive voice differs by a syllable.
+
+```text
+"Nimetumia elfu kumi kwa usafiri"
+→ EXPENSE, 10000, Operational, "Usafiri"
+
+"Nimepokea elfu thelathini kutoka kwa mteja"
+→ INCOME, 30000, Sales, "Mteja"
+
+"Nimemlipa mfanyakazi elfu ishirini"
+→ EXPENSE, 20000, Operational, "Mfanyakazi"
+
+"Nililipwa elfu hamsini kwa kazi niliyofanya"
+→ INCOME, 50000, Sales, "Kazi"
+
+"I got paid twenty thousand"
+→ INCOME, 20000
+
+"I gave the supplier fifteen thousand"
+→ EXPENSE, 15000, Inventory, "Supplier"
 ```
 
 ## 7. Amount Normalization Reference

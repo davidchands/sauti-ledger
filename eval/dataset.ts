@@ -122,4 +122,33 @@ export const evalDataset: EvalCase[] = [
     transcript: 'Nimepata mia.',
     expected: { type: 'INCOME', amount: null },
   },
+
+  // Income vs expense — trickier verb pairs a merchant actually uses
+  // (paying someone vs being paid, receiving vs giving), not just
+  // "sold"/"bought". This is the distinction most likely to trip up a
+  // weaker prompt, so it gets its own coverage.
+  {
+    transcript: 'Nimetumia elfu kumi kwa usafiri',
+    expected: { type: 'EXPENSE', amount: 10000, category: 'Operational' },
+  },
+  {
+    transcript: 'Nimepokea elfu thelathini kutoka kwa mteja',
+    expected: { type: 'INCOME', amount: 30000, category: 'Sales' },
+  },
+  {
+    transcript: 'Nimemlipa mfanyakazi elfu ishirini',
+    expected: { type: 'EXPENSE', amount: 20000, category: 'Operational' },
+  },
+  {
+    transcript: 'Nililipwa elfu hamsini kwa kazi niliyofanya',
+    expected: { type: 'INCOME', amount: 50000 },
+  },
+  {
+    transcript: 'I got paid twenty thousand',
+    expected: { type: 'INCOME', amount: 20000 },
+  },
+  {
+    transcript: 'I gave the supplier fifteen thousand',
+    expected: { type: 'EXPENSE', amount: 15000 },
+  },
 ]
