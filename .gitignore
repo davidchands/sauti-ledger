@@ -13,6 +13,12 @@ dist-ssr
 dev-dist
 *.local
 
+# Playwright
+test-results
+playwright-report
+blob-report
+playwright/.cache
+
 # Env files — never commit secrets (DATABASE_URL, GEMINI_API_KEY, GROQ_API_KEY, AUTH_SECRET)
 .env
 .env.*

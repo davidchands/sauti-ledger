@@ -29,7 +29,9 @@
     "vite.config.ts",
     "vitest.config.ts",
     "drizzle.config.ts",
+    "playwright.config.ts",
     "server/**/*.ts",
-    "eval/**/*.ts"
+    "eval/**/*.ts",
+    "e2e/**/*.ts"
   ]
 }

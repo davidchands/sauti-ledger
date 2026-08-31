@@ -13,5 +13,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     setupFiles: ['dotenv/config'],
+    // e2e/ is Playwright's suite (also *.spec.ts) — keep the two runners
+    // from picking up each other's files.
+    exclude: ['**/node_modules/**', 'e2e/**'],
   },
 })

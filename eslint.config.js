@@ -33,5 +33,14 @@ export default tseslint.config(
       'react-refresh/only-export-components': 'off',
     },
   },
+  {
+    // Playwright's fixture-injection static analysis requires `{}` for an
+    // unused first param — same reason @playwright/eslint-plugin disables
+    // this rule for test files.
+    files: ['e2e/**/*.ts'],
+    rules: {
+      'no-empty-pattern': 'off',
+    },
+  },
   prettierConfig,
 )
