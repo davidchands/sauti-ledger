@@ -1,3 +1,5 @@
+import { PhoneMockup } from '@/components/landing/PhoneMockup'
+import { PhoneReportsDemo } from '@/components/landing/PhoneReportsDemo'
 import type { LandingContent } from '@/content/landingContent'
 
 export function LandingReports({ content }: { content: LandingContent }) {
@@ -5,21 +7,9 @@ export function LandingReports({ content }: { content: LandingContent }) {
     <section className="py-20">
       <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-6 lg:grid-cols-2 lg:gap-8">
         <div className="order-2 flex justify-center lg:order-1 lg:justify-start">
-          <div className="relative w-full max-w-[300px] -rotate-2 transition-transform hover:rotate-0">
-            <div
-              aria-hidden="true"
-              className="absolute -inset-8 -z-10 rounded-[3rem] bg-[radial-gradient(closest-side,var(--landing-accent-soft),transparent)]"
-            />
-            <div className="overflow-hidden rounded-[2.5rem] border border-border bg-surface shadow-[0_2px_8px_rgba(20,18,31,0.06),0_40px_80px_-24px_rgba(91,79,233,0.35)]">
-              <img
-                src="/landing/screen-ripoti.png"
-                alt={content.reports.screenshotAlt}
-                className="block w-full"
-                width={780}
-                height={1688}
-              />
-            </div>
-          </div>
+          <PhoneMockup ariaLabel={content.reports.screenshotAlt} flip>
+            <PhoneReportsDemo />
+          </PhoneMockup>
         </div>
 
         <div className="order-1 lg:order-2">

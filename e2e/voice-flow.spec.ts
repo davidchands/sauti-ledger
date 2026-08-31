@@ -141,6 +141,10 @@ test.describe('voice transaction', () => {
     // website can't register a system-wide hotkey the way a native app
     // like Wispr Flow can). Escape while held is the safety valve a
     // touch hold-and-release doesn't have.
+    // Routes are code-split (App.tsx) — wait for the lazy-loaded page
+    // (and its Space-key listener) to actually mount before pressing keys.
+    await expect(page.getByRole('button', { name: 'Speak' })).toBeVisible()
+
     await page.keyboard.down('Space')
 
     await expect(page.getByText('Listening…')).toBeVisible()

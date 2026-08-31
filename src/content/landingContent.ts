@@ -31,7 +31,25 @@ export interface LandingContent {
     subheadline: string
     ctaPrimary: string
     ctaSecondary: string
-    screenshotAlt: string
+    demoAriaLabel: string
+  }
+  /**
+   * The live voice → transaction → balance sequence shown inside the
+   * hero phone. Verified against the real AI extraction pipeline (same
+   * source item as examples.items[0] — AI_SPEC.md § 6 / eval/dataset.ts).
+   * Never fabricate example output for marketing copy. Amounts are raw
+   * numbers (not pre-formatted) so the phone can animate them with the
+   * app's own formatTSh.
+   */
+  heroDemo: {
+    transcript: string
+    /** A category.* key from translations.ts — translated at render time so it's never out of sync with the real app. */
+    category: 'Sales' | 'Inventory' | 'Rent' | 'Operational' | 'Other'
+    description: string
+    isIncome: boolean
+    amount: number
+    balanceBefore: number
+    balanceAfter: number
   }
   howItWorks: {
     eyebrow: string
@@ -81,12 +99,21 @@ const CONTENT: Record<Language, LandingContent> = {
     },
     hero: {
       badge: 'Imejengwa kwa wafanyabiashara wadogo Tanzania',
-      headline: 'Ongea tu. Sauti Ledger itaelewa.',
+      headline: 'Endesha biashara yako kwa kuongea.',
       subheadline:
-        'Sema mauzo au matumizi yako kwa Kiswahili, Kiingereza, au vyote viwili. Sauti Ledger inaelewa na kuhifadhi kila muamala papo hapo.',
+        'Rekodi mauzo, matumizi na fedha zako kwa kuongea tu, kwa Kiswahili au Kiingereza. Hakuna daftari, hakuna fomu ndefu.',
       ctaPrimary: 'Anza bure sasa',
       ctaSecondary: 'Ona jinsi inavyofanya kazi',
-      screenshotAlt: 'Skrini ya Sauti Ledger ikionyesha salio na miamala ya leo',
+      demoAriaLabel: 'Onyesho la moja kwa moja la Sauti Ledger likibadilisha sauti kuwa muamala',
+    },
+    heroDemo: {
+      transcript: 'Leo nimeuza mchele elfu ishirini',
+      category: 'Sales',
+      description: 'Mchele',
+      isIncome: true,
+      amount: 20000,
+      balanceBefore: 133000,
+      balanceAfter: 153000,
     },
     howItWorks: {
       eyebrow: 'Jinsi inavyofanya kazi',
@@ -207,12 +234,21 @@ const CONTENT: Record<Language, LandingContent> = {
     },
     hero: {
       badge: 'Built for Tanzanian microbusinesses',
-      headline: 'Just speak. Sauti Ledger will understand.',
+      headline: 'Run your business by speaking.',
       subheadline:
-        'Say what you sold or spent in Swahili, English, or both. Sauti Ledger understands and saves every transaction on the spot.',
+        'Record sales, expenses, and cash flow naturally, in English or Swahili. No ledgers, no long forms.',
       ctaPrimary: 'Start free now',
       ctaSecondary: 'See how it works',
-      screenshotAlt: "Screenshot of Sauti Ledger showing today's balance and transactions",
+      demoAriaLabel: "Live demo of Sauti Ledger turning speech into a transaction",
+    },
+    heroDemo: {
+      transcript: 'Leo nimeuza mchele elfu ishirini',
+      category: 'Sales',
+      description: 'Rice',
+      isIncome: true,
+      amount: 20000,
+      balanceBefore: 133000,
+      balanceAfter: 153000,
     },
     howItWorks: {
       eyebrow: 'How it works',

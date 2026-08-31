@@ -1,28 +1,36 @@
 import { Link } from 'react-router-dom'
 import { Mic } from 'lucide-react'
+import { motion, useReducedMotion } from 'motion/react'
+import { PhoneMockup } from '@/components/landing/PhoneMockup'
+import { PhoneVoiceDemo } from '@/components/landing/PhoneVoiceDemo'
 import type { LandingContent } from '@/content/landingContent'
 
 /**
- * Splits "Ongea tu. Sauti Ledger itaelewa." (and its English counterpart)
- * so the brand name reads in the accent color, the way the inspiration
- * references highlight their one key phrase — never markup baked into
- * translations.ts, just a runtime split on the literal string both
- * languages happen to share.
+ * Highlights one keyword in the accent color, the way the inspiration
+ * references highlight their one key phrase — matched by exact
+ * substring so translators keep full control of word order in both
+ * languages instead of markup baked into landingContent.ts.
  */
-function Headline({ text }: { text: string }) {
-  const marker = 'Sauti Ledger'
-  const index = text.indexOf(marker)
+function Headline({ text, highlight }: { text: string; highlight: string }) {
+  const index = text.indexOf(highlight)
   if (index === -1) return <>{text}</>
   return (
     <>
       {text.slice(0, index)}
-      <span className="text-[var(--landing-accent)]">{marker}</span>
-      {text.slice(index + marker.length)}
+      <span className="text-[var(--landing-accent)]">{highlight}</span>
+      {text.slice(index + highlight.length)}
     </>
   )
 }
 
+const HIGHLIGHT: Record<string, string> = {
+  'Endesha biashara yako kwa kuongea.': 'kuongea',
+  'Run your business by speaking.': 'speaking',
+}
+
 export function LandingHero({ content }: { content: LandingContent }) {
+  const reduceMotion = useReducedMotion()
+
   return (
     <section className="landing-dot-grid relative overflow-hidden">
       <div
@@ -31,7 +39,11 @@ export function LandingHero({ content }: { content: LandingContent }) {
       />
 
       <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-6 pt-10 pb-24 lg:grid-cols-2 lg:gap-8 lg:pt-20">
-        <div>
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-text-muted">
             <span
               className="h-1.5 w-1.5 rounded-full bg-[var(--landing-accent)]"
@@ -41,7 +53,7 @@ export function LandingHero({ content }: { content: LandingContent }) {
           </span>
 
           <h1 className="mt-6 text-6xl font-bold tracking-tight text-text sm:text-7xl lg:text-6xl xl:text-7xl">
-            <Headline text={content.hero.headline} />
+            <Headline text={content.hero.headline} highlight={HIGHLIGHT[content.hero.headline] ?? ''} />
           </h1>
 
           <p className="mt-6 max-w-lg text-lg text-text-muted sm:text-xl">
@@ -63,24 +75,12 @@ export function LandingHero({ content }: { content: LandingContent }) {
               {content.hero.ctaSecondary}
             </a>
           </div>
-        </div>
+        </motion.div>
 
         <div className="flex justify-center lg:justify-end">
-          <div className="relative w-full max-w-[300px] rotate-2 transition-transform hover:rotate-0">
-            <div
-              aria-hidden="true"
-              className="absolute -inset-8 -z-10 rounded-[3rem] bg-[radial-gradient(closest-side,var(--landing-accent-soft),transparent)]"
-            />
-            <div className="overflow-hidden rounded-[2.5rem] border border-border bg-surface shadow-[0_2px_8px_rgba(20,18,31,0.06),0_40px_80px_-24px_rgba(91,79,233,0.35)]">
-              <img
-                src="/landing/screen-miamala.png"
-                alt={content.hero.screenshotAlt}
-                className="block w-full"
-                width={780}
-                height={1688}
-              />
-            </div>
-          </div>
+          <PhoneMockup ariaLabel={content.hero.demoAriaLabel}>
+            <PhoneVoiceDemo content={content} />
+          </PhoneMockup>
         </div>
       </div>
     </section>
