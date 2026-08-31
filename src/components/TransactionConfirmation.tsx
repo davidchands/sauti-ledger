@@ -54,7 +54,7 @@ export function TransactionConfirmation({
       aria-label={t('confirmation.title')}
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
     >
-      <div className="w-full max-w-[430px] rounded-t-3xl bg-surface p-6 sm:rounded-3xl">
+      <div className="w-full max-w-[430px] rounded-t-3xl bg-surface px-6 pt-6 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+1rem))] sm:rounded-3xl sm:pb-6">
         {saveState === 'success' ? (
           <div className="flex flex-col items-center gap-3 py-6">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-income-bg text-income">

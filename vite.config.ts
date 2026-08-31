@@ -9,14 +9,16 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.svg', 'favicon-32x32.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'SautiLedger',
         short_name: 'SautiLedger',
         description: 'Ongea tu. SautiLedger itaelewa.',
-        theme_color: '#0F172A',
-        background_color: '#FAFAF9',
+        lang: 'sw',
+        theme_color: '#faf9f7',
+        background_color: '#faf9f7',
         display: 'standalone',
+        orientation: 'portrait',
         start_url: '/',
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
@@ -25,7 +27,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
       },
     }),
   ],

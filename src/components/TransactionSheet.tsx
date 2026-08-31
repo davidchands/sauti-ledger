@@ -35,7 +35,7 @@ export function TransactionSheet({
       aria-label={t(mode === 'create' ? 'transactionSheet.addTitle' : 'transactionSheet.editTitle')}
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
     >
-      <div className="w-full max-w-[430px] rounded-t-3xl bg-surface p-6 sm:rounded-3xl">
+      <div className="w-full max-w-[430px] rounded-t-3xl bg-surface px-6 pt-6 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+1rem))] sm:rounded-3xl sm:pb-6">
         <h2 className="mb-4 text-lg font-semibold text-text">
           {t(mode === 'create' ? 'transactionSheet.addTitle' : 'transactionSheet.editTitle')}
         </h2>

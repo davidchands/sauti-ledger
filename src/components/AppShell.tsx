@@ -8,7 +8,10 @@ export function AppShell() {
   return (
     <TransactionsProvider>
       <div className="mx-auto flex h-dvh max-w-[430px] flex-col bg-bg">
-        <header className="flex justify-end px-5 pt-4">
+        <header
+          className="flex justify-end px-5 pt-4"
+          style={{ paddingTop: 'max(1rem, calc(env(safe-area-inset-top) + 0.5rem))' }}
+        >
           <LanguageSwitcher />
         </header>
 
