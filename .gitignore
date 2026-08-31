@@ -13,6 +13,10 @@ dist-ssr
 dev-dist
 *.local
 
+# Bundled by `npm run build:api` (esbuild) at deploy time — see api/_handler.ts
+api/index.js
+api/index.js.map
+
 # Playwright
 test-results
 playwright-report
