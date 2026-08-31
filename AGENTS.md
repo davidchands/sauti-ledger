@@ -295,3 +295,15 @@ Mchele
 They tap "Sahihi." The transaction appears. Their balance updates. They do not need to understand APIs, AI, accounting, databases, synchronization, or cloud infrastructure. They simply spoke.
 
 That is the standard. Build toward that experience relentlessly, one phase at a time.
+
+## 21. Deployment (Vercel)
+
+This is a single Vercel project, not a static site plus a separately-hosted API. The Express backend (`server/app.ts`) is re-exported from `api/index.ts` as one Node.js serverless function; `vercel.json` rewrites every `/api/*` request to it. `server/index.ts` (local `npm run dev:api`) and `api/index.ts` (Vercel) both import the same `app` — there is only one backend implementation, never two to keep in sync.
+
+Required in the Vercel project's Environment Variables (Settings → Environment Variables, for the Production/Preview environments actually being used):
+
+* `DATABASE_URL` — the Neon connection string (pooled endpoint).
+* `GROQ_API_KEY` — Whisper transcription.
+* `GEMINI_API_KEY` — transaction extraction.
+
+Without all three, every `/api/*` route returns a 500 the moment it touches the database or calls Groq/Gemini — this looks exactly like "recording doesn't work" and "can't even add a transaction manually" from the app, because both paths hit the backend. A redeploy is required after adding or changing env vars; Vercel does not hot-reload them into a running deployment.
