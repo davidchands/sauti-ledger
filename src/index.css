@@ -78,6 +78,57 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/*
+ * Landing page only — always renders light regardless of the visitor's
+ * system theme (DESIGN.md § 24: marketing typography/boldness can go
+ * further than the in-product app, which keeps its own restrained
+ * palette unchanged). One confident accent color on top of the app's
+ * existing neutrals; income/expense stay reserved for actual financial
+ * polarity in the live demo, not decoration.
+ */
+.landing-page {
+  --color-bg: #ffffff;
+  --color-surface: #f8f7fc;
+  --color-border: #eae7f3;
+  --color-text: #14121f;
+  --color-text-muted: #6b6779;
+  --color-income: #1f8a4c;
+  --color-income-bg: #eaf6ee;
+  --color-expense: #d1453d;
+  --color-expense-bg: #fbeceb;
+  --landing-accent: #5b4fe9;
+  --landing-accent-dark: #4a3fd1;
+  --landing-accent-soft: #f0eeff;
+}
+
+.landing-dot-grid {
+  background-image: radial-gradient(circle, var(--color-border) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+/* Mic recording indicator (VoiceButton) — a rotating light beam plus
+   expanding rings, standing in for the generic pulsing-dot pattern.
+   Reduced motion is handled by the blanket rule below. */
+@keyframes mic-beam-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mic-pulse-ring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.5;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

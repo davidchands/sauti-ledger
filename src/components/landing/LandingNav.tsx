@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { LandingLanguageToggle } from '@/components/landing/LandingLanguageToggle'
 import type { LandingContent } from '@/content/landingContent'
 
 export function LandingNav({ content }: { content: LandingContent }) {
@@ -17,10 +17,10 @@ export function LandingNav({ content }: { content: LandingContent }) {
       </nav>
 
       <div className="flex items-center gap-3">
-        <LanguageSwitcher />
+        <LandingLanguageToggle />
         <Link
           to="/miamala"
-          className="rounded-full bg-text px-4 py-2 text-sm font-semibold text-bg"
+          className="rounded-full bg-[var(--landing-accent)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--landing-accent-dark)]"
         >
           {content.nav.cta}
         </Link>

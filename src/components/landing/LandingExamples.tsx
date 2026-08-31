@@ -46,7 +46,9 @@ export function LandingExamples({ content }: { content: LandingContent }) {
     <section id="demo" className="bg-surface py-24">
       <div className="mx-auto w-full max-w-6xl px-6">
         <div className="mx-auto max-w-xl text-center">
-          <p className="text-sm font-medium text-income">{content.examples.eyebrow}</p>
+          <p className="text-sm font-semibold text-[var(--landing-accent)]">
+            {content.examples.eyebrow}
+          </p>
           <h2 className="mt-2 text-3xl font-bold tracking-tight text-text sm:text-4xl">
             {content.examples.title}
           </h2>
@@ -65,8 +67,8 @@ export function LandingExamples({ content }: { content: LandingContent }) {
                 aria-pressed={i === index}
                 className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                   i === index
-                    ? 'border-text bg-text text-bg'
-                    : 'border-border text-text-muted hover:border-text/40 hover:text-text'
+                    ? 'border-[var(--landing-accent)] bg-[var(--landing-accent)] text-white'
+                    : 'border-border text-text-muted hover:border-[var(--landing-accent)]/40 hover:text-text'
                 }`}
               >
                 {item.description}
@@ -93,7 +95,9 @@ function DemoCard({
       <div className="flex items-start gap-3">
         <span
           className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors ${
-            stage === 'transcribing' ? 'bg-income text-white' : 'bg-surface text-text-muted'
+            stage === 'transcribing'
+              ? 'bg-[var(--landing-accent)] text-white'
+              : 'bg-surface text-text-muted'
           }`}
         >
           <Mic size={16} aria-hidden="true" />

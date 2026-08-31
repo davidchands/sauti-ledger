@@ -12,7 +12,7 @@ export function LandingFinalCta({ content }: { content: LandingContent }) {
         <p className="mt-3 text-base text-text-muted">{content.finalCta.body}</p>
         <Link
           to="/miamala"
-          className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-text px-7 py-4 text-base font-semibold text-bg"
+          className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-[var(--landing-accent)] px-7 py-4 text-base font-semibold text-white shadow-[0_12px_28px_-8px_rgba(91,79,233,0.55)] transition-transform hover:scale-[1.02]"
         >
           <Mic size={18} aria-hidden="true" />
           {content.finalCta.cta}

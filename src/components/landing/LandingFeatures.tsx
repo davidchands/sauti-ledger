@@ -7,7 +7,9 @@ export function LandingFeatures({ content }: { content: LandingContent }) {
   return (
     <section id="features" className="py-20">
       <div className="mx-auto w-full max-w-6xl px-6">
-        <p className="text-sm font-medium text-text-muted">{content.features.eyebrow}</p>
+        <p className="text-sm font-semibold text-[var(--landing-accent)]">
+          {content.features.eyebrow}
+        </p>
         <h2 className="mt-2 max-w-xl text-3xl font-bold tracking-tight text-text sm:text-4xl">
           {content.features.title}
         </h2>
@@ -18,9 +20,9 @@ export function LandingFeatures({ content }: { content: LandingContent }) {
             return (
               <div
                 key={feature.title}
-                className="rounded-2xl border border-border bg-surface p-6 transition-shadow hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_32px_-16px_rgba(0,0,0,0.14)]"
+                className="rounded-2xl border border-border bg-surface p-6 transition-shadow hover:border-[var(--landing-accent)]/30 hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_32px_-16px_rgba(91,79,233,0.2)]"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-income-bg text-income">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--landing-accent-soft)] text-[var(--landing-accent)]">
                   <Icon size={18} aria-hidden="true" />
                 </div>
                 <p className="mt-4 text-base font-semibold text-text">{feature.title}</p>

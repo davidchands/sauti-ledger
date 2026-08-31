@@ -20,7 +20,7 @@ export function LandingPage() {
   const content = getLandingContent(language)
 
   return (
-    <div className="min-h-dvh bg-bg">
+    <div className="landing-page min-h-dvh bg-bg text-text">
       <LandingNav content={content} />
       <LandingHero content={content} />
       <LandingHowItWorks content={content} />

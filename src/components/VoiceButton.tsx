@@ -57,31 +57,55 @@ export function VoiceButton({
         </div>
       )}
 
-      <button
-        type="button"
-        onPointerDown={(event) => {
-          event.preventDefault()
-          onPressStart()
-        }}
-        onPointerUp={onPressEnd}
-        onPointerLeave={isRecording ? onPressEnd : undefined}
-        onPointerCancel={onPressEnd}
-        aria-label={label}
-        className={cn(
-          'flex h-20 w-20 select-none items-center justify-center rounded-full transition-transform active:scale-95',
-          isRecording && 'scale-110 bg-expense text-white',
-          !isRecording && 'bg-text text-bg',
+      <div className="relative flex h-20 w-20 items-center justify-center">
+        {isRecording && (
+          <>
+            <span
+              aria-hidden="true"
+              className="absolute -inset-5 -z-10 rounded-full blur-lg"
+              style={{
+                background:
+                  'conic-gradient(from 0deg, transparent, var(--color-expense) 25%, transparent 55%)',
+                animation: 'mic-beam-rotate 2.2s linear infinite',
+              }}
+            />
+            {[0, 0.6, 1.2].map((delay) => (
+              <span
+                key={delay}
+                aria-hidden="true"
+                className="absolute inset-0 -z-10 rounded-full border-2 border-expense"
+                style={{ animation: `mic-pulse-ring 1.8s ease-out ${delay}s infinite` }}
+              />
+            ))}
+          </>
         )}
-        style={{ touchAction: 'none' }}
-      >
-        {isRequesting ? (
-          <Loader2 size={32} className="animate-spin" aria-hidden="true" />
-        ) : isRecording ? (
-          <span className="text-base font-semibold tabular-nums">{formatDuration(durationMs)}</span>
-        ) : (
-          <Mic size={32} strokeWidth={2} aria-hidden="true" />
-        )}
-      </button>
+
+        <button
+          type="button"
+          onPointerDown={(event) => {
+            event.preventDefault()
+            onPressStart()
+          }}
+          onPointerUp={onPressEnd}
+          onPointerLeave={isRecording ? onPressEnd : undefined}
+          onPointerCancel={onPressEnd}
+          aria-label={label}
+          className={cn(
+            'flex h-20 w-20 select-none items-center justify-center rounded-full transition-transform active:scale-95',
+            isRecording && 'scale-110 bg-expense text-white',
+            !isRecording && 'bg-text text-bg',
+          )}
+          style={{ touchAction: 'none' }}
+        >
+          {isRequesting ? (
+            <Loader2 size={32} className="animate-spin" aria-hidden="true" />
+          ) : isRecording ? (
+            <span className="text-base font-semibold tabular-nums">{formatDuration(durationMs)}</span>
+          ) : (
+            <Mic size={32} strokeWidth={2} aria-hidden="true" />
+          )}
+        </button>
+      </div>
 
       <p className="text-sm font-medium text-text-muted">{label}</p>
     </div>
