@@ -18,7 +18,7 @@ export function Sidebar() {
 
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r border-border px-6 py-8 lg:flex">
-      <p className="text-lg font-semibold tracking-tight text-text">SautiLedger</p>
+      <p className="text-lg font-semibold tracking-tight text-text">Sauti Ledger</p>
 
       <nav className="mt-10 flex flex-col gap-1">
         {tabs.map((tab) => (

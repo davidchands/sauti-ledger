@@ -11,15 +11,18 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'favicon-32x32.png', 'apple-touch-icon.png'],
       manifest: {
-        name: 'SautiLedger',
-        short_name: 'SautiLedger',
-        description: 'Ongea tu. SautiLedger itaelewa.',
+        name: 'Sauti Ledger',
+        short_name: 'Sauti Ledger',
+        description: 'Ongea tu. Sauti Ledger itaelewa.',
         lang: 'sw',
         theme_color: '#faf9f7',
         background_color: '#faf9f7',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
+        // Installed app opens straight to the recording area, not the
+        // marketing landing page — the landing page is only for browser visits.
+        start_url: '/miamala',
+        scope: '/',
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },

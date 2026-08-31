@@ -77,16 +77,16 @@ const CONTENT: Record<Language, LandingContent> = {
     nav: {
       howItWorks: 'Jinsi inavyofanya kazi',
       features: 'Vipengele',
-      cta: 'Fungua SautiLedger',
+      cta: 'Fungua Sauti Ledger',
     },
     hero: {
       badge: 'Imejengwa kwa wafanyabiashara wadogo Tanzania',
-      headline: 'Ongea tu. SautiLedger itaelewa.',
+      headline: 'Ongea tu. Sauti Ledger itaelewa.',
       subheadline:
-        'Sema mauzo au matumizi yako kwa Kiswahili, Kiingereza, au vyote viwili — SautiLedger inaelewa na kuhifadhi kila muamala papo hapo.',
+        'Sema mauzo au matumizi yako kwa Kiswahili, Kiingereza, au vyote viwili — Sauti Ledger inaelewa na kuhifadhi kila muamala papo hapo.',
       ctaPrimary: 'Anza sasa — bure',
       ctaSecondary: 'Ona jinsi inavyofanya kazi',
-      screenshotAlt: 'Skrini ya SautiLedger ikionyesha salio na miamala ya leo',
+      screenshotAlt: 'Skrini ya Sauti Ledger ikionyesha salio na miamala ya leo',
     },
     howItWorks: {
       eyebrow: 'Jinsi inavyofanya kazi',
@@ -98,7 +98,7 @@ const CONTENT: Record<Language, LandingContent> = {
         },
         {
           title: 'Naelewa…',
-          body: 'SautiLedger inasikiliza na kutambua kiasi, aina ya muamala, na sababu yake.',
+          body: 'Sauti Ledger inasikiliza na kutambua kiasi, aina ya muamala, na sababu yake.',
         },
         {
           title: 'Thibitisha',
@@ -116,7 +116,7 @@ const CONTENT: Record<Language, LandingContent> = {
       items: [
         {
           title: 'Sauti ya Kiswahili na Kiingereza',
-          body: 'SautiLedger inaelewa mchanganyiko wa lugha — kama unavyoongea kawaida.',
+          body: 'Sauti Ledger inaelewa mchanganyiko wa lugha — kama unavyoongea kawaida.',
         },
         {
           title: 'Ingiza kwa mkono ukitaka',
@@ -136,14 +136,14 @@ const CONTENT: Record<Language, LandingContent> = {
         },
         {
           title: 'Sakinisha kama programu',
-          body: 'Ongeza SautiLedger kwenye skrini ya nyumbani — inafanya kazi kama programu halisi.',
+          body: 'Ongeza Sauti Ledger kwenye skrini ya nyumbani — inafanya kazi kama programu halisi.',
         },
       ],
     },
     examples: {
       eyebrow: 'Sikia mfano',
       title: 'Sema tu jinsi unavyozungumza kawaida',
-      body: 'Hivi ndivyo SautiLedger inavyoelewa sentensi halisi — Kiswahili, Kiingereza, au vyote viwili.',
+      body: 'Hivi ndivyo Sauti Ledger inavyoelewa sentensi halisi — Kiswahili, Kiingereza, au vyote viwili.',
       items: [
         {
           transcript: 'Leo nimeuza mchele elfu ishirini',
@@ -182,20 +182,20 @@ const CONTENT: Record<Language, LandingContent> = {
     reports: {
       eyebrow: 'Ripoti',
       title: 'Elewa biashara yako kwa dakika moja',
-      body: 'Bila chati ngumu, bila lugha ya kihasibu — SautiLedger inakujibu maswali unayouliza kila siku: Nina kiasi gani? Nimetumia wapi zaidi wiki hii?',
+      body: 'Bila chati ngumu, bila lugha ya kihasibu — Sauti Ledger inakujibu maswali unayouliza kila siku: Nina kiasi gani? Nimetumia wapi zaidi wiki hii?',
       screenshotAlt: 'Skrini ya ripoti ikionyesha mapato, matumizi, na pesa inaishia wapi',
     },
     trust: {
       title: 'Umiliki na uwazi kwanza',
-      body: 'SautiLedger haihitaji jina la benki wala maelezo magumu. Simu yako, sauti yako, biashara yako — ndivyo tunavyoanza. Rekodi zako zinabaki kwako, hata bila mtandao.',
+      body: 'Sauti Ledger haihitaji jina la benki wala maelezo magumu. Simu yako, sauti yako, biashara yako — ndivyo tunavyoanza. Rekodi zako zinabaki kwako, hata bila mtandao.',
     },
     finalCta: {
       title: 'Anza kurekodi biashara yako leo',
       body: 'Bure kuanza. Hakuna kadi ya benki inayohitajika.',
-      cta: 'Fungua SautiLedger',
+      cta: 'Fungua Sauti Ledger',
     },
     footer: {
-      tagline: 'Ongea tu. SautiLedger itaelewa.',
+      tagline: 'Ongea tu. Sauti Ledger itaelewa.',
       sourceLink: 'Chanzo kwenye GitHub',
     },
   },
@@ -203,16 +203,16 @@ const CONTENT: Record<Language, LandingContent> = {
     nav: {
       howItWorks: 'How it works',
       features: 'Features',
-      cta: 'Open SautiLedger',
+      cta: 'Open Sauti Ledger',
     },
     hero: {
       badge: 'Built for Tanzanian microbusinesses',
-      headline: 'Just speak. SautiLedger will understand.',
+      headline: 'Just speak. Sauti Ledger will understand.',
       subheadline:
-        "Say what you sold or spent in Swahili, English, or both — SautiLedger understands and saves every transaction on the spot.",
+        "Say what you sold or spent in Swahili, English, or both — Sauti Ledger understands and saves every transaction on the spot.",
       ctaPrimary: 'Start now — free',
       ctaSecondary: 'See how it works',
-      screenshotAlt: "Screenshot of SautiLedger showing today's balance and transactions",
+      screenshotAlt: "Screenshot of Sauti Ledger showing today's balance and transactions",
     },
     howItWorks: {
       eyebrow: 'How it works',
@@ -224,7 +224,7 @@ const CONTENT: Record<Language, LandingContent> = {
         },
         {
           title: 'Understanding…',
-          body: 'SautiLedger listens and figures out the amount, the type, and what it was for.',
+          body: 'Sauti Ledger listens and figures out the amount, the type, and what it was for.',
         },
         {
           title: 'Confirm',
@@ -242,7 +242,7 @@ const CONTENT: Record<Language, LandingContent> = {
       items: [
         {
           title: 'Swahili and English voice',
-          body: 'SautiLedger understands mixed-language speech — the way people actually talk.',
+          body: 'Sauti Ledger understands mixed-language speech — the way people actually talk.',
         },
         {
           title: 'Manual entry when you want it',
@@ -262,14 +262,14 @@ const CONTENT: Record<Language, LandingContent> = {
         },
         {
           title: 'Install it like an app',
-          body: 'Add SautiLedger to your home screen — it works like a real app, not a website.',
+          body: 'Add Sauti Ledger to your home screen — it works like a real app, not a website.',
         },
       ],
     },
     examples: {
       eyebrow: 'Hear an example',
       title: 'Just talk the way you normally would',
-      body: "This is how SautiLedger actually understands real sentences — Swahili, English, or both mixed together.",
+      body: "This is how Sauti Ledger actually understands real sentences — Swahili, English, or both mixed together.",
       items: [
         {
           transcript: 'Leo nimeuza mchele elfu ishirini',
@@ -308,20 +308,20 @@ const CONTENT: Record<Language, LandingContent> = {
     reports: {
       eyebrow: 'Reports',
       title: 'Understand your business in a minute',
-      body: "No complicated charts, no accounting language — SautiLedger answers the questions you actually ask every day: What do I have? Where did most of it go this week?",
+      body: "No complicated charts, no accounting language — Sauti Ledger answers the questions you actually ask every day: What do I have? Where did most of it go this week?",
       screenshotAlt: "Screenshot of the reports screen showing income, expenses, and the biggest expense category",
     },
     trust: {
       title: 'Ownership and clarity first',
-      body: "SautiLedger doesn't need a bank name or complicated details. Your phone, your voice, your business — that's where we start. Your records stay yours, even offline.",
+      body: "Sauti Ledger doesn't need a bank name or complicated details. Your phone, your voice, your business — that's where we start. Your records stay yours, even offline.",
     },
     finalCta: {
       title: 'Start recording your business today',
       body: 'Free to start. No bank card required.',
-      cta: 'Open SautiLedger',
+      cta: 'Open Sauti Ledger',
     },
     footer: {
-      tagline: 'Just speak. SautiLedger will understand.',
+      tagline: 'Just speak. Sauti Ledger will understand.',
       sourceLink: 'Source on GitHub',
     },
   },

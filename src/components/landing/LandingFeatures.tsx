@@ -16,8 +16,13 @@ export function LandingFeatures({ content }: { content: LandingContent }) {
           {content.features.items.map((feature, index) => {
             const Icon = ICONS[index]
             return (
-              <div key={feature.title} className="rounded-2xl bg-surface p-6">
-                <Icon size={20} className="text-text-muted" aria-hidden="true" />
+              <div
+                key={feature.title}
+                className="rounded-2xl border border-border bg-surface p-6 transition-shadow hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_32px_-16px_rgba(0,0,0,0.14)]"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-income-bg text-income">
+                  <Icon size={18} aria-hidden="true" />
+                </div>
                 <p className="mt-4 text-base font-semibold text-text">{feature.title}</p>
                 <p className="mt-1.5 text-sm text-text-muted">{feature.body}</p>
               </div>

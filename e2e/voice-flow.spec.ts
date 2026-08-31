@@ -5,10 +5,16 @@ import { deviceIdFor, withDeviceId, cleanupDevice } from './helpers'
  * Runs only under the "Voice (Chromium, fake mic)" project (see
  * playwright.config.ts) — Chromium's --use-fake-device-for-media-stream
  * gives MediaRecorder a real synthetic signal to capture, so this
- * exercises the actual permission/record/stop/review mechanics from
- * Phase 5, not a stub. Groq and Gemini are mocked: this is a UI-flow
- * regression test, not a re-verification of transcription/extraction
- * accuracy (that's eval/run.ts's job — see AI_SPEC.md § 5).
+ * exercises the actual permission/record/release mechanics of the
+ * press-and-hold flow, not a stub. Groq and Gemini are mocked: this is a
+ * UI-flow regression test, not a re-verification of transcription/
+ * extraction accuracy (that's eval/run.ts's job — see AI_SPEC.md § 5).
+ *
+ * There's no separate "review the recording" step anymore — release
+ * chains straight into transcribe -> extract -> the transaction
+ * confirmation screen, which is the only human-in-the-loop moment
+ * (DESIGN.md's Confirmation Philosophy is about the transaction, not the
+ * raw audio).
  */
 test.describe('voice transaction', () => {
   let deviceId: string
@@ -42,16 +48,23 @@ test.describe('voice transaction', () => {
     await cleanupDevice(deviceId)
   })
 
-  test('record -> stop -> use -> confirm saves the transaction', async ({ page }) => {
-    await page.getByRole('button', { name: 'Speak' }).click()
+  test('hold the mic, release, and confirm saves the transaction', async ({ page }) => {
+    const micButton = page.getByRole('button', { name: 'Speak' })
+    const box = await micButton.boundingBox()
+    if (!box) throw new Error('mic button not found')
+
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await page.mouse.down()
 
     await expect(page.getByText('Listening…')).toBeVisible()
-    await page.getByRole('button', { name: 'Stop' }).click()
+    // Above MIN_DURATION_MS (400ms) so the release isn't discarded as an
+    // accidental tap.
+    await page.waitForTimeout(600)
 
-    await expect(page.getByRole('button', { name: 'Use this' })).toBeVisible()
-    await page.getByRole('button', { name: 'Use this' }).click()
+    await page.mouse.up()
 
-    // Confirmation preview built from the mocked /api/extract response.
+    // Confirmation preview built from the mocked /api/extract response —
+    // shown automatically, no intermediate "use this recording" step.
     await expect(page.getByText('+ TSh 20,000')).toBeVisible()
     await expect(page.getByText('Mchele')).toBeVisible()
 
@@ -62,12 +75,19 @@ test.describe('voice transaction', () => {
     await expect(page.getByText('Sales · Mchele')).toBeVisible()
   })
 
-  test('cancel during recording discards without saving', async ({ page }) => {
-    await page.getByRole('button', { name: 'Speak' }).click()
+  test('holding Space then pressing Escape cancels without saving', async ({ page }) => {
+    // The desktop hotkey (hold Space, scoped to the focused tab — a
+    // website can't register a system-wide hotkey the way a native app
+    // like Wispr Flow can). Escape while held is the safety valve a
+    // touch hold-and-release doesn't have.
+    await page.keyboard.down('Space')
+
     await expect(page.getByText('Listening…')).toBeVisible()
 
-    await page.getByRole('button', { name: 'Cancel' }).click()
+    await page.keyboard.press('Escape')
+    await page.keyboard.up('Space')
 
+    await expect(page.getByRole('button', { name: 'Speak' })).toBeVisible()
     await expect(page.getByText('No transactions yet.')).toBeVisible()
   })
 })

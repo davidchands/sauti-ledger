@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-export type RecorderPhase = 'idle' | 'requesting' | 'recording' | 'reviewing' | 'error'
+export type RecorderPhase = 'idle' | 'requesting' | 'recording' | 'error'
 
 export type RecorderErrorReason = 'permission-denied' | 'no-microphone' | 'unsupported' | 'unknown'
 
 const MAX_DURATION_MS = 60_000
+// Below this, treat it as an accidental tap/bump, not a real recording —
+// discard silently instead of sending a near-empty clip to Groq.
+const MIN_DURATION_MS = 400
 const LEVEL_BAR_COUNT = 24
 const PREFERRED_MIME_TYPES = [
   'audio/webm;codecs=opus',
@@ -19,17 +22,17 @@ function pickMimeType(): string | undefined {
 }
 
 /**
- * Real microphone capture — permission, recording, live level metering,
- * cancel/retry, and a review/playback step. No transcription or upload:
- * that's Phase 6 (Groq) and Phase 7 (Gemini).
+ * Real microphone capture — press-and-hold, not tap-to-toggle. Permission,
+ * live level metering, and a completed-recording callback; no manual
+ * review/playback step — the caller chains straight into transcription
+ * on release, per the "remove the friction of confirming the recording"
+ * product decision.
  */
-export function useAudioRecorder() {
+export function useAudioRecorder(onRecorded: (blob: Blob) => void) {
   const [phase, setPhase] = useState<RecorderPhase>('idle')
   const [error, setError] = useState<RecorderErrorReason | null>(null)
   const [durationMs, setDurationMs] = useState(0)
   const [levels, setLevels] = useState<number[]>(() => Array(LEVEL_BAR_COUNT).fill(0))
-  const [audioUrl, setAudioUrl] = useState<string | null>(null)
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
 
   const streamRef = useRef<MediaStream | null>(null)
   const recorderRef = useRef<MediaRecorder | null>(null)
@@ -38,6 +41,10 @@ export function useAudioRecorder() {
   const analyserRef = useRef<AnalyserNode | null>(null)
   const rafRef = useRef<number | null>(null)
   const startedAtRef = useRef(0)
+  const onRecordedRef = useRef(onRecorded)
+  useEffect(() => {
+    onRecordedRef.current = onRecorded
+  }, [onRecorded])
 
   const stopMetering = useCallback(() => {
     if (rafRef.current !== null) {
@@ -83,6 +90,10 @@ export function useAudioRecorder() {
   }, [])
 
   const start = useCallback(async () => {
+    // Already recording/requesting — a repeated key-repeat or double
+    // pointerdown must not restart the pipeline mid-capture.
+    if (recorderRef.current?.state === 'recording') return
+
     setError(null)
     setPhase('requesting')
 
@@ -118,11 +129,13 @@ export function useAudioRecorder() {
       }
       recorder.onstop = () => {
         stopMetering()
+        const elapsed = Date.now() - startedAtRef.current
         const blob = new Blob(chunksRef.current, { type: mimeType })
         teardownStream()
-        setAudioBlob(blob)
-        setAudioUrl(URL.createObjectURL(blob))
-        setPhase((current) => (current === 'recording' ? 'reviewing' : current))
+        setPhase((current) => (current === 'recording' ? 'idle' : current))
+        if (elapsed >= MIN_DURATION_MS) {
+          onRecordedRef.current(blob)
+        }
       }
       recorderRef.current = recorder
 
@@ -155,40 +168,23 @@ export function useAudioRecorder() {
   const cancel = useCallback(() => {
     stopMetering()
     if (recorderRef.current?.state === 'recording') {
-      // Discard — don't let onstop promote this into 'reviewing'.
+      // Discard — don't let onstop fire onRecorded for this take.
       recorderRef.current.onstop = null
       recorderRef.current.stop()
     }
     teardownStream()
-    setAudioUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev)
-      return null
-    })
-    setAudioBlob(null)
     setDurationMs(0)
     setPhase('idle')
   }, [stopMetering, teardownStream])
 
-  const retry = useCallback(() => {
-    setAudioUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev)
-      return null
-    })
-    setAudioBlob(null)
-    setDurationMs(0)
-    setPhase('idle')
-  }, [])
+  const reset = useCallback(() => setPhase('idle'), [])
 
   useEffect(() => {
     return () => {
       stopMetering()
       teardownStream()
-      setAudioUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev)
-        return null
-      })
     }
   }, [stopMetering, teardownStream])
 
-  return { phase, error, durationMs, levels, audioUrl, audioBlob, start, stop, cancel, retry }
+  return { phase, error, durationMs, levels, start, stop, cancel, reset }
 }

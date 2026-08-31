@@ -6,7 +6,7 @@ export const translations = {
     },
     mic: {
       idle: 'Ongea',
-      idleHint: 'Bonyeza kipaza sauti na uniambie kilichotokea leo.',
+      idleHint: 'Shikilia kipaza sauti na uniambie kilichotokea leo.',
       recording: 'Ninasikiliza…',
       processing: 'Naelewa…',
       success: 'Imehifadhiwa',
@@ -63,12 +63,7 @@ export const translations = {
     recorder: {
       requesting: 'Inaomba ruhusa…',
       cancel: 'Ghairi',
-      stop: 'Simamisha',
       retry: 'Rekodi tena',
-      done: 'Sawa',
-      use: 'Tumia',
-      play: 'Cheza',
-      pause: 'Simamisha kucheza',
       permissionDeniedTitle: 'Hatuwezi kufikia kipaza sauti.',
       permissionDeniedBody: 'Ruhusu ufikiaji wa kipaza sauti kwenye mipangilio ya kivinjari chako kisha ujaribu tena.',
       noMicrophoneTitle: 'Hakuna kipaza sauti kilichopatikana.',
@@ -79,14 +74,14 @@ export const translations = {
       unknownBody: 'Jaribu tena.',
       transcribing: 'Naelewa…',
       transcribeErrorTitle: 'Imeshindikana kuelewa sauti.',
-      transcribeErrorBody: 'Rekodi yako haijahifadhiwa. Jaribu tena au tumia kuingiza kwa mkono.',
-      transcriptLabel: 'Ulisema',
+      transcribeErrorBody: 'Rekodi yako haijahifadhiwa. Shikilia kipaza sauti kujaribu tena.',
       close: 'Funga',
       extracting: 'Naelewa…',
       extractErrorTitle: 'Imeshindikana kuchakata ulichosema.',
-      extractErrorBody: 'Jaribu tena au tumia kuingiza kwa mkono.',
+      extractErrorBody: 'Shikilia kipaza sauti kujaribu tena.',
       clarifyTitle: 'Sikuelewa vizuri.',
-      clarifyBody: 'Jaribu tena kwa uwazi zaidi, au tumia kuingiza kwa mkono.',
+      clarifyBody: 'Shikilia kipaza sauti tena na useme kwa uwazi zaidi, au tumia kuingiza kwa mkono.',
+      spaceHint: 'Shikilia Space kurekodi',
     },
     error: {
       genericTitle: 'Hitilafu imetokea.',
@@ -108,7 +103,7 @@ export const translations = {
     },
     mic: {
       idle: 'Speak',
-      idleHint: 'Tap the microphone and tell SautiLedger what happened today.',
+      idleHint: 'Hold the microphone and tell Sauti Ledger what happened today.',
       recording: 'Listening…',
       processing: 'Understanding…',
       success: 'Saved',
@@ -165,12 +160,7 @@ export const translations = {
     recorder: {
       requesting: 'Requesting permission…',
       cancel: 'Cancel',
-      stop: 'Stop',
       retry: 'Record again',
-      done: 'Done',
-      use: 'Use this',
-      play: 'Play',
-      pause: 'Pause',
       permissionDeniedTitle: "We can't reach the microphone.",
       permissionDeniedBody: 'Allow microphone access in your browser settings, then try again.',
       noMicrophoneTitle: 'No microphone found.',
@@ -181,14 +171,14 @@ export const translations = {
       unknownBody: 'Please try again.',
       transcribing: 'Understanding…',
       transcribeErrorTitle: "Couldn't understand the recording.",
-      transcribeErrorBody: 'Your recording was not saved. Try again or use manual entry.',
-      transcriptLabel: 'You said',
+      transcribeErrorBody: 'Your recording was not saved. Hold the microphone to try again.',
       close: 'Close',
       extracting: 'Understanding…',
       extractErrorTitle: "Couldn't process what you said.",
-      extractErrorBody: 'Try again or use manual entry.',
+      extractErrorBody: 'Hold the microphone to try again.',
       clarifyTitle: "Didn't quite catch that.",
-      clarifyBody: 'Try again more clearly, or use manual entry.',
+      clarifyBody: 'Hold the microphone and speak more clearly, or use manual entry.',
+      spaceHint: 'Hold Space to record',
     },
     error: {
       genericTitle: 'Something went wrong.',
@@ -253,12 +243,7 @@ type Dict = {
   recorder: {
     requesting: string
     cancel: string
-    stop: string
     retry: string
-    done: string
-    use: string
-    play: string
-    pause: string
     permissionDeniedTitle: string
     permissionDeniedBody: string
     noMicrophoneTitle: string
@@ -270,13 +255,13 @@ type Dict = {
     transcribing: string
     transcribeErrorTitle: string
     transcribeErrorBody: string
-    transcriptLabel: string
     close: string
     extracting: string
     extractErrorTitle: string
     extractErrorBody: string
     clarifyTitle: string
     clarifyBody: string
+    spaceHint: string
   }
   error: { genericTitle: string; genericBody: string; retry: string }
   sync: { savedOnPhone: string; synced: string }

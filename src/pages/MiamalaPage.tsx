@@ -2,14 +2,16 @@ import { useState } from 'react'
 import { BalanceCard } from '@/components/BalanceCard'
 import { TransactionCard } from '@/components/TransactionCard'
 import { VoiceButton } from '@/components/VoiceButton'
+import { VoiceStatusPanel } from '@/components/VoiceStatusPanel'
 import { EmptyState } from '@/components/EmptyState'
 import { LoadingIndicator } from '@/components/LoadingIndicator'
 import { ErrorState } from '@/components/ErrorState'
 import { TransactionSheet } from '@/components/TransactionSheet'
 import { TransactionConfirmation } from '@/components/TransactionConfirmation'
-import { VoiceRecorderSheet, type VoiceExtraction } from '@/components/VoiceRecorderSheet'
 import { useLanguage } from '@/i18n/useLanguage'
 import { useTransactionsContext } from '@/hooks/useTransactionsContext'
+import { useVoiceCapture, type VoiceExtraction } from '@/hooks/useVoiceCapture'
+import { useSpaceToRecord } from '@/hooks/useSpaceToRecord'
 import type { TransactionDraft } from '@/components/TransactionFields'
 import type { Transaction } from '@/types/transaction'
 
@@ -28,8 +30,12 @@ export function MiamalaPage() {
     { mode: 'create' } | { mode: 'edit'; transaction: Transaction } | null
   >(null)
   const [saving, setSaving] = useState(false)
-  const [isRecorderOpen, setIsRecorderOpen] = useState(false)
   const [voiceExtraction, setVoiceExtraction] = useState<VoiceExtraction | null>(null)
+
+  const handleVoiceExtracted = (result: VoiceExtraction) => setVoiceExtraction(result)
+
+  const voice = useVoiceCapture(handleVoiceExtracted)
+  useSpaceToRecord(voice.start, voice.stop, voice.cancel, !voiceExtraction && !sheet)
 
   const closeSheet = () => setSheet(null)
 
@@ -49,11 +55,6 @@ export function MiamalaPage() {
     const ok = await remove(sheet.transaction.id)
     setSaving(false)
     if (ok) closeSheet()
-  }
-
-  const handleVoiceExtracted = (result: VoiceExtraction) => {
-    setIsRecorderOpen(false)
-    setVoiceExtraction(result)
   }
 
   const handleVoiceConfirm = async (draft: TransactionDraft): Promise<boolean> => {
@@ -108,8 +109,22 @@ export function MiamalaPage() {
         )}
       </div>
 
-      <div className="flex justify-center py-6">
-        <VoiceButton state="idle" onPress={() => setIsRecorderOpen(true)} />
+      <div className="flex flex-col items-center gap-3 py-6">
+        <VoiceStatusPanel
+          uiState={voice.uiState}
+          recorderError={voice.recorderError}
+          onDismiss={voice.retryFromRecording}
+        />
+
+        <VoiceButton
+          uiState={voice.uiState}
+          levels={voice.levels}
+          durationMs={voice.durationMs}
+          onPressStart={voice.start}
+          onPressEnd={voice.stop}
+        />
+
+        <p className="hidden text-xs text-text-muted md:block">{t('recorder.spaceHint')}</p>
       </div>
 
       {sheet && (
@@ -120,13 +135,6 @@ export function MiamalaPage() {
           onSave={handleSave}
           onDelete={sheet.mode === 'edit' ? handleDelete : undefined}
           onClose={closeSheet}
-        />
-      )}
-
-      {isRecorderOpen && (
-        <VoiceRecorderSheet
-          onClose={() => setIsRecorderOpen(false)}
-          onExtracted={handleVoiceExtracted}
         />
       )}
 

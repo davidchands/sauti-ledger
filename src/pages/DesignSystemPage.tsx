@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import { BalanceCard } from '@/components/BalanceCard'
 import { TransactionCard } from '@/components/TransactionCard'
-import { VoiceButton, type VoiceButtonState } from '@/components/VoiceButton'
+import { VoiceButton } from '@/components/VoiceButton'
+import type { VoiceCaptureUiState } from '@/hooks/useVoiceCapture'
 import { TransactionConfirmation } from '@/components/TransactionConfirmation'
 import { EmptyState } from '@/components/EmptyState'
 import { LoadingIndicator } from '@/components/LoadingIndicator'
@@ -11,7 +12,7 @@ import { TopLeakCard } from '@/components/TopLeakCard'
 import { useLanguage } from '@/i18n/useLanguage'
 import { buildSampleTransactions } from '@/lib/sampleTransactions'
 
-const VOICE_STATES: VoiceButtonState[] = ['idle', 'recording', 'processing', 'success', 'error']
+const VOICE_STATES: VoiceCaptureUiState[] = ['idle', 'requesting', 'recording']
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -50,7 +51,14 @@ export function DesignSystemPage() {
       <Section title="Voice button states">
         <div className="flex flex-wrap gap-6">
           {VOICE_STATES.map((state) => (
-            <VoiceButton key={state} state={state} />
+            <VoiceButton
+              key={state}
+              uiState={state}
+              levels={Array(24).fill(0.4)}
+              durationMs={3000}
+              onPressStart={() => {}}
+              onPressEnd={() => {}}
+            />
           ))}
         </div>
       </Section>

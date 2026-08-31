@@ -5,14 +5,20 @@ export function LandingReports({ content }: { content: LandingContent }) {
     <section className="py-20">
       <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-6 lg:grid-cols-2 lg:gap-8">
         <div className="order-2 flex justify-center lg:order-1 lg:justify-start">
-          <div className="w-full max-w-[300px] overflow-hidden rounded-[2.5rem] border border-border shadow-2xl">
-            <img
-              src="/landing/screen-ripoti.png"
-              alt={content.reports.screenshotAlt}
-              className="block w-full"
-              width={780}
-              height={1688}
+          <div className="relative w-full max-w-[300px]">
+            <div
+              aria-hidden="true"
+              className="absolute -inset-6 -z-10 rounded-[3rem] bg-[radial-gradient(closest-side,var(--color-income-bg),transparent)] opacity-80"
             />
+            <div className="overflow-hidden rounded-[2.5rem] border border-border bg-surface shadow-[0_2px_8px_rgba(0,0,0,0.06),0_40px_80px_-24px_rgba(0,0,0,0.28)]">
+              <img
+                src="/landing/screen-ripoti.png"
+                alt={content.reports.screenshotAlt}
+                className="block w-full"
+                width={780}
+                height={1688}
+              />
+            </div>
           </div>
         </div>
 
