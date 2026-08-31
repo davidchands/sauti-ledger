@@ -298,7 +298,9 @@ That is the standard. Build toward that experience relentlessly, one phase at a 
 
 ## 21. Deployment (Vercel)
 
-This is a single Vercel project, not a static site plus a separately-hosted API. The Express backend (`server/app.ts`) is re-exported from `api/index.ts` as one Node.js serverless function; `vercel.json` rewrites every `/api/*` request to it. `server/index.ts` (local `npm run dev:api`) and `api/index.ts` (Vercel) both import the same `app` — there is only one backend implementation, never two to keep in sync.
+This is a single Vercel project, not a static site plus a separately-hosted API. The Express backend (`server/app.ts`) is re-exported from `api/_handler.ts`, which `npm run build:api` (esbuild) bundles into `api/index.js` — the file Vercel actually deploys as the serverless function `vercel.json` rewrites every `/api/*` request to. `server/index.ts` (local `npm run dev:api`) and `api/_handler.ts` (Vercel) both import the same `app` — there is only one backend implementation, never two to keep in sync.
+
+**`api/index.js` is committed to git, not gitignored.** Vercel decides which files under `/api` are routable functions by scanning the repo as checked out, before running `vercel.json`'s `buildCommand` — a file only produced during the build isn't picked up as a function at all (confirmed the hard way: it silently 404s past to the SPA instead). `vercel.json`'s buildCommand regenerates it for freshness on every deploy, but **after any change to `server/**`, `src/db/**`, or `src/types/**`, run `npm run build:api` locally and commit the resulting `api/index.js`** — don't rely on the build step alone.
 
 Required in the Vercel project's Environment Variables (Settings → Environment Variables, for the Production/Preview environments actually being used):
 
@@ -306,4 +308,4 @@ Required in the Vercel project's Environment Variables (Settings → Environment
 * `GROQ_API_KEY` — Whisper transcription.
 * `GEMINI_API_KEY` — transaction extraction.
 
-Without all three, every `/api/*` route returns a 500 the moment it touches the database or calls Groq/Gemini — this looks exactly like "recording doesn't work" and "can't even add a transaction manually" from the app, because both paths hit the backend. A redeploy is required after adding or changing env vars; Vercel does not hot-reload them into a running deployment.
+Missing any of these no longer crashes the whole function (`src/db/client.ts`'s `getDb()` fails lazily, only when a route actually queries the database) — routes that need it return a normal per-request 500 instead. A redeploy is required after adding or changing env vars; Vercel does not hot-reload them into a running deployment.
