@@ -24,8 +24,8 @@ function Headline({ text, highlight }: { text: string; highlight: string }) {
 }
 
 const HIGHLIGHT: Record<string, string> = {
-  'Endesha biashara yako kwa kuongea.': 'kuongea',
-  'Run your business by speaking.': 'speaking',
+  'Rekodi fedha za biashara yako kwa kuongea tu.': 'kuongea',
+  'Record your business money by simply speaking.': 'speaking',
 }
 
 export function LandingHero({ content }: { content: LandingContent }) {

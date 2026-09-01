@@ -99,9 +99,9 @@ const CONTENT: Record<Language, LandingContent> = {
     },
     hero: {
       badge: 'Imejengwa kwa wafanyabiashara wadogo Tanzania',
-      headline: 'Endesha biashara yako kwa kuongea.',
+      headline: 'Rekodi fedha za biashara yako kwa kuongea tu.',
       subheadline:
-        'Rekodi mauzo, matumizi na fedha zako kwa kuongea tu, kwa Kiswahili au Kiingereza. Hakuna daftari, hakuna fomu ndefu.',
+        'Sema mauzo, matumizi na fedha zako kwa Kiswahili au Kiingereza. Hakuna daftari, hakuna fomu ndefu.',
       ctaPrimary: 'Anza bure sasa',
       ctaSecondary: 'Ona jinsi inavyofanya kazi',
       demoAriaLabel: 'Onyesho la moja kwa moja la Sauti Ledger likibadilisha sauti kuwa muamala',
@@ -234,9 +234,9 @@ const CONTENT: Record<Language, LandingContent> = {
     },
     hero: {
       badge: 'Built for Tanzanian microbusinesses',
-      headline: 'Run your business by speaking.',
+      headline: 'Record your business money by simply speaking.',
       subheadline:
-        'Record sales, expenses, and cash flow naturally, in English or Swahili. No ledgers, no long forms.',
+        'Just say your sales, expenses, and cash flow, in English or Swahili. No ledgers, no long forms.',
       ctaPrimary: 'Start free now',
       ctaSecondary: 'See how it works',
       demoAriaLabel: "Live demo of Sauti Ledger turning speech into a transaction",
