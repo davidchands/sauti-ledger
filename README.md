@@ -108,7 +108,6 @@ api/                  Vercel serverless entry point (bundles server/ for deploym
 eval/                 AI accuracy evaluation dataset + runner
 e2e/                  Playwright end-to-end tests
 design/               Source design assets (icons, etc.)
-DESIGN.md             Product design principles and visual language
 AI_SPEC.md            How the voice pipeline is supposed to understand speech
 ```
 
@@ -124,5 +123,4 @@ Yes, for this app's scale. The free tier gives you 2,000 transcription requests 
 
 ## Learn more
 
-- [DESIGN.md](DESIGN.md): how the product should look and feel
 - [AI_SPEC.md](AI_SPEC.md): the voice/AI pipeline spec and evaluation dataset

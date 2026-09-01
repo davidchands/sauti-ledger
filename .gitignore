@@ -38,4 +38,5 @@ playwright/.cache
 # Kept locally for development, not published in the repo
 CLAUDE.md
 AGENTS.md
+DESIGN.md
 .claude/

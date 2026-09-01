@@ -1,6 +1,6 @@
 # Sauti Ledger AI Specification
 
-This file defines how Sauti Ledger is supposed to understand humans. [DESIGN.md](DESIGN.md) defines how the product looks. This file defines what a correct interpretation of a merchant's speech looks like: it is both a spec and a growing evaluation dataset.
+This file defines how Sauti Ledger is supposed to understand humans: what a correct interpretation of a merchant's speech looks like. It is both a spec and a growing evaluation dataset.
 
 ## 1. Purpose
 
@@ -22,7 +22,7 @@ Zod validation
 Transaction preview (user confirms)
 ```
 
-This file is the source of truth for what Gemini's output should be for a given transcript. Every prompt or model change should be evaluated against the examples below before shipping — see [Section 5](#5-evaluation-workflow).
+This file is the source of truth for what Gemini's output should be for a given transcript. Every prompt or model change should be evaluated against the examples below before shipping, see [Section 5](#5-evaluation-workflow).
 
 ## 2. Supported Languages
 
@@ -34,7 +34,7 @@ Tanzanian merchants routinely mix languages and use shorthand. The AI must handl
 
 ## 3. Output Schema
 
-Gemini must return structured data matching the application's Zod schema — an array of transactions, even for the common single-transaction case:
+Gemini must return structured data matching the application's Zod schema, an array of transactions, even for the common single-transaction case:
 
 ```json
 {
@@ -53,11 +53,11 @@ Amounts are always integer Tanzanian shillings. Never floating point.
 
 ### 3a. Multiple transactions in one recording
 
-A merchant sometimes reports more than one transaction in a single recording — e.g. "Niliuza mchele elfu ishirini kisha nikanunua mafuta elfu tano" (sold rice for 20,000, then bought fuel for 5,000). The model returns one array item per distinct event it can identify.
+A merchant sometimes reports more than one transaction in a single recording, e.g. "Niliuza mchele elfu ishirini kisha nikanunua mafuta elfu tano" (sold rice for 20,000, then bought fuel for 5,000). The model returns one array item per distinct event it can identify.
 
-- Only split when the transcript clearly describes separate events — never split a single amount or a single event into more than one item, and never merge two distinct events into one.
-- Each item is evaluated for ambiguity independently (Section 4) — one clear item and one ambiguous item in the same recording is normal; the clear one still gets saved, only the ambiguous one is dropped.
-- The confirmation UI steps through each returned transaction one at a time (never batch-saves silently) — see DESIGN.md's Confirmation Philosophy.
+- Only split when the transcript clearly describes separate events, never split a single amount or a single event into more than one item, and never merge two distinct events into one.
+- Each item is evaluated for ambiguity independently (Section 4): one clear item and one ambiguous item in the same recording is normal; the clear one still gets saved, only the ambiguous one is dropped.
+- The confirmation UI steps through each returned transaction one at a time, never batch-saving silently.
 
 Example:
 
@@ -70,7 +70,7 @@ Example:
 
 Never invent missing financial information. If the amount or transaction type is ambiguous, the system must ask for clarification instead of guessing.
 
-Example — ambiguous amount:
+Example, ambiguous amount:
 
 ```text
 "Nimepata mia."
@@ -78,7 +78,7 @@ Example — ambiguous amount:
 
 `mia` alone is ambiguous (100? 100,000? "mia moja" vs "mia mbili"?). Correct behavior: ask "Ulimaanisha TSh 100?" rather than inventing a number.
 
-Example — ambiguous type:
+Example, ambiguous type:
 
 ```text
 "Elfu ishirini."
@@ -93,8 +93,8 @@ No verb indicates income or expense. Correct behavior: ask whether this was mone
 When the extraction prompt or model changes:
 
 1. Run `npm run eval:ai`.
-2. Compare actual output to expected output — the script does this automatically and exits non-zero on any failure.
-3. Only deploy if accuracy improves or stays flat — never regress silently.
+2. Compare actual output to expected output, the script does this automatically and exits non-zero on any failure.
+3. Only deploy if accuracy improves or stays flat, never regress silently.
 
 Last full run (gemini-3.6-flash): 29/29 passed.
 
@@ -166,13 +166,13 @@ As real (anonymized, consented) merchant utterances are collected, add them to b
 → EXPENSE, 5000, Other, "Malipo"
 
 "laki moja"
-→ ambiguous type — clarify (income or expense?)
+→ ambiguous type, clarify (income or expense?)
 
 "milioni mbili"
-→ ambiguous type — clarify (income or expense?)
+→ ambiguous type, clarify (income or expense?)
 
 "elfu tano"
-→ ambiguous type — clarify (income or expense?)
+→ ambiguous type, clarify (income or expense?)
 ```
 
 ### Phrasing variation (should normalize to the same result)
@@ -185,10 +185,10 @@ As real (anonymized, consented) merchant utterances are collected, add them to b
 → all three: INCOME, 80000, Sales
 ```
 
-### Income vs. expense — close verb pairs
+### Income vs. expense, close verb pairs
 
 The distinction most likely to trip up a weaker model isn't "sold" vs
-"bought" — it's paying someone vs. being paid, receiving vs. giving,
+"bought", it's paying someone vs. being paid, receiving vs. giving,
 where Swahili active/passive voice differs by a syllable.
 
 ```text
@@ -226,14 +226,14 @@ where Swahili active/passive voice differs by a syllable.
 
 ## 8. Category Heuristics
 
-* **Sales** — merchant sold goods or services, received money from a customer.
-* **Inventory** — merchant bought stock/goods to resell.
-* **Rent** — pango, kodi ya duka/nyumba.
-* **Operational** — fuel, transport, utilities, labor/fundi, day-to-day running costs.
-* **Other** — anything that doesn't clearly fit the above; never force a bad fit.
+* **Sales**: merchant sold goods or services, received money from a customer.
+* **Inventory**: merchant bought stock/goods to resell.
+* **Rent**: pango, kodi ya duka/nyumba.
+* **Operational**: fuel, transport, utilities, labor/fundi, day-to-day running costs.
+* **Other**: anything that doesn't clearly fit the above; never force a bad fit.
 
 ## 9. Non-Negotiable Rules
 
 * Gemini never writes directly to the database. The server validates the structured output against the Zod schema first.
 * Every AI-generated transaction must pass validation before it reaches the transaction preview.
-* Never trust raw Gemini output as final — always show it to the user for confirmation (see [DESIGN.md § Confirmation Philosophy](DESIGN.md#15-confirmation-philosophy)).
+* Never trust raw Gemini output as final. Always show it to the user for confirmation before it saves.
