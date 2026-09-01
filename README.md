@@ -1,8 +1,8 @@
 # Sauti Ledger
 
-**Ongea tu. Sauti Ledger itaelewa.** — Just speak. Sauti Ledger will understand.
+**Ongea tu. Sauti Ledger itaelewa.** Just speak. Sauti Ledger will understand.
 
-A voice-first bookkeeping app for Tanzanian small-business owners. Instead of typing numbers into a form, you hold the microphone and say what happened — in Swahili, English, or a natural mix of both — and Sauti Ledger turns it into a recorded transaction:
+A voice-first bookkeeping app for Tanzanian small-business owners. Instead of typing numbers into a form, you hold the microphone and say what happened, in Swahili, English, or a natural mix of both, and Sauti Ledger turns it into a recorded transaction:
 
 > 🎙️ "Leo nimeuza mchele elfu ishirini"
 > → **Mauzo · + TSh 20,000 · Mchele**
@@ -14,16 +14,16 @@ No accounting knowledge required, no data entry. Works offline, syncs when you'r
 ```
 Your voice
   ↓
-Groq (Whisper) — transcribes the recording
+Groq (Whisper): transcribes the recording
   ↓
-Gemini — reads the transcript and extracts type, amount, category, description
+Gemini: reads the transcript and extracts type, amount, category, description
   ↓
 You confirm the result (never saved silently)
   ↓
 Saved to your ledger, balance updates instantly
 ```
 
-If the AI can't tell whether an amount was income or an expense — or can't make out the number at all — it asks instead of guessing. See [AI_SPEC.md](AI_SPEC.md) for the full behavior spec and the evaluation dataset that keeps it honest.
+If the AI can't tell whether an amount was income or an expense, or can't make out the number at all, it asks instead of guessing. See [AI_SPEC.md](AI_SPEC.md) for the full behavior spec and the evaluation dataset that keeps it honest.
 
 ## Tech stack
 
@@ -45,7 +45,7 @@ If the AI can't tell whether an amount was income or an expense — or can't mak
 
 - Node.js 22+
 - A [Neon](https://neon.tech) Postgres database (or any Postgres connection string)
-- A [Groq](https://console.groq.com) API key (free tier is generous — see below)
+- A [Groq](https://console.groq.com) API key (free tier is generous, see below)
 - A [Google AI Studio](https://aistudio.google.com) Gemini API key
 
 ### 2. Install
@@ -115,16 +115,16 @@ AI_SPEC.md            How the voice pipeline is supposed to understand speech
 
 ## Deployment
 
-The app deploys to [Vercel](https://vercel.com) as a single project — the frontend is a static build, and the Express API runs as one serverless function. See [AGENTS.md § 21](AGENTS.md#21-deployment-vercel) for the exact setup, including a subtlety worth knowing before you touch `server/`, `src/db/`, or `src/types/`: the deployed API function is a committed, pre-bundled file (`api/index.js`), not something Vercel builds fresh from source on every deploy.
+The app deploys to [Vercel](https://vercel.com) as a single project: the frontend is a static build, and the Express API runs as one serverless function. See [AGENTS.md § 21](AGENTS.md#21-deployment-vercel) for the exact setup, including a subtlety worth knowing before you touch `server/`, `src/db/`, or `src/types/`: the deployed API function is a committed, pre-bundled file (`api/index.js`), not something Vercel builds fresh from source on every deploy.
 
 You'll need the same three environment variables (`DATABASE_URL`, `GROQ_API_KEY`, `GEMINI_API_KEY`) set in the Vercel project's settings.
 
 ## Is Groq free?
 
-Yes, for this app's scale. The free tier gives you 2,000 transcription requests and 8 hours of audio per day with no credit card — voice recordings here are a few seconds each, so that's easily thousands of transactions a day before you'd need to pay anything.
+Yes, for this app's scale. The free tier gives you 2,000 transcription requests and 8 hours of audio per day with no credit card. Voice recordings here are a few seconds each, so that's easily thousands of transactions a day before you'd need to pay anything.
 
 ## Learn more
 
-- [AGENTS.md](AGENTS.md) — architecture, conventions, and the phase-by-phase build roadmap
-- [DESIGN.md](DESIGN.md) — how the product should look and feel
-- [AI_SPEC.md](AI_SPEC.md) — the voice/AI pipeline spec and evaluation dataset
+- [AGENTS.md](AGENTS.md): architecture, conventions, and the phase-by-phase build roadmap
+- [DESIGN.md](DESIGN.md): how the product should look and feel
+- [AI_SPEC.md](AI_SPEC.md): the voice/AI pipeline spec and evaluation dataset
