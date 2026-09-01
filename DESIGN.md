@@ -1,6 +1,6 @@
 # SautiLedger Design System
 
-This file defines how SautiLedger looks and feels. It is the visual and product-experience language — not the technical implementation. For architecture, stack, and coding rules see [AGENTS.md](AGENTS.md). For how the AI is supposed to understand human speech see [AI_SPEC.md](AI_SPEC.md).
+This file defines how Sauti Ledger looks and feels. It is the visual and product-experience language, not the technical implementation. For how the AI is supposed to understand human speech see [AI_SPEC.md](AI_SPEC.md).
 
 ## 1. Product Identity
 
@@ -496,7 +496,7 @@ Every icon-only control must have an accessible label. Use semantic HTML before 
 
 ## 27. Copywriting
 
-Both languages should read naturally — never machine-translated or literal. See [AGENTS.md](AGENTS.md) for the i18n implementation rules (no hard-coded strings, every string ships in both languages).
+Both languages should read naturally, never machine-translated or literal. Every string ships in both languages, with no hard-coded text.
 
 Kiswahili examples — prefer natural Tanzanian Swahili:
 

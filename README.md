@@ -108,14 +108,13 @@ api/                  Vercel serverless entry point (bundles server/ for deploym
 eval/                 AI accuracy evaluation dataset + runner
 e2e/                  Playwright end-to-end tests
 design/               Source design assets (icons, etc.)
-AGENTS.md             Architecture, conventions, and build roadmap
 DESIGN.md             Product design principles and visual language
 AI_SPEC.md            How the voice pipeline is supposed to understand speech
 ```
 
 ## Deployment
 
-The app deploys to [Vercel](https://vercel.com) as a single project: the frontend is a static build, and the Express API runs as one serverless function. See [AGENTS.md § 21](AGENTS.md#21-deployment-vercel) for the exact setup, including a subtlety worth knowing before you touch `server/`, `src/db/`, or `src/types/`: the deployed API function is a committed, pre-bundled file (`api/index.js`), not something Vercel builds fresh from source on every deploy.
+The app deploys to [Vercel](https://vercel.com) as a single project: the frontend is a static build, and the Express API runs as one serverless function. One subtlety worth knowing before you touch `server/`, `src/db/`, or `src/types/`: the deployed API function is a committed, pre-bundled file (`api/index.js`), not something Vercel builds fresh from source on every deploy. After changes to any of those directories, run `npm run build:api` and commit the result.
 
 You'll need the same three environment variables (`DATABASE_URL`, `GROQ_API_KEY`, `GEMINI_API_KEY`) set in the Vercel project's settings.
 
@@ -125,6 +124,5 @@ Yes, for this app's scale. The free tier gives you 2,000 transcription requests 
 
 ## Learn more
 
-- [AGENTS.md](AGENTS.md): architecture, conventions, and the phase-by-phase build roadmap
 - [DESIGN.md](DESIGN.md): how the product should look and feel
 - [AI_SPEC.md](AI_SPEC.md): the voice/AI pipeline spec and evaluation dataset

@@ -1,6 +1,6 @@
-# SautiLedger AI Specification
+# Sauti Ledger AI Specification
 
-This file defines how SautiLedger is supposed to understand humans. [DESIGN.md](DESIGN.md) defines how the product looks; [AGENTS.md](AGENTS.md) defines how Claude should code. This file defines what a correct interpretation of a merchant's speech looks like — it is both a spec and a growing evaluation dataset.
+This file defines how Sauti Ledger is supposed to understand humans. [DESIGN.md](DESIGN.md) defines how the product looks. This file defines what a correct interpretation of a merchant's speech looks like: it is both a spec and a growing evaluation dataset.
 
 ## 1. Purpose
 
