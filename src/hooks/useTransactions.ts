@@ -6,8 +6,9 @@ import { toLocalTransaction, syncOutbox, type ApiTransaction } from '@/lib/trans
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
 import type { TransactionDraft } from '@/components/TransactionFields'
 
-interface VoiceProvenance {
-  source: 'VOICE'
+/** Provenance for a transaction that came from AI extraction, spoken or typed, rather than the manual-entry form. */
+interface ExtractionProvenance {
+  source: 'VOICE' | 'MANUAL'
   rawTranscript: string
   language?: 'sw' | 'en'
   confidence: number
@@ -106,7 +107,7 @@ export function useTransactions() {
   }, [isOnline])
 
   const create = useCallback(
-    async (draft: TransactionDraft, voice?: VoiceProvenance): Promise<boolean> => {
+    async (draft: TransactionDraft, provenance?: ExtractionProvenance): Promise<boolean> => {
       const tempId = `temp-${crypto.randomUUID()}`
       const optimistic: LocalTransaction = {
         id: tempId,
@@ -117,7 +118,7 @@ export function useTransactions() {
       await localDb.transactions.put(optimistic)
       await reloadFromCache()
 
-      const payload = { ...draft, ...voice }
+      const payload = { ...draft, ...provenance }
 
       try {
         const created = await apiClient.post<ApiTransaction>('/transactions', payload)

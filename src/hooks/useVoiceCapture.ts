@@ -1,21 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAudioRecorder, type RecorderErrorReason } from './useAudioRecorder'
 import { transcribeAudio } from '@/services/transcriptionService'
-import { extractTransactions } from '@/services/extractionService'
+import { extractUsableItems, type ExtractionItem } from '@/lib/transactionExtraction'
 import { normalizeLanguage } from '@/lib/language'
-import type { TransactionDraft } from '@/components/TransactionFields'
-
-export interface VoiceExtractionItem {
-  draft: TransactionDraft
-  confidence: number
-}
 
 /**
  * One recording can describe more than one transaction (AI_SPEC.md §
  * 3a) — items is always non-empty, usually with a single entry.
  */
 export interface VoiceExtraction {
-  items: VoiceExtractionItem[]
+  items: ExtractionItem[]
   rawTranscript: string
   language?: 'sw' | 'en'
 }
@@ -66,29 +60,14 @@ export function useVoiceCapture(onExtracted: (result: VoiceExtraction) => void) 
 
     setFlow({ status: 'extracting' })
     try {
-      const results = await extractTransactions(transcript)
-      // Drop items the model couldn't pin down rather than blocking the
-      // whole recording on one ambiguous mention — only ask the user to
-      // clarify if nothing usable came out of it at all.
-      const usable = results.filter(
-        (item): item is typeof item & { type: 'INCOME' | 'EXPENSE'; amount: number } =>
-          !item.needsClarification && item.type !== null && item.amount !== null,
-      )
-      if (usable.length === 0) {
+      const items = await extractUsableItems(transcript)
+      if (items.length === 0) {
         setFlow({ status: 'clarify' })
         return
       }
       setFlow({ status: 'idle' })
       onExtractedRef.current({
-        items: usable.map((item) => ({
-          draft: {
-            type: item.type,
-            amount: item.amount,
-            category: item.category,
-            description: item.description,
-          },
-          confidence: item.confidence,
-        })),
+        items,
         rawTranscript: transcript,
         language: normalizeLanguage(language),
       })

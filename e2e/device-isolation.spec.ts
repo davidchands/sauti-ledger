@@ -27,12 +27,28 @@ test.describe('device isolation', () => {
     const contextA = await browser.newContext()
     const pageA = await contextA.newPage()
     await withDeviceId(pageA, deviceA, { language: 'en' })
+    await pageA.route('**/api/extract', async (route) => {
+      await route.fulfill({
+        json: {
+          transactions: [
+            {
+              type: 'INCOME',
+              amount: 50000,
+              category: 'Sales',
+              description: 'Device A sale',
+              confidence: 0.95,
+              needsClarification: false,
+            },
+          ],
+        },
+      })
+    })
     await pageA.goto('/miamala')
 
-    await pageA.getByRole('button', { name: 'Add manually' }).click()
-    await pageA.getByRole('spinbutton').fill('50000')
-    await pageA.getByRole('textbox').fill('Device A sale')
-    await pageA.getByRole('button', { name: 'Save' }).click()
+    await pageA.getByPlaceholder('Type what happened…').fill('Nimeuza device A sale kwa 50000')
+    await pageA.getByRole('button', { name: 'Send' }).click()
+    await expect(pageA.getByRole('dialog', { name: 'Confirm transaction' })).toBeVisible()
+    await pageA.getByRole('button', { name: 'Confirm' }).click()
     await expect(pageA.getByText('+ TSh 50,000')).toBeVisible()
     await contextA.close()
 

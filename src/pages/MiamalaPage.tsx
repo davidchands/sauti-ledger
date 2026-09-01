@@ -3,6 +3,7 @@ import { BalanceCard } from '@/components/BalanceCard'
 import { TransactionCard } from '@/components/TransactionCard'
 import { VoiceButton } from '@/components/VoiceButton'
 import { VoiceStatusPanel } from '@/components/VoiceStatusPanel'
+import { ChatEntryBar } from '@/components/ChatEntryBar'
 import { EmptyState } from '@/components/EmptyState'
 import { LoadingIndicator } from '@/components/LoadingIndicator'
 import { ErrorState } from '@/components/ErrorState'
@@ -12,75 +13,79 @@ import { useLanguage } from '@/i18n/useLanguage'
 import { useTransactionsContext } from '@/hooks/useTransactionsContext'
 import { useVoiceCapture, type VoiceExtraction } from '@/hooks/useVoiceCapture'
 import { useSpaceToRecord } from '@/hooks/useSpaceToRecord'
+import { useChatEntry, type ChatExtraction } from '@/hooks/useChatEntry'
+import type { ExtractionItem } from '@/lib/transactionExtraction'
 import type { TransactionDraft } from '@/components/TransactionFields'
 import type { Transaction } from '@/types/transaction'
 
-const BLANK_DRAFT: TransactionDraft = {
-  type: 'INCOME',
-  amount: 0,
-  category: 'Sales',
-  description: '',
+/** Extraction results from voice and chat text entry both flow through the same confirmation queue. */
+interface ExtractionQueue {
+  items: ExtractionItem[]
+  rawTranscript: string
+  language?: 'sw' | 'en'
+  source: 'VOICE' | 'MANUAL'
 }
 
 export function MiamalaPage() {
   const { t } = useLanguage()
   const { transactions, balance, state, refresh, create, update, remove } =
     useTransactionsContext()
-  const [sheet, setSheet] = useState<
-    { mode: 'create' } | { mode: 'edit'; transaction: Transaction } | null
-  >(null)
+  const [editing, setEditing] = useState<Transaction | null>(null)
   const [saving, setSaving] = useState(false)
-  const [voiceExtraction, setVoiceExtraction] = useState<VoiceExtraction | null>(null)
-  const [voiceIndex, setVoiceIndex] = useState(0)
+  const [extraction, setExtraction] = useState<ExtractionQueue | null>(null)
+  const [extractionIndex, setExtractionIndex] = useState(0)
 
   const handleVoiceExtracted = (result: VoiceExtraction) => {
-    setVoiceExtraction(result)
-    setVoiceIndex(0)
+    setExtraction({ ...result, source: 'VOICE' })
+    setExtractionIndex(0)
+  }
+
+  const handleChatExtracted = (result: ChatExtraction) => {
+    setExtraction({ ...result, source: 'MANUAL' })
+    setExtractionIndex(0)
   }
 
   const voice = useVoiceCapture(handleVoiceExtracted)
-  useSpaceToRecord(voice.start, voice.stop, voice.cancel, !voiceExtraction && !sheet)
+  const chat = useChatEntry(handleChatExtracted)
+  useSpaceToRecord(voice.start, voice.stop, voice.cancel, !extraction && !editing)
 
-  const closeSheet = () => setSheet(null)
+  const closeEditSheet = () => setEditing(null)
 
-  const handleSave = async (draft: TransactionDraft) => {
+  const handleEditSave = async (draft: TransactionDraft) => {
+    if (!editing) return
     setSaving(true)
-    const ok =
-      sheet?.mode === 'edit'
-        ? await update(sheet.transaction.id, draft)
-        : await create(draft)
+    const ok = await update(editing.id, draft)
     setSaving(false)
-    if (ok) closeSheet()
+    if (ok) closeEditSheet()
   }
 
-  const handleDelete = async () => {
-    if (sheet?.mode !== 'edit') return
+  const handleEditDelete = async () => {
+    if (!editing) return
     setSaving(true)
-    const ok = await remove(sheet.transaction.id)
+    const ok = await remove(editing.id)
     setSaving(false)
-    if (ok) closeSheet()
+    if (ok) closeEditSheet()
   }
 
-  const handleVoiceConfirm = async (draft: TransactionDraft): Promise<boolean> => {
-    if (!voiceExtraction) return false
-    // TransactionConfirmation owns the saving/success/error UI and calls
-    // onSaved (below) after showing a brief success state.
+  const handleExtractionConfirm = async (draft: TransactionDraft): Promise<boolean> => {
+    if (!extraction) return false
     return create(draft, {
-      source: 'VOICE',
-      rawTranscript: voiceExtraction.rawTranscript,
-      language: voiceExtraction.language,
-      confidence: voiceExtraction.items[voiceIndex].confidence,
+      source: extraction.source,
+      rawTranscript: extraction.rawTranscript,
+      language: extraction.language,
+      confidence: extraction.items[extractionIndex].confidence,
     })
   }
 
-  // A recording can produce several transactions (AI_SPEC.md § 3a) — step
-  // through them one confirmation at a time rather than saving silently.
-  const handleVoiceSaved = () => {
-    if (!voiceExtraction) return
-    if (voiceIndex + 1 < voiceExtraction.items.length) {
-      setVoiceIndex((index) => index + 1)
+  // A single recording or typed message can produce several transactions
+  // (AI_SPEC.md § 3a) — step through them one confirmation at a time
+  // rather than saving silently.
+  const handleExtractionSaved = () => {
+    if (!extraction) return
+    if (extractionIndex + 1 < extraction.items.length) {
+      setExtractionIndex((index) => index + 1)
     } else {
-      setVoiceExtraction(null)
+      setExtraction(null)
     }
   }
 
@@ -89,16 +94,7 @@ export function MiamalaPage() {
       <BalanceCard balance={balance} />
 
       <div className="flex-1 overflow-y-auto px-5 pb-4">
-        <div className="mb-1 flex items-center justify-between">
-          <h2 className="text-sm font-medium text-text-muted">{t('today.label')}</h2>
-          <button
-            type="button"
-            onClick={() => setSheet({ mode: 'create' })}
-            className="text-sm font-medium text-text underline underline-offset-2"
-          >
-            {t('miamala.addManually')}
-          </button>
-        </div>
+        <h2 className="mb-1 text-sm font-medium text-text-muted">{t('today.label')}</h2>
 
         {state === 'loading' && <LoadingIndicator message={t('miamala.loading')} />}
 
@@ -114,7 +110,7 @@ export function MiamalaPage() {
               <button
                 key={transaction.id}
                 type="button"
-                onClick={() => setSheet({ mode: 'edit', transaction })}
+                onClick={() => setEditing(transaction)}
                 className="block w-full text-left"
               >
                 <TransactionCard transaction={transaction} />
@@ -124,12 +120,14 @@ export function MiamalaPage() {
         )}
       </div>
 
-      <div className="flex flex-col items-center gap-3 py-6">
+      <div className="flex flex-col items-center gap-3 px-5 py-6">
         <VoiceStatusPanel
           uiState={voice.uiState}
           recorderError={voice.recorderError}
           onDismiss={voice.retryFromRecording}
         />
+
+        <ChatEntryBar status={chat.status} onSubmit={chat.submit} onDismiss={chat.reset} />
 
         <VoiceButton
           uiState={voice.uiState}
@@ -142,29 +140,29 @@ export function MiamalaPage() {
         <p className="hidden text-xs text-text-muted md:block">{t('recorder.spaceHint')}</p>
       </div>
 
-      {sheet && (
+      {editing && (
         <TransactionSheet
-          mode={sheet.mode}
-          initial={sheet.mode === 'edit' ? sheet.transaction : BLANK_DRAFT}
+          mode="edit"
+          initial={editing}
           saving={saving}
-          onSave={handleSave}
-          onDelete={sheet.mode === 'edit' ? handleDelete : undefined}
-          onClose={closeSheet}
+          onSave={handleEditSave}
+          onDelete={handleEditDelete}
+          onClose={closeEditSheet}
         />
       )}
 
-      {voiceExtraction && (
+      {extraction && (
         <TransactionConfirmation
-          key={voiceIndex}
-          draft={voiceExtraction.items[voiceIndex].draft}
+          key={extractionIndex}
+          draft={extraction.items[extractionIndex].draft}
           progress={
-            voiceExtraction.items.length > 1
-              ? { index: voiceIndex, total: voiceExtraction.items.length }
+            extraction.items.length > 1
+              ? { index: extractionIndex, total: extraction.items.length }
               : undefined
           }
-          onConfirm={handleVoiceConfirm}
-          onSaved={handleVoiceSaved}
-          onCancel={() => setVoiceExtraction(null)}
+          onConfirm={handleExtractionConfirm}
+          onSaved={handleExtractionSaved}
+          onCancel={() => setExtraction(null)}
         />
       )}
     </div>

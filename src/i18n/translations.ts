@@ -38,7 +38,6 @@ export const translations = {
     },
     miamala: {
       empty: 'Bado hakuna miamala.',
-      addManually: 'Ongeza kwa mkono',
       loading: 'Inapakia miamala…',
     },
     transactionSheet: {
@@ -82,6 +81,13 @@ export const translations = {
       clarifyTitle: 'Sikuelewa vizuri.',
       clarifyBody: 'Shikilia kipaza sauti tena na useme kwa uwazi zaidi, au tumia kuingiza kwa mkono.',
       spaceHint: 'Shikilia Space kurekodi',
+    },
+    chatEntry: {
+      placeholder: 'Andika kilichotokea…',
+      send: 'Tuma',
+      clarifyBody: 'Jaribu kuandika kwa njia nyingine.',
+      errorTitle: 'Imeshindikana kuchakata ulichoandika.',
+      errorBody: 'Jaribu tena.',
     },
     error: {
       genericTitle: 'Hitilafu imetokea.',
@@ -135,7 +141,6 @@ export const translations = {
     },
     miamala: {
       empty: 'No transactions yet.',
-      addManually: 'Add manually',
       loading: 'Loading transactions…',
     },
     transactionSheet: {
@@ -180,6 +185,13 @@ export const translations = {
       clarifyBody: 'Hold the microphone and speak more clearly, or use manual entry.',
       spaceHint: 'Hold Space to record',
     },
+    chatEntry: {
+      placeholder: 'Type what happened…',
+      send: 'Send',
+      clarifyBody: 'Try rephrasing what you typed.',
+      errorTitle: "Couldn't process what you wrote.",
+      errorBody: 'Please try again.',
+    },
     error: {
       genericTitle: 'Something went wrong.',
       genericBody: 'Your data is safe. Please try again.',
@@ -220,7 +232,7 @@ type Dict = {
     categoryLabel: string
     descriptionLabel: string
   }
-  miamala: { empty: string; addManually: string; loading: string }
+  miamala: { empty: string; loading: string }
   transactionSheet: {
     addTitle: string
     editTitle: string
@@ -262,6 +274,13 @@ type Dict = {
     clarifyTitle: string
     clarifyBody: string
     spaceHint: string
+  }
+  chatEntry: {
+    placeholder: string
+    send: string
+    clarifyBody: string
+    errorTitle: string
+    errorBody: string
   }
   error: { genericTitle: string; genericBody: string; retry: string }
   sync: { savedOnPhone: string; synced: string }
