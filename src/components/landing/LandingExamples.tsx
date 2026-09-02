@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Mic } from 'lucide-react'
+import { motion } from 'motion/react'
 import type { LandingContent, LandingExample } from '@/content/landingContent'
 import { useLanguage } from '@/i18n/useLanguage'
 
@@ -46,7 +47,13 @@ export function LandingExamples({ content }: { content: LandingContent }) {
   return (
     <section id="demo" className="bg-surface py-24">
       <div className="mx-auto w-full max-w-6xl px-6">
-        <div className="mx-auto max-w-xl text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.5 }}
+          className="mx-auto max-w-xl text-center"
+        >
           <p className="text-sm font-semibold text-[var(--landing-accent)]">
             {content.examples.eyebrow}
           </p>
@@ -54,9 +61,15 @@ export function LandingExamples({ content }: { content: LandingContent }) {
             {content.examples.title}
           </h2>
           <p className="mt-3 text-base text-text-muted">{content.examples.body}</p>
-        </div>
+        </motion.div>
 
-        <div className="mx-auto mt-12 max-w-lg">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mx-auto mt-12 max-w-lg"
+        >
           <DemoCard example={active} stage={stage} t={t} />
 
           <div className="mt-6 flex flex-wrap justify-center gap-2">
@@ -76,7 +89,7 @@ export function LandingExamples({ content }: { content: LandingContent }) {
               </button>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   )

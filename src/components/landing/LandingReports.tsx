@@ -1,3 +1,4 @@
+import { motion } from 'motion/react'
 import { PhoneMockup } from '@/components/landing/PhoneMockup'
 import { PhoneReportsDemo } from '@/components/landing/PhoneReportsDemo'
 import type { LandingContent } from '@/content/landingContent'
@@ -12,7 +13,13 @@ export function LandingReports({ content }: { content: LandingContent }) {
           </PhoneMockup>
         </div>
 
-        <div className="order-1 lg:order-2">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.5 }}
+          className="order-1 lg:order-2"
+        >
           <p className="text-sm font-semibold text-[var(--landing-accent)]">
             {content.reports.eyebrow}
           </p>
@@ -20,7 +27,7 @@ export function LandingReports({ content }: { content: LandingContent }) {
             {content.reports.title}
           </h2>
           <p className="mt-4 max-w-md text-base text-text-muted">{content.reports.body}</p>
-        </div>
+        </motion.div>
       </div>
     </section>
   )
