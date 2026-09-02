@@ -2,11 +2,10 @@ import { motion, useReducedMotion, useInView } from 'motion/react'
 import { useRef } from 'react'
 import { formatTSh } from '@/lib/currency'
 import { useLanguage } from '@/i18n/useLanguage'
+import { REPORTS_DEMO_DATA } from '@/components/landing/reportsDemoData'
 
-const WEEKLY_INCOME = 205000
-const WEEKLY_EXPENSE = 72000
-const LEAK_CATEGORY = 'Inventory' as const
-const LEAK_AMOUNT = 60000
+const { weeklyIncome: WEEKLY_INCOME, weeklyExpense: WEEKLY_EXPENSE, leakCategory: LEAK_CATEGORY, leakAmount: LEAK_AMOUNT } =
+  REPORTS_DEMO_DATA
 const MAX_BAR = Math.max(WEEKLY_INCOME, WEEKLY_EXPENSE)
 
 /**
@@ -25,7 +24,7 @@ export function PhoneReportsDemo() {
     <div ref={ref} className="flex h-full flex-col bg-bg px-5 pt-11 pb-6">
       <p className="text-center text-[11px] font-medium text-text-muted">{t('balance.label')}</p>
       <p className="mt-0.5 text-center text-2xl font-bold tabular-nums text-text">
-        {formatTSh(153000)}
+        {formatTSh(REPORTS_DEMO_DATA.balance)}
       </p>
 
       <p className="mt-6 text-xs font-semibold text-text-muted">{t('ripoti.thisWeek')}</p>

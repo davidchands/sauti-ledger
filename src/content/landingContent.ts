@@ -72,6 +72,8 @@ export interface LandingContent {
     title: string
     body: string
     screenshotAlt: string
+    /** Two real questions from DESIGN.md § 18 — the component answers each with the exact numbers PhoneReportsDemo renders in the phone next to this, so it reads as a stat callout, not another paragraph. */
+    questions: [string, string]
   }
   trust: {
     title: string
@@ -205,8 +207,9 @@ const CONTENT: Record<Language, LandingContent> = {
     reports: {
       eyebrow: 'Ripoti',
       title: 'Elewa biashara yako kwa dakika moja',
-      body: 'Bila chati ngumu, bila lugha ya kihasibu. Sauti Ledger inakujibu maswali unayouliza kila siku: Nina kiasi gani? Nimetumia wapi zaidi wiki hii?',
+      body: 'Bila chati ngumu, bila lugha ya kihasibu. Sauti Ledger inakujibu maswali unayouliza kila siku.',
       screenshotAlt: 'Skrini ya ripoti ikionyesha mapato, matumizi, na pesa inaishia wapi',
+      questions: ['Nina kiasi gani?', 'Nimetumia wapi zaidi wiki hii?'],
     },
     trust: {
       title: 'Umiliki na uwazi kwanza',
@@ -336,8 +339,9 @@ const CONTENT: Record<Language, LandingContent> = {
     reports: {
       eyebrow: 'Reports',
       title: 'Understand your business in a minute',
-      body: 'No complicated charts, no accounting language. Sauti Ledger answers the questions you actually ask every day: What do I have? Where did most of it go this week?',
+      body: 'No complicated charts, no accounting language. Sauti Ledger answers the questions you actually ask every day.',
       screenshotAlt: "Screenshot of the reports screen showing income, expenses, and the biggest expense category",
+      questions: ['What do I have?', 'Where did most of it go this week?'],
     },
     trust: {
       title: 'Ownership and clarity first',
