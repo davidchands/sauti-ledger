@@ -1,31 +1,33 @@
 import { useState } from 'react'
-import { Keyboard, X } from 'lucide-react'
+import { Keyboard, X, CalendarDays } from 'lucide-react'
 import { BalanceCard } from '@/components/BalanceCard'
 import { TransactionCard } from '@/components/TransactionCard'
+import { TransactionToast, type ToastEntry } from '@/components/TransactionToast'
 import { VoiceButton } from '@/components/VoiceButton'
 import { VoiceStatusPanel } from '@/components/VoiceStatusPanel'
 import { ChatEntryBar } from '@/components/ChatEntryBar'
 import { EmptyState } from '@/components/EmptyState'
 import { LoadingIndicator } from '@/components/LoadingIndicator'
 import { ErrorState } from '@/components/ErrorState'
-import { TransactionSheet } from '@/components/TransactionSheet'
-import { TransactionConfirmation } from '@/components/TransactionConfirmation'
+import { TransactionDetail } from '@/components/TransactionDetail'
+import { TransactionCalendar } from '@/components/TransactionCalendar'
 import { useLanguage } from '@/i18n/useLanguage'
 import { useTransactionsContext } from '@/hooks/useTransactionsContext'
 import { useVoiceCapture, type VoiceExtraction } from '@/hooks/useVoiceCapture'
 import { useSpaceToRecord } from '@/hooks/useSpaceToRecord'
 import { useChatEntry, type ChatExtraction } from '@/hooks/useChatEntry'
-import { groupTransactionsByDay, dayGroupLabel } from '@/lib/groupTransactionsByDay'
+import { dayGroupLabel } from '@/lib/groupTransactionsByDay'
 import type { ExtractionItem } from '@/lib/transactionExtraction'
-import type { TransactionDraft } from '@/components/TransactionFields'
-import type { Transaction } from '@/types/transaction'
+import type { Transaction, TransactionDraft } from '@/types/transaction'
 
-/** Extraction results from voice and chat text entry both flow through the same confirmation queue. */
-interface ExtractionQueue {
-  items: ExtractionItem[]
-  rawTranscript: string
-  language?: 'sw' | 'en'
-  source: 'VOICE' | 'MANUAL'
+function startOfDay(date: Date): Date {
+  const copy = new Date(date)
+  copy.setHours(0, 0, 0, 0)
+  return copy
+}
+
+function dateKey(date: Date): string {
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
 }
 
 export function MiamalaPage() {
@@ -33,106 +35,146 @@ export function MiamalaPage() {
   const { transactions, balance, state, refresh, create, update, remove } =
     useTransactionsContext()
   const [editing, setEditing] = useState<Transaction | null>(null)
-  const [saving, setSaving] = useState(false)
-  const [extraction, setExtraction] = useState<ExtractionQueue | null>(null)
-  const [extractionIndex, setExtractionIndex] = useState(0)
+  const [selectedDate, setSelectedDate] = useState(() => startOfDay(new Date()))
+  const [showCalendar, setShowCalendar] = useState(false)
+  const [toasts, setToasts] = useState<ToastEntry[]>([])
   // Voice is the primary way to record a transaction (DESIGN.md § 13) —
   // typing is a secondary fallback, tucked behind a toggle rather than
   // competing with the mic for visual attention.
   const [showChatEntry, setShowChatEntry] = useState(false)
 
+  // Saves every extracted item immediately — no confirm-before-save step.
+  // The toast (with Undo) is the safety net instead of a blocking modal;
+  // the model has proven accurate enough in practice that requiring a tap
+  // per transaction was pure friction, not a real safeguard.
+  const saveExtractedItems = async (
+    items: ExtractionItem[],
+    provenance: { source: 'VOICE' | 'MANUAL'; rawTranscript: string; language?: 'sw' | 'en' },
+  ) => {
+    for (const item of items) {
+      const created = await create(item.draft, { ...provenance, confidence: item.confidence })
+      if (created) {
+        setToasts((current) => [...current, { id: created.id, transaction: created }])
+      }
+    }
+  }
+
   const handleVoiceExtracted = (result: VoiceExtraction) => {
-    setExtraction({ ...result, source: 'VOICE' })
-    setExtractionIndex(0)
+    saveExtractedItems(result.items, {
+      source: 'VOICE',
+      rawTranscript: result.rawTranscript,
+      language: result.language,
+    })
   }
 
   const handleChatExtracted = (result: ChatExtraction) => {
-    setExtraction({ ...result, source: 'MANUAL' })
-    setExtractionIndex(0)
+    saveExtractedItems(result.items, { source: 'MANUAL', rawTranscript: result.rawTranscript })
   }
 
   const voice = useVoiceCapture(handleVoiceExtracted)
   const chat = useChatEntry(handleChatExtracted)
-  useSpaceToRecord(voice.start, voice.stop, voice.cancel, !extraction && !editing)
+  useSpaceToRecord(voice.start, voice.stop, voice.cancel, !editing && !showCalendar)
 
-  const closeEditSheet = () => setEditing(null)
+  const dismissToast = (id: string) => setToasts((current) => current.filter((e) => e.id !== id))
 
-  const handleEditSave = async (draft: TransactionDraft) => {
+  const undoToast = (id: string) => {
+    dismissToast(id)
+    remove(id)
+  }
+
+  const editFromToast = (transaction: Transaction) => {
+    setToasts((current) => current.filter((e) => e.transaction.id !== transaction.id))
+    setEditing(transaction)
+  }
+
+  const closeDetail = () => setEditing(null)
+
+  const handleDetailChange = (patch: Partial<Transaction>) => {
     if (!editing) return
-    setSaving(true)
-    const ok = await update(editing.id, draft)
-    setSaving(false)
-    if (ok) closeEditSheet()
-  }
-
-  const handleEditDelete = async () => {
-    if (!editing) return
-    setSaving(true)
-    const ok = await remove(editing.id)
-    setSaving(false)
-    if (ok) closeEditSheet()
-  }
-
-  const handleExtractionConfirm = async (draft: TransactionDraft): Promise<boolean> => {
-    if (!extraction) return false
-    return create(draft, {
-      source: extraction.source,
-      rawTranscript: extraction.rawTranscript,
-      language: extraction.language,
-      confidence: extraction.items[extractionIndex].confidence,
-    })
-  }
-
-  // A single recording or typed message can produce several transactions
-  // (AI_SPEC.md § 3a) — step through them one confirmation at a time
-  // rather than saving silently.
-  const handleExtractionSaved = () => {
-    if (!extraction) return
-    if (extractionIndex + 1 < extraction.items.length) {
-      setExtractionIndex((index) => index + 1)
-    } else {
-      setExtraction(null)
+    const merged: Transaction = { ...editing, ...patch }
+    setEditing(merged)
+    const draft: TransactionDraft = {
+      type: merged.type,
+      amount: merged.amount,
+      category: merged.category,
+      description: merged.description,
+      quantity: merged.quantity,
+      unit: merged.unit,
     }
+    update(merged.id, draft)
   }
 
-  const dayGroups = groupTransactionsByDay(transactions)
+  const handleDetailDelete = async () => {
+    if (!editing) return
+    await remove(editing.id)
+    closeDetail()
+  }
+
+  const activeDays = new Set(transactions.map((tx) => dateKey(new Date(tx.createdAt))))
+  const dayTransactions = transactions.filter(
+    (tx) => dateKey(new Date(tx.createdAt)) === dateKey(selectedDate),
+  )
+  const isToday = dateKey(selectedDate) === dateKey(new Date())
 
   return (
     <div className="flex flex-1 flex-col">
       <BalanceCard balance={balance} />
 
       <div className="flex-1 overflow-y-auto px-5 pb-4">
+        <div className="mb-1 flex items-center justify-between">
+          <h2 className="text-sm font-medium text-text-muted">
+            {dayGroupLabel(selectedDate, language, {
+              today: t('today.label'),
+              yesterday: t('today.yesterday'),
+            })}
+          </h2>
+          <div className="flex items-center gap-2">
+            {!isToday && (
+              <button
+                type="button"
+                onClick={() => setSelectedDate(startOfDay(new Date()))}
+                className="rounded-full border border-border px-2.5 py-1 text-xs font-medium text-text-muted"
+              >
+                {t('calendar.jumpToday')}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowCalendar(true)}
+              aria-label={t('calendar.title')}
+              className="flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs font-medium text-text-muted"
+            >
+              <CalendarDays size={13} aria-hidden="true" />
+              {t('calendar.title')}
+            </button>
+          </div>
+        </div>
+
         {state === 'loading' && <LoadingIndicator message={t('miamala.loading')} />}
 
         {state === 'error' && <ErrorState onRetry={refresh} />}
 
-        {state === 'ready' && transactions.length === 0 && (
-          <EmptyState message={t('miamala.empty')} hint={t('mic.idleHint')} />
+        {state === 'ready' && dayTransactions.length === 0 && (
+          <EmptyState
+            message={t('miamala.empty')}
+            hint={isToday ? t('mic.idleHint') : undefined}
+          />
         )}
 
-        {state === 'ready' &&
-          dayGroups.map((group) => (
-            <div key={group.key} className="mb-1 first:mt-0">
-              <h2 className="mt-4 mb-1 text-sm font-medium text-text-muted first:mt-0">
-                {dayGroupLabel(group.date, language, {
-                  today: t('today.label'),
-                  yesterday: t('today.yesterday'),
-                })}
-              </h2>
-              <div className="divide-y divide-border">
-                {group.items.map((transaction) => (
-                  <button
-                    key={transaction.id}
-                    type="button"
-                    onClick={() => setEditing(transaction)}
-                    className="block w-full text-left"
-                  >
-                    <TransactionCard transaction={transaction} />
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
+        {state === 'ready' && dayTransactions.length > 0 && (
+          <div className="divide-y divide-border">
+            {dayTransactions.map((transaction) => (
+              <button
+                key={transaction.id}
+                type="button"
+                onClick={() => setEditing(transaction)}
+                className="block w-full text-left"
+              >
+                <TransactionCard transaction={transaction} />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col items-center gap-3 px-5 py-6">
@@ -141,6 +183,20 @@ export function MiamalaPage() {
           recorderError={voice.recorderError}
           onDismiss={voice.retryFromRecording}
         />
+
+        {toasts.length > 0 && (
+          <div className="flex w-full flex-col gap-2">
+            {toasts.map((entry) => (
+              <TransactionToast
+                key={entry.id}
+                entry={entry}
+                onUndo={undoToast}
+                onExpire={dismissToast}
+                onEdit={editFromToast}
+              />
+            ))}
+          </div>
+        )}
 
         {showChatEntry && (
           <div className="flex w-full items-center gap-2">
@@ -181,28 +237,23 @@ export function MiamalaPage() {
       </div>
 
       {editing && (
-        <TransactionSheet
-          mode="edit"
-          initial={editing}
-          saving={saving}
-          onSave={handleEditSave}
-          onDelete={handleEditDelete}
-          onClose={closeEditSheet}
+        <TransactionDetail
+          transaction={editing}
+          onChange={handleDetailChange}
+          onDelete={handleDetailDelete}
+          onClose={closeDetail}
         />
       )}
 
-      {extraction && (
-        <TransactionConfirmation
-          key={extractionIndex}
-          draft={extraction.items[extractionIndex].draft}
-          progress={
-            extraction.items.length > 1
-              ? { index: extractionIndex, total: extraction.items.length }
-              : undefined
-          }
-          onConfirm={handleExtractionConfirm}
-          onSaved={handleExtractionSaved}
-          onCancel={() => setExtraction(null)}
+      {showCalendar && (
+        <TransactionCalendar
+          activeDays={activeDays}
+          selected={selectedDate}
+          onSelect={(date) => {
+            setSelectedDate(startOfDay(date))
+            setShowCalendar(false)
+          }}
+          onClose={() => setShowCalendar(false)}
         />
       )}
     </div>

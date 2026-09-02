@@ -103,6 +103,15 @@ export const translations = {
       savedOnPhone: 'Imehifadhiwa kwenye simu',
       synced: 'Imesawazishwa',
     },
+    toast: {
+      undo: 'Ghairi',
+    },
+    calendar: {
+      title: 'Chagua tarehe',
+      prevMonth: 'Mwezi uliopita',
+      nextMonth: 'Mwezi ujao',
+      jumpToday: 'Nenda leo',
+    },
     language: {
       switchTo: 'Badilisha lugha kwenda Kiingereza',
     },
@@ -211,6 +220,15 @@ export const translations = {
       savedOnPhone: 'Saved on your phone',
       synced: 'Synced',
     },
+    toast: {
+      undo: 'Undo',
+    },
+    calendar: {
+      title: 'Choose a date',
+      prevMonth: 'Previous month',
+      nextMonth: 'Next month',
+      jumpToday: 'Jump to today',
+    },
     language: {
       switchTo: 'Switch language to Swahili',
     },
@@ -298,6 +316,8 @@ type Dict = {
   }
   error: { genericTitle: string; genericBody: string; retry: string }
   sync: { savedOnPhone: string; synced: string }
+  toast: { undo: string }
+  calendar: { title: string; prevMonth: string; nextMonth: string; jumpToday: string }
   language: { switchTo: string }
 }
 

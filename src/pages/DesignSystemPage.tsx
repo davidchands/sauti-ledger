@@ -3,7 +3,7 @@ import { BalanceCard } from '@/components/BalanceCard'
 import { TransactionCard } from '@/components/TransactionCard'
 import { VoiceButton } from '@/components/VoiceButton'
 import type { VoiceCaptureUiState } from '@/hooks/useVoiceCapture'
-import { TransactionConfirmation } from '@/components/TransactionConfirmation'
+import { TransactionDetail } from '@/components/TransactionDetail'
 import { EmptyState } from '@/components/EmptyState'
 import { LoadingIndicator } from '@/components/LoadingIndicator'
 import { ErrorState } from '@/components/ErrorState'
@@ -32,7 +32,8 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 export function DesignSystemPage() {
   const { t } = useLanguage()
   const sampleTransactions = buildSampleTransactions()
-  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [detailTransaction, setDetailTransaction] = useState(sampleTransactions[0] ?? null)
+  const [showDetail, setShowDetail] = useState(false)
 
   return (
     <div className="pb-16">
@@ -63,19 +64,20 @@ export function DesignSystemPage() {
         </div>
       </Section>
 
-      <Section title="Confirmation card">
+      <Section title="Transaction detail (frictionless inline edit)">
         <button
           type="button"
-          onClick={() => setShowConfirmation(true)}
+          onClick={() => setShowDetail(true)}
           className="rounded-full border border-border px-4 py-2 text-sm font-medium text-text"
         >
-          Show confirmation
+          Show detail
         </button>
-        {showConfirmation && (
-          <TransactionConfirmation
-            draft={{ type: 'INCOME', amount: 25000, category: 'Sales', description: 'Mchele' }}
-            onConfirm={async () => true}
-            onCancel={() => setShowConfirmation(false)}
+        {showDetail && detailTransaction && (
+          <TransactionDetail
+            transaction={detailTransaction}
+            onChange={(patch) => setDetailTransaction((current) => ({ ...current!, ...patch }))}
+            onDelete={() => setShowDetail(false)}
+            onClose={() => setShowDetail(false)}
           />
         )}
       </Section>

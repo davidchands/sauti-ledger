@@ -239,5 +239,5 @@ where Swahili active/passive voice differs by a syllable.
 ## 9. Non-Negotiable Rules
 
 * Gemini never writes directly to the database. The server validates the structured output against the Zod schema first.
-* Every AI-generated transaction must pass validation before it reaches the transaction preview.
-* Never trust raw Gemini output as final. Always show it to the user for confirmation before it saves.
+* Every AI-generated transaction must pass Zod validation before it's ever saved.
+* Saving no longer waits on a tap-to-confirm (DESIGN.md § 15, a deliberate product decision once real usage showed the pipeline is accurate enough). What's still non-negotiable: a genuinely ambiguous amount or type is never invented, it's surfaced to the user instead — and every save still shows the user what was recorded (a toast with Undo), never truly silent.

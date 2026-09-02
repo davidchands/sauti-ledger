@@ -17,3 +17,8 @@ export interface Transaction {
   unit?: string | null
   createdAt: string
 }
+
+export type TransactionDraft = Pick<
+  Transaction,
+  'type' | 'amount' | 'category' | 'description' | 'quantity' | 'unit'
+>

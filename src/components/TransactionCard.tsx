@@ -1,3 +1,4 @@
+import { Package } from 'lucide-react'
 import { formatTSh } from '@/lib/currency'
 import { useLanguage } from '@/i18n/useLanguage'
 import type { Transaction } from '@/types/transaction'
@@ -16,24 +17,30 @@ interface TransactionCardProps {
 export function TransactionCard({ transaction }: TransactionCardProps) {
   const { t, language } = useLanguage()
   const isIncome = transaction.type === 'INCOME'
-  const quantityLabel =
-    transaction.quantity && transaction.unit ? `${transaction.quantity} ${transaction.unit}` : null
+  const hasQuantity = transaction.quantity != null && transaction.unit
 
   return (
     <div className="flex items-center justify-between py-3">
-      <div>
-        <p
-          className={`text-base font-semibold ${isIncome ? 'text-income' : 'text-expense'}`}
-        >
-          {isIncome ? '+' : '−'} {formatTSh(transaction.amount)}
-        </p>
-        <p className="text-sm text-text-muted">
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <p className={`text-base font-semibold ${isIncome ? 'text-income' : 'text-expense'}`}>
+            {isIncome ? '+' : '−'} {formatTSh(transaction.amount)}
+          </p>
+          {hasQuantity && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-md border border-border bg-surface px-1.5 py-0.5 text-xs font-semibold tabular-nums text-text-muted">
+              <Package size={11} aria-hidden="true" />
+              {transaction.quantity} {transaction.unit}
+            </span>
+          )}
+        </div>
+        <p className="truncate text-sm text-text-muted">
           {t(`category.${transaction.category}`)}
-          {quantityLabel ? ` · ${quantityLabel}` : ''}
           {transaction.description ? ` · ${transaction.description}` : ''}
         </p>
       </div>
-      <p className="text-xs text-text-muted">{formatTime(transaction.createdAt, language)}</p>
+      <p className="shrink-0 pl-3 text-xs text-text-muted">
+        {formatTime(transaction.createdAt, language)}
+      </p>
     </div>
   )
 }

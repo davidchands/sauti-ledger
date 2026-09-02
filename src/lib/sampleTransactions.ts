@@ -16,6 +16,8 @@ export function buildSampleTransactions(): Transaction[] {
       amount: 25000,
       category: 'Sales',
       description: 'Mchele',
+      quantity: 5,
+      unit: 'magunia',
       createdAt: new Date(now - 2 * hour).toISOString(),
     },
     {

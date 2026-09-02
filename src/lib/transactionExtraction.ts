@@ -1,5 +1,5 @@
 import { extractTransactions } from '@/services/extractionService'
-import type { TransactionDraft } from '@/components/TransactionFields'
+import type { TransactionDraft } from '@/types/transaction'
 
 export interface ExtractionItem {
   draft: TransactionDraft

@@ -10,11 +10,9 @@ import { deviceIdFor, withDeviceId, cleanupDevice } from './helpers'
  * UI-flow regression test, not a re-verification of transcription/
  * extraction accuracy (that's eval/run.ts's job — see AI_SPEC.md § 5).
  *
- * There's no separate "review the recording" step anymore — release
- * chains straight into transcribe -> extract -> the transaction
- * confirmation screen, which is the only human-in-the-loop moment
- * (DESIGN.md's Confirmation Philosophy is about the transaction, not the
- * raw audio).
+ * Release chains straight into transcribe -> extract -> saved, no
+ * confirm-before-save step (DESIGN.md § 15, a deliberate product
+ * decision) — the toast with Undo is the safety net instead.
  */
 test.describe('voice transaction', () => {
   let deviceId: string
@@ -52,7 +50,7 @@ test.describe('voice transaction', () => {
     await cleanupDevice(deviceId)
   })
 
-  test('hold the mic, release, and confirm saves the transaction', async ({ page }) => {
+  test('hold the mic and release saves the transaction automatically', async ({ page }) => {
     const micButton = page.getByRole('button', { name: 'Speak' })
     const box = await micButton.boundingBox()
     if (!box) throw new Error('mic button not found')
@@ -67,21 +65,15 @@ test.describe('voice transaction', () => {
 
     await page.mouse.up()
 
-    // Confirmation preview built from the mocked /api/extract response —
-    // shown automatically, no intermediate "use this recording" step.
-    await expect(page.getByText('+ TSh 20,000')).toBeVisible()
-    await expect(page.getByText('Mchele')).toBeVisible()
+    // Saved immediately, no confirm tap — a toast with Undo is the receipt.
+    await expect(page.getByRole('button', { name: 'Undo' })).toBeVisible()
 
-    await page.getByRole('button', { name: 'Confirm' }).click()
-
-    await expect(page.getByText('Saved')).toBeVisible()
-    await expect(page.getByText('+ TSh 20,000')).toBeVisible()
-    await expect(page.getByText('Sales · Mchele')).toBeVisible()
+    // Shown in both the toast and the day's list at once — either match confirms the save.
+    await expect(page.getByText('+ TSh 20,000').first()).toBeVisible()
+    await expect(page.getByText('Sales · Mchele').first()).toBeVisible()
   })
 
-  test('a recording with two transactions steps through both before saving', async ({
-    page,
-  }) => {
+  test('a recording with two transactions saves both automatically', async ({ page }) => {
     // Overrides the beforeEach mock — Playwright tries the most recently
     // registered matching route first.
     await page.route('**/api/extract', async (route) => {
@@ -119,21 +111,10 @@ test.describe('voice transaction', () => {
     await page.waitForTimeout(600)
     await page.mouse.up()
 
-    // First transaction shown with a "1/2" progress indicator.
-    await expect(page.getByText('1/2')).toBeVisible()
-    await expect(page.getByText('+ TSh 20,000')).toBeVisible()
-    await page.getByRole('button', { name: 'Confirm' }).click()
-    await expect(page.getByText('Saved')).toBeVisible()
-
-    // Auto-advances to the second transaction instead of closing.
-    await expect(page.getByText('2/2')).toBeVisible()
-    await expect(page.getByText('− TSh 5,000')).toBeVisible()
-    await page.getByRole('button', { name: 'Confirm' }).click()
-    await expect(page.getByText('Saved')).toBeVisible()
-
-    // Both saved and visible in the list once the queue is done.
-    await expect(page.getByText('Sales · Mchele')).toBeVisible()
-    await expect(page.getByText('Operations · Mafuta')).toBeVisible()
+    // Both saved without any tap.
+    await expect(page.getByText('Sales · Mchele').first()).toBeVisible()
+    await expect(page.getByText('Operations · Mafuta').first()).toBeVisible()
+    await expect(page.getByText('TSh 15,000', { exact: true })).toBeVisible()
   })
 
   test('holding Space then pressing Escape cancels without saving', async ({ page }) => {

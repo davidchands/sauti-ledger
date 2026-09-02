@@ -48,9 +48,9 @@ test.describe('device isolation', () => {
     await pageA.getByRole('button', { name: 'Or type instead' }).click()
     await pageA.getByPlaceholder('Type what happened…').fill('Nimeuza device A sale kwa 50000')
     await pageA.getByRole('button', { name: 'Send' }).click()
-    await expect(pageA.getByRole('dialog', { name: 'Confirm transaction' })).toBeVisible()
-    await pageA.getByRole('button', { name: 'Confirm' }).click()
-    await expect(pageA.getByText('+ TSh 50,000')).toBeVisible()
+    // Saves immediately, no confirm tap.
+    await expect(pageA.getByRole('button', { name: 'Undo' })).toBeVisible()
+    await expect(pageA.getByText('+ TSh 50,000').first()).toBeVisible()
     await contextA.close()
 
     const contextB = await browser.newContext()

@@ -4,7 +4,7 @@ import { isNetworkError } from '@/lib/isNetworkError'
 import { localDb, type LocalTransaction, type OutboxEntry } from '@/lib/localDb'
 import { toLocalTransaction, syncOutbox, type ApiTransaction } from '@/lib/transactionSync'
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
-import type { TransactionDraft } from '@/components/TransactionFields'
+import type { TransactionDraft } from '@/types/transaction'
 
 /** Provenance for a transaction that came from AI extraction, spoken or typed, rather than the manual-entry form. */
 interface ExtractionProvenance {
@@ -107,7 +107,10 @@ export function useTransactions() {
   }, [isOnline])
 
   const create = useCallback(
-    async (draft: TransactionDraft, provenance?: ExtractionProvenance): Promise<boolean> => {
+    async (
+      draft: TransactionDraft,
+      provenance?: ExtractionProvenance,
+    ): Promise<LocalTransaction | null> => {
       const tempId = `temp-${crypto.randomUUID()}`
       const optimistic: LocalTransaction = {
         id: tempId,
@@ -123,9 +126,10 @@ export function useTransactions() {
       try {
         const created = await apiClient.post<ApiTransaction>('/transactions', payload)
         await localDb.transactions.delete(tempId)
-        await localDb.transactions.put(toLocalTransaction(created, false))
+        const local = toLocalTransaction(created, false)
+        await localDb.transactions.put(local)
         await reloadFromCache()
-        return true
+        return local
       } catch (error) {
         if (isNetworkError(error)) {
           const entry: OutboxEntry = {
@@ -137,11 +141,11 @@ export function useTransactions() {
           }
           await localDb.outbox.put(entry)
           await reloadFromCache()
-          return true
+          return optimistic
         }
         await localDb.transactions.delete(tempId)
         await reloadFromCache()
-        return false
+        return null
       }
     },
     [reloadFromCache],
