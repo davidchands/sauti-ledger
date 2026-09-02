@@ -11,12 +11,15 @@ import { LoadingIndicator } from '@/components/LoadingIndicator'
 import { ErrorState } from '@/components/ErrorState'
 import { TransactionDetail } from '@/components/TransactionDetail'
 import { TransactionCalendar } from '@/components/TransactionCalendar'
+import { DailySummaryCard } from '@/components/DailySummaryCard'
+import { TransactionTypeFilter, type TransactionTypeFilterValue } from '@/components/TransactionTypeFilter'
 import { useLanguage } from '@/i18n/useLanguage'
 import { useTransactionsContext } from '@/hooks/useTransactionsContext'
 import { useVoiceCapture, type VoiceExtraction } from '@/hooks/useVoiceCapture'
 import { useSpaceToRecord } from '@/hooks/useSpaceToRecord'
 import { useChatEntry, type ChatExtraction } from '@/hooks/useChatEntry'
 import { dayGroupLabel } from '@/lib/groupTransactionsByDay'
+import { computeDailySummary } from '@/lib/dailySummary'
 import type { ExtractionItem } from '@/lib/transactionExtraction'
 import type { Transaction, TransactionDraft } from '@/types/transaction'
 
@@ -42,6 +45,7 @@ export function MiamalaPage() {
   // typing is a secondary fallback, tucked behind a toggle rather than
   // competing with the mic for visual attention.
   const [showChatEntry, setShowChatEntry] = useState(false)
+  const [typeFilter, setTypeFilter] = useState<TransactionTypeFilterValue>('ALL')
 
   // Saves every extracted item immediately — no confirm-before-save step.
   // The toast (with Undo) is the safety net instead of a blocking modal;
@@ -114,6 +118,9 @@ export function MiamalaPage() {
   const dayTransactions = transactions.filter(
     (tx) => dateKey(new Date(tx.createdAt)) === dateKey(selectedDate),
   )
+  const visibleTransactions = dayTransactions.filter(
+    (tx) => typeFilter === 'ALL' || tx.type === typeFilter,
+  )
   const isToday = dateKey(selectedDate) === dateKey(new Date())
 
   return (
@@ -154,6 +161,10 @@ export function MiamalaPage() {
 
         {state === 'error' && <ErrorState onRetry={refresh} />}
 
+        {state === 'ready' && dayTransactions.length > 0 && (
+          <TransactionTypeFilter value={typeFilter} onChange={setTypeFilter} />
+        )}
+
         {state === 'ready' && dayTransactions.length === 0 && (
           <EmptyState
             message={t('miamala.empty')}
@@ -161,9 +172,13 @@ export function MiamalaPage() {
           />
         )}
 
-        {state === 'ready' && dayTransactions.length > 0 && (
+        {state === 'ready' && dayTransactions.length > 0 && visibleTransactions.length === 0 && (
+          <EmptyState message={t('filter.empty')} />
+        )}
+
+        {state === 'ready' && visibleTransactions.length > 0 && (
           <div className="divide-y divide-border">
-            {dayTransactions.map((transaction) => (
+            {visibleTransactions.map((transaction) => (
               <button
                 key={transaction.id}
                 type="button"
@@ -174,6 +189,10 @@ export function MiamalaPage() {
               </button>
             ))}
           </div>
+        )}
+
+        {state === 'ready' && dayTransactions.length > 0 && (
+          <DailySummaryCard summary={computeDailySummary(transactions, selectedDate)} />
         )}
       </div>
 

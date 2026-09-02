@@ -65,9 +65,11 @@ test.describe('manual transaction', () => {
     await waitForToastToClear(page)
 
     // getByText does substring matching, and "+ TSh 25,000" (the row)
-    // contains "TSh 25,000" (the balance) — exact:true avoids ambiguity.
-    await expect(page.getByText('TSh 25,000', { exact: true })).toBeVisible()
-    await expect(page.getByText('+ TSh 25,000')).toBeVisible()
+    // contains "TSh 25,000" (the balance card and, now, the day summary's
+    // closing balance) — exact:true plus .first() (balance card renders
+    // first in the DOM) avoids ambiguity.
+    await expect(page.getByText('TSh 25,000', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText('+ TSh 25,000').first()).toBeVisible()
     await expect(page.getByText('Sales · Mchele')).toBeVisible()
   })
 
@@ -80,7 +82,7 @@ test.describe('manual transaction', () => {
     })
     await createViaChat(page, 'Nimeuza test item kwa 10000')
     await waitForToastToClear(page)
-    await expect(page.getByText('+ TSh 10,000')).toBeVisible()
+    await expect(page.getByText('+ TSh 10,000').first()).toBeVisible()
 
     // Tap the row to open the frictionless detail view, tap the amount to
     // edit it in place — no form, no Save button.
@@ -90,7 +92,7 @@ test.describe('manual transaction', () => {
     await page.getByRole('spinbutton').fill('40000')
     await page.keyboard.press('Enter')
 
-    await expect(page.getByText('TSh 40,000', { exact: true })).toBeVisible()
+    await expect(page.getByText('TSh 40,000', { exact: true }).first()).toBeVisible()
   })
 
   test('deleting a transaction removes it and resets the balance', async ({ page }) => {
@@ -102,7 +104,7 @@ test.describe('manual transaction', () => {
     })
     await createViaChat(page, 'Nimeuza removable entry kwa 15000')
     await waitForToastToClear(page)
-    await expect(page.getByText('+ TSh 15,000')).toBeVisible()
+    await expect(page.getByText('+ TSh 15,000').first()).toBeVisible()
 
     await page.getByText('Sales · Removable entry').click()
     await page.getByRole('button', { name: 'Delete', exact: true }).click()

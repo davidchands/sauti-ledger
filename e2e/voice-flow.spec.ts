@@ -114,7 +114,7 @@ test.describe('voice transaction', () => {
     // Both saved without any tap.
     await expect(page.getByText('Sales · Mchele').first()).toBeVisible()
     await expect(page.getByText('Operations · Mafuta').first()).toBeVisible()
-    await expect(page.getByText('TSh 15,000', { exact: true })).toBeVisible()
+    await expect(page.getByText('TSh 15,000', { exact: true }).first()).toBeVisible()
   })
 
   test('holding Space then pressing Escape cancels without saving', async ({ page }) => {

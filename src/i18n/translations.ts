@@ -112,6 +112,15 @@ export const translations = {
       nextMonth: 'Mwezi ujao',
       jumpToday: 'Nenda leo',
     },
+    daySummary: {
+      closingBalance: 'Salio la kufunga',
+    },
+    filter: {
+      all: 'Zote',
+      income: 'Mapato',
+      expense: 'Matumizi',
+      empty: 'Hakuna muamala wa aina hii siku hii.',
+    },
     language: {
       switchTo: 'Badilisha lugha kwenda Kiingereza',
     },
@@ -229,6 +238,15 @@ export const translations = {
       nextMonth: 'Next month',
       jumpToday: 'Jump to today',
     },
+    daySummary: {
+      closingBalance: 'Closing balance',
+    },
+    filter: {
+      all: 'All',
+      income: 'Income',
+      expense: 'Expenses',
+      empty: 'No transactions of this type on this day.',
+    },
     language: {
       switchTo: 'Switch language to Swahili',
     },
@@ -318,6 +336,8 @@ type Dict = {
   sync: { savedOnPhone: string; synced: string }
   toast: { undo: string }
   calendar: { title: string; prevMonth: string; nextMonth: string; jumpToday: string }
+  daySummary: { closingBalance: string }
+  filter: { all: string; income: string; expense: string; empty: string }
   language: { switchTo: string }
 }
 
