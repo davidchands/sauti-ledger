@@ -23,7 +23,7 @@ export function LandingHowItWorks({ content }: { content: LandingContent }) {
             const Icon = ICONS[index]
             return (
               <div key={step.title} className="relative">
-                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--landing-accent)] text-white shadow-[0_8px_20px_-6px_rgba(91,79,233,0.5)]">
+                <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--landing-accent)] text-white shadow-[0_8px_20px_-6px_rgba(194,121,13,0.45)]">
                   <Icon size={20} aria-hidden="true" />
                 </div>
                 <p className="mt-4 text-base font-semibold text-text">{step.title}</p>

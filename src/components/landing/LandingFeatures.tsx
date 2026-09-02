@@ -20,7 +20,7 @@ export function LandingFeatures({ content }: { content: LandingContent }) {
             return (
               <div
                 key={feature.title}
-                className="rounded-2xl border border-border bg-surface p-6 transition-shadow hover:border-[var(--landing-accent)]/30 hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_32px_-16px_rgba(91,79,233,0.2)]"
+                className="rounded-2xl border border-border bg-surface p-6 transition-shadow hover:border-[var(--landing-accent)]/30 hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_32px_-16px_rgba(194,121,13,0.2)]"
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--landing-accent-soft)] text-[var(--landing-accent)]">
                   <Icon size={18} aria-hidden="true" />

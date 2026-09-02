@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Mic } from 'lucide-react'
+import { Mic, Wallet, BarChart3 } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 import { PhoneMockup } from '@/components/landing/PhoneMockup'
 import { PhoneVoiceDemo } from '@/components/landing/PhoneVoiceDemo'
@@ -28,21 +28,29 @@ const HIGHLIGHT: Record<string, string> = {
   'Record your business money by simply speaking.': 'speaking',
 }
 
+const CHIPS = [
+  { icon: Mic, sw: 'Ongea', en: 'Speak' },
+  { icon: Wallet, sw: 'Salio', en: 'Balance' },
+  { icon: BarChart3, sw: 'Ripoti', en: 'Reports' },
+]
+
 export function LandingHero({ content }: { content: LandingContent }) {
   const reduceMotion = useReducedMotion()
+  const isSwahili = content.hero.badge === 'Imejengwa kwa wafanyabiashara wadogo Tanzania'
 
   return (
     <section className="landing-dot-grid relative overflow-hidden">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 -top-40 -z-10 h-[560px] bg-[radial-gradient(60%_60%_at_50%_0%,var(--landing-accent-soft)_0%,transparent_70%)]"
+        className="pointer-events-none absolute inset-x-0 -top-40 -z-10 h-[620px] bg-[radial-gradient(55%_55%_at_50%_0%,var(--landing-accent-soft)_0%,transparent_70%)]"
       />
 
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-6 pt-10 pb-24 lg:grid-cols-2 lg:gap-8 lg:pt-20">
+      <div className="mx-auto flex w-full max-w-3xl flex-col items-center px-6 pt-16 pb-8 text-center sm:pt-24">
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
+          className="flex flex-col items-center"
         >
           <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-text-muted">
             <span
@@ -52,7 +60,7 @@ export function LandingHero({ content }: { content: LandingContent }) {
             {content.hero.badge}
           </span>
 
-          <h1 className="mt-6 text-6xl font-bold tracking-tight text-text sm:text-7xl lg:text-6xl xl:text-7xl">
+          <h1 className="landing-display mt-7 max-w-2xl text-5xl font-semibold tracking-tight text-text sm:text-6xl lg:text-7xl">
             <Headline text={content.hero.headline} highlight={HIGHLIGHT[content.hero.headline] ?? ''} />
           </h1>
 
@@ -63,7 +71,7 @@ export function LandingHero({ content }: { content: LandingContent }) {
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Link
               to="/miamala"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--landing-accent)] px-6 py-3.5 text-base font-semibold text-white shadow-[0_12px_28px_-8px_rgba(91,79,233,0.55)] transition-transform hover:scale-[1.02]"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--landing-accent)] px-6 py-3.5 text-base font-semibold text-white shadow-[0_12px_28px_-8px_rgba(194,121,13,0.5)] transition-transform hover:scale-[1.02]"
             >
               <Mic size={18} aria-hidden="true" />
               {content.hero.ctaPrimary}
@@ -75,9 +83,21 @@ export function LandingHero({ content }: { content: LandingContent }) {
               {content.hero.ctaSecondary}
             </a>
           </div>
+
+          <div className="mt-10 flex items-center gap-3">
+            {CHIPS.map(({ icon: Icon, sw, en }) => (
+              <span
+                key={en}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text-muted"
+              >
+                <Icon size={13} className="text-[var(--landing-accent)]" aria-hidden="true" />
+                {isSwahili ? sw : en}
+              </span>
+            ))}
+          </div>
         </motion.div>
 
-        <div className="flex justify-center lg:justify-end">
+        <div className="mt-14 w-full max-w-[260px]">
           <PhoneMockup ariaLabel={content.hero.demoAriaLabel}>
             <PhoneVoiceDemo content={content} />
           </PhoneMockup>

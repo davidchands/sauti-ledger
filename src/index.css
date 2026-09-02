@@ -87,23 +87,29 @@ body {
  * polarity in the live demo, not decoration.
  */
 .landing-page {
-  --color-bg: #ffffff;
-  --color-surface: #f8f7fc;
-  --color-border: #eae7f3;
-  --color-text: #14121f;
-  --color-text-muted: #6b6779;
+  --color-bg: #faf5ea;
+  --color-surface: #f2e9d8;
+  --color-border: #e6d9bf;
+  --color-text: #241c10;
+  --color-text-muted: #756a54;
   --color-income: #1f8a4c;
   --color-income-bg: #eaf6ee;
   --color-expense: #d1453d;
   --color-expense-bg: #fbeceb;
-  --landing-accent: #5b4fe9;
-  --landing-accent-dark: #4a3fd1;
-  --landing-accent-soft: #f0eeff;
+  --landing-accent: #c2790d;
+  --landing-accent-dark: #9c6109;
+  --landing-accent-soft: #fbedd0;
+  --landing-display-font: 'Fraunces', 'Georgia', serif;
 }
 
 .landing-dot-grid {
   background-image: radial-gradient(circle, var(--color-border) 1.5px, transparent 1.5px);
   background-size: 24px 24px;
+}
+
+.landing-display {
+  font-family: var(--landing-display-font);
+  font-optical-sizing: auto;
 }
 
 /* Mic recording indicator (VoiceButton) — a rotating light beam plus

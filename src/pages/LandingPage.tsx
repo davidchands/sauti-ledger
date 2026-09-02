@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useLanguage } from '@/i18n/useLanguage'
 import { getLandingContent } from '@/content/landingContent'
 import { LandingNav } from '@/components/landing/LandingNav'
@@ -10,6 +11,23 @@ import { LandingTrust } from '@/components/landing/LandingTrust'
 import { LandingFinalCta } from '@/components/landing/LandingFinalCta'
 import { LandingFooter } from '@/components/landing/LandingFooter'
 
+const FONT_HREF =
+  'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap'
+
+/** Loads the landing page's display serif only while the landing page is mounted — the in-app PWA never pays for it. */
+function useLandingFont() {
+  useEffect(() => {
+    if (document.querySelector(`link[href="${FONT_HREF}"]`)) return
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = FONT_HREF
+    document.head.appendChild(link)
+    return () => {
+      link.remove()
+    }
+  }, [])
+}
+
 /**
  * Marketing surface — separate from AppShell (no bottom nav / 430px cap).
  * Full-width responsive by design; the in-product experience stays
@@ -18,9 +36,10 @@ import { LandingFooter } from '@/components/landing/LandingFooter'
 export function LandingPage() {
   const { language } = useLanguage()
   const content = getLandingContent(language)
+  useLandingFont()
 
   return (
-    <div className="landing-page min-h-dvh bg-bg text-text">
+    <div className="landing-page min-h-dvh overflow-x-hidden bg-bg text-text">
       <LandingNav content={content} />
       <LandingHero content={content} />
       <LandingHowItWorks content={content} />
