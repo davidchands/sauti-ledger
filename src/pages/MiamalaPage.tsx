@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Keyboard, X } from 'lucide-react'
 import { BalanceCard } from '@/components/BalanceCard'
 import { TransactionCard } from '@/components/TransactionCard'
 import { VoiceButton } from '@/components/VoiceButton'
@@ -14,6 +15,7 @@ import { useTransactionsContext } from '@/hooks/useTransactionsContext'
 import { useVoiceCapture, type VoiceExtraction } from '@/hooks/useVoiceCapture'
 import { useSpaceToRecord } from '@/hooks/useSpaceToRecord'
 import { useChatEntry, type ChatExtraction } from '@/hooks/useChatEntry'
+import { groupTransactionsByDay, dayGroupLabel } from '@/lib/groupTransactionsByDay'
 import type { ExtractionItem } from '@/lib/transactionExtraction'
 import type { TransactionDraft } from '@/components/TransactionFields'
 import type { Transaction } from '@/types/transaction'
@@ -27,13 +29,17 @@ interface ExtractionQueue {
 }
 
 export function MiamalaPage() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const { transactions, balance, state, refresh, create, update, remove } =
     useTransactionsContext()
   const [editing, setEditing] = useState<Transaction | null>(null)
   const [saving, setSaving] = useState(false)
   const [extraction, setExtraction] = useState<ExtractionQueue | null>(null)
   const [extractionIndex, setExtractionIndex] = useState(0)
+  // Voice is the primary way to record a transaction (DESIGN.md § 13) —
+  // typing is a secondary fallback, tucked behind a toggle rather than
+  // competing with the mic for visual attention.
+  const [showChatEntry, setShowChatEntry] = useState(false)
 
   const handleVoiceExtracted = (result: VoiceExtraction) => {
     setExtraction({ ...result, source: 'VOICE' })
@@ -89,13 +95,13 @@ export function MiamalaPage() {
     }
   }
 
+  const dayGroups = groupTransactionsByDay(transactions)
+
   return (
     <div className="flex flex-1 flex-col">
       <BalanceCard balance={balance} />
 
       <div className="flex-1 overflow-y-auto px-5 pb-4">
-        <h2 className="mb-1 text-sm font-medium text-text-muted">{t('today.label')}</h2>
-
         {state === 'loading' && <LoadingIndicator message={t('miamala.loading')} />}
 
         {state === 'error' && <ErrorState onRetry={refresh} />}
@@ -104,20 +110,29 @@ export function MiamalaPage() {
           <EmptyState message={t('miamala.empty')} hint={t('mic.idleHint')} />
         )}
 
-        {state === 'ready' && transactions.length > 0 && (
-          <div className="divide-y divide-border">
-            {transactions.map((transaction) => (
-              <button
-                key={transaction.id}
-                type="button"
-                onClick={() => setEditing(transaction)}
-                className="block w-full text-left"
-              >
-                <TransactionCard transaction={transaction} />
-              </button>
-            ))}
-          </div>
-        )}
+        {state === 'ready' &&
+          dayGroups.map((group) => (
+            <div key={group.key} className="mb-1 first:mt-0">
+              <h2 className="mt-4 mb-1 text-sm font-medium text-text-muted first:mt-0">
+                {dayGroupLabel(group.date, language, {
+                  today: t('today.label'),
+                  yesterday: t('today.yesterday'),
+                })}
+              </h2>
+              <div className="divide-y divide-border">
+                {group.items.map((transaction) => (
+                  <button
+                    key={transaction.id}
+                    type="button"
+                    onClick={() => setEditing(transaction)}
+                    className="block w-full text-left"
+                  >
+                    <TransactionCard transaction={transaction} />
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
       </div>
 
       <div className="flex flex-col items-center gap-3 px-5 py-6">
@@ -127,7 +142,21 @@ export function MiamalaPage() {
           onDismiss={voice.retryFromRecording}
         />
 
-        <ChatEntryBar status={chat.status} onSubmit={chat.submit} onDismiss={chat.reset} />
+        {showChatEntry && (
+          <div className="flex w-full items-center gap-2">
+            <div className="flex-1">
+              <ChatEntryBar status={chat.status} onSubmit={chat.submit} onDismiss={chat.reset} />
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowChatEntry(false)}
+              aria-label={t('chatEntry.toggleHide')}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-muted"
+            >
+              <X size={18} aria-hidden="true" />
+            </button>
+          </div>
+        )}
 
         <VoiceButton
           uiState={voice.uiState}
@@ -138,6 +167,17 @@ export function MiamalaPage() {
         />
 
         <p className="hidden text-xs text-text-muted md:block">{t('recorder.spaceHint')}</p>
+
+        {!showChatEntry && (
+          <button
+            type="button"
+            onClick={() => setShowChatEntry(true)}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-text-muted underline underline-offset-2"
+          >
+            <Keyboard size={13} aria-hidden="true" />
+            {t('chatEntry.toggleShow')}
+          </button>
+        )}
       </div>
 
       {editing && (

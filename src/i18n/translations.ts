@@ -17,6 +17,7 @@ export const translations = {
     },
     today: {
       label: 'Leo',
+      yesterday: 'Jana',
     },
     category: {
       Sales: 'Mauzo',
@@ -35,6 +36,8 @@ export const translations = {
       amountLabel: 'Kiasi',
       categoryLabel: 'Aina',
       descriptionLabel: 'Maelezo',
+      quantityLabel: 'Idadi (hiari)',
+      unitLabel: 'Kipimo (mfano: magunia)',
     },
     miamala: {
       empty: 'Bado hakuna miamala.',
@@ -88,6 +91,8 @@ export const translations = {
       clarifyBody: 'Jaribu kuandika kwa njia nyingine.',
       errorTitle: 'Imeshindikana kuchakata ulichoandika.',
       errorBody: 'Jaribu tena.',
+      toggleShow: 'Au andika badala yake',
+      toggleHide: 'Ficha uandishi',
     },
     error: {
       genericTitle: 'Hitilafu imetokea.',
@@ -120,6 +125,7 @@ export const translations = {
     },
     today: {
       label: 'Today',
+      yesterday: 'Yesterday',
     },
     category: {
       Sales: 'Sales',
@@ -138,6 +144,8 @@ export const translations = {
       amountLabel: 'Amount',
       categoryLabel: 'Category',
       descriptionLabel: 'Description',
+      quantityLabel: 'Quantity (optional)',
+      unitLabel: 'Unit (e.g. bags)',
     },
     miamala: {
       empty: 'No transactions yet.',
@@ -191,6 +199,8 @@ export const translations = {
       clarifyBody: 'Try rephrasing what you typed.',
       errorTitle: "Couldn't process what you wrote.",
       errorBody: 'Please try again.',
+      toggleShow: 'Or type instead',
+      toggleHide: 'Hide typing',
     },
     error: {
       genericTitle: 'Something went wrong.',
@@ -219,7 +229,7 @@ type Dict = {
     error: string
   }
   balance: { label: string }
-  today: { label: string }
+  today: { label: string; yesterday: string }
   category: { Sales: string; Inventory: string; Rent: string; Operational: string; Other: string }
   confirmation: {
     title: string
@@ -231,6 +241,8 @@ type Dict = {
     amountLabel: string
     categoryLabel: string
     descriptionLabel: string
+    quantityLabel: string
+    unitLabel: string
   }
   miamala: { empty: string; loading: string }
   transactionSheet: {
@@ -281,6 +293,8 @@ type Dict = {
     clarifyBody: string
     errorTitle: string
     errorBody: string
+    toggleShow: string
+    toggleHide: string
   }
   error: { genericTitle: string; genericBody: string; retry: string }
   sync: { savedOnPhone: string; synced: string }

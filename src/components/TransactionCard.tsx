@@ -2,15 +2,11 @@ import { formatTSh } from '@/lib/currency'
 import { useLanguage } from '@/i18n/useLanguage'
 import type { Transaction } from '@/types/transaction'
 
-function formatTime(iso: string, language: 'sw' | 'en', todayLabel: string): string {
-  const date = new Date(iso)
-  const today = new Date()
-  const isToday = date.toDateString() === today.toDateString()
-  const time = date.toLocaleTimeString(language === 'sw' ? 'sw-TZ' : 'en-GB', {
+function formatTime(iso: string, language: 'sw' | 'en'): string {
+  return new Date(iso).toLocaleTimeString(language === 'sw' ? 'sw-TZ' : 'en-GB', {
     hour: '2-digit',
     minute: '2-digit',
   })
-  return isToday ? `${todayLabel}, ${time}` : `${date.toLocaleDateString()}, ${time}`
 }
 
 interface TransactionCardProps {
@@ -20,6 +16,8 @@ interface TransactionCardProps {
 export function TransactionCard({ transaction }: TransactionCardProps) {
   const { t, language } = useLanguage()
   const isIncome = transaction.type === 'INCOME'
+  const quantityLabel =
+    transaction.quantity && transaction.unit ? `${transaction.quantity} ${transaction.unit}` : null
 
   return (
     <div className="flex items-center justify-between py-3">
@@ -31,12 +29,11 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
         </p>
         <p className="text-sm text-text-muted">
           {t(`category.${transaction.category}`)}
+          {quantityLabel ? ` · ${quantityLabel}` : ''}
           {transaction.description ? ` · ${transaction.description}` : ''}
         </p>
       </div>
-      <p className="text-xs text-text-muted">
-        {formatTime(transaction.createdAt, language, t('today.label'))}
-      </p>
+      <p className="text-xs text-text-muted">{formatTime(transaction.createdAt, language)}</p>
     </div>
   )
 }
