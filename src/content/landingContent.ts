@@ -128,12 +128,8 @@ const CONTENT: Record<Language, LandingContent> = {
           body: 'Sauti Ledger inasikiliza na kutambua kiasi, aina ya muamala, na sababu yake.',
         },
         {
-          title: 'Thibitisha',
-          body: 'Unaona muamala kabla haujahifadhiwa. Hariri kama ukitaka, kisha bonyeza Sahihi.',
-        },
-        {
           title: 'Imehifadhiwa',
-          body: 'Salio lako linabadilika papo hapo. Hakuna fomu ndefu, hakuna lugha ya kihasibu.',
+          body: 'Muamala unahifadhiwa papo hapo, salio linabadilika mara moja. Ukikosea, hariri au ghairi kwa mguso mmoja.',
         },
       ],
     },
@@ -263,12 +259,8 @@ const CONTENT: Record<Language, LandingContent> = {
           body: 'Sauti Ledger listens and figures out the amount, the type, and what it was for.',
         },
         {
-          title: 'Confirm',
-          body: "You see the transaction before it's saved. Edit it if you need to, then tap Confirm.",
-        },
-        {
           title: 'Saved',
-          body: 'Your balance updates instantly. No long forms, no accounting jargon.',
+          body: "It's saved instantly and your balance updates right away. Made a mistake? Edit or undo with one tap.",
         },
       ],
     },

@@ -14,8 +14,9 @@ const STAGE_DURATIONS: Record<Stage, number> = {
 /**
  * A real, restrained "live demo" — cycles through the same verified
  * examples used elsewhere (AI_SPEC.md § 6 / eval/dataset.ts), replaying
- * the actual transcribe → extract → confirm flow shape so a visitor can
- * see the product work without us fabricating output for arbitrary input.
+ * the actual transcribe → extract → auto-save flow shape (no
+ * confirm-before-save step — DESIGN.md § 15) so a visitor can see the
+ * product work without us fabricating output for arbitrary input.
  */
 export function LandingExamples({ content }: { content: LandingContent }) {
   const { t } = useLanguage()

@@ -1,7 +1,7 @@
-import { Mic, Loader2, ClipboardCheck, Check } from 'lucide-react'
+import { Mic, Loader2, Check } from 'lucide-react'
 import type { LandingContent } from '@/content/landingContent'
 
-const ICONS = [Mic, Loader2, ClipboardCheck, Check]
+const ICONS = [Mic, Loader2, Check]
 
 export function LandingHowItWorks({ content }: { content: LandingContent }) {
   return (
@@ -14,10 +14,10 @@ export function LandingHowItWorks({ content }: { content: LandingContent }) {
           {content.howItWorks.title}
         </h2>
 
-        <div className="relative mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="relative mt-12 grid gap-8 sm:grid-cols-3">
           <div
             aria-hidden="true"
-            className="absolute top-6 right-[12.5%] left-[12.5%] hidden h-px bg-border lg:block"
+            className="absolute top-6 right-[16.5%] left-[16.5%] hidden h-px bg-border sm:block"
           />
           {content.howItWorks.steps.map((step, index) => {
             const Icon = ICONS[index]
