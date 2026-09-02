@@ -43,13 +43,17 @@ Gemini must return structured data matching the application's Zod schema, an arr
       "type": "INCOME" | "EXPENSE",
       "amount": number,
       "category": "Sales" | "Inventory" | "Rent" | "Operational" | "Other",
-      "description": string
+      "description": string,
+      "quantity": number | null,
+      "unit": string | null
     }
   ]
 }
 ```
 
 Amounts are always integer Tanzanian shillings. Never floating point.
+
+quantity/unit are only set when the speaker explicitly states a count of physical units, "magunia matano ya mchele" (5 sacks of rice), "chupa kumi" (10 bottles). A plain amount like "mchele elfu ishirini" (rice for 20,000) has no quantity, both stay null rather than inventing a count from the price.
 
 ### 3a. Multiple transactions in one recording
 
@@ -96,7 +100,7 @@ When the extraction prompt or model changes:
 2. Compare actual output to expected output, the script does this automatically and exits non-zero on any failure.
 3. Only deploy if accuracy improves or stays flat, never regress silently.
 
-Last full run (gemini-3.6-flash): 29/29 passed.
+Last full run (gemini-3.6-flash): 32/32 passed.
 
 As real (anonymized, consented) merchant utterances are collected, add them to both this file and `eval/dataset.ts` with their expected output. The goal is 1,000+ real Tanzanian utterances over time.
 

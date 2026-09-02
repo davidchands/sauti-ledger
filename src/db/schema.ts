@@ -64,6 +64,11 @@ export const transactions = pgTable('transactions', {
   amount: integer('amount').notNull(),
   category: transactionCategoryEnum('category').notNull(),
   description: text('description').notNull().default(''),
+  // How many units were involved, when the speaker actually said a count
+  // ("magunia matano" / "5 bags") — null when no quantity was mentioned,
+  // never guessed (AI_SPEC.md).
+  quantity: integer('quantity'),
+  unit: text('unit'),
   rawTranscript: text('raw_transcript'),
   language: languageEnum('language'),
   source: transactionSourceEnum('source').notNull(),

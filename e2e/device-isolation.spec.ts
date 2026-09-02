@@ -45,6 +45,7 @@ test.describe('device isolation', () => {
     })
     await pageA.goto('/miamala')
 
+    await pageA.getByRole('button', { name: 'Or type instead' }).click()
     await pageA.getByPlaceholder('Type what happened…').fill('Nimeuza device A sale kwa 50000')
     await pageA.getByRole('button', { name: 'Send' }).click()
     await expect(pageA.getByRole('dialog', { name: 'Confirm transaction' })).toBeVisible()

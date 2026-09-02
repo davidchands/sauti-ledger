@@ -12,20 +12,23 @@ Rules (apply to every item):
 - type is INCOME if the speaker received/earned money (sold something, got paid), EXPENSE if they spent money (bought, paid for something).
 - category is one of: Sales (sold goods/services), Inventory (bought stock to resell), Rent (pango/kodi), Operational (fuel, transport, utilities, labor), Other.
 - description is a short 1-4 word summary of what the transaction was for, in the same language mix as the transcript.
+- quantity and unit: only fill these in when the speaker explicitly states a count of physical units — "magunia matano ya mchele" (5 bags of rice), "chupa kumi" (10 bottles), "3 bags of cement". quantity is the integer count, unit is a short word for what's being counted in the same language as the transcript (e.g. "magunia", "chupa", "bags", "pieces"). If no count is stated, leave both null — a plain amount like "mchele elfu ishirini" (rice for 20,000) has no quantity, don't invent one from the price.
 - confidence is your own certainty (0 to 1) that you extracted this item correctly.
 - If an item's amount is genuinely ambiguous or not stated (e.g. "nimepata mia" — mia alone is ambiguous), set its amount to null. Never invent a number you cannot infer.
 - If an item's type (income vs expense) cannot be determined from the transcript, set its type to null. Never guess.
 - Do not let a low-confidence guess mask itself as certain — reflect real uncertainty in the confidence score.
 
 Examples:
-"Leo nimeuza mchele elfu ishirini" -> {"transactions":[{"type":"INCOME","amount":20000,"category":"Sales","description":"Mchele","confidence":0.95}]}
-"Nimenunua stock ya laki mbili" -> {"transactions":[{"type":"EXPENSE","amount":200000,"category":"Inventory","description":"Stock","confidence":0.95}]}
-"I paid rent 300 thousand" -> {"transactions":[{"type":"EXPENSE","amount":300000,"category":"Rent","description":"Rent","confidence":0.95}]}
-"Leo nimeuza twenty five thousand" -> {"transactions":[{"type":"INCOME","amount":25000,"category":"Sales","description":"Mauzo","confidence":0.9}]}
-"Nimepata mia" -> {"transactions":[{"type":"INCOME","amount":null,"category":"Other","description":"Mia","confidence":0.3}]}
-"Elfu ishirini" -> {"transactions":[{"type":null,"amount":20000,"category":"Other","description":"","confidence":0.3}]}
-"Niliuza mchele elfu ishirini kisha nikanunua mafuta elfu tano" -> {"transactions":[{"type":"INCOME","amount":20000,"category":"Sales","description":"Mchele","confidence":0.95},{"type":"EXPENSE","amount":5000,"category":"Operational","description":"Mafuta","confidence":0.95}]}
-"I sold rice for 20k and paid rent 300 thousand" -> {"transactions":[{"type":"INCOME","amount":20000,"category":"Sales","description":"Rice","confidence":0.95},{"type":"EXPENSE","amount":300000,"category":"Rent","description":"Rent","confidence":0.95}]}`
+"Leo nimeuza mchele elfu ishirini" -> {"transactions":[{"type":"INCOME","amount":20000,"category":"Sales","description":"Mchele","quantity":null,"unit":null,"confidence":0.95}]}
+"Nimenunua stock ya laki mbili" -> {"transactions":[{"type":"EXPENSE","amount":200000,"category":"Inventory","description":"Stock","quantity":null,"unit":null,"confidence":0.95}]}
+"I paid rent 300 thousand" -> {"transactions":[{"type":"EXPENSE","amount":300000,"category":"Rent","description":"Rent","quantity":null,"unit":null,"confidence":0.95}]}
+"Leo nimeuza twenty five thousand" -> {"transactions":[{"type":"INCOME","amount":25000,"category":"Sales","description":"Mauzo","quantity":null,"unit":null,"confidence":0.9}]}
+"Nimepata mia" -> {"transactions":[{"type":"INCOME","amount":null,"category":"Other","description":"Mia","quantity":null,"unit":null,"confidence":0.3}]}
+"Elfu ishirini" -> {"transactions":[{"type":null,"amount":20000,"category":"Other","description":"","quantity":null,"unit":null,"confidence":0.3}]}
+"Niliuza mchele elfu ishirini kisha nikanunua mafuta elfu tano" -> {"transactions":[{"type":"INCOME","amount":20000,"category":"Sales","description":"Mchele","quantity":null,"unit":null,"confidence":0.95},{"type":"EXPENSE","amount":5000,"category":"Operational","description":"Mafuta","quantity":null,"unit":null,"confidence":0.95}]}
+"I sold rice for 20k and paid rent 300 thousand" -> {"transactions":[{"type":"INCOME","amount":20000,"category":"Sales","description":"Rice","quantity":null,"unit":null,"confidence":0.95},{"type":"EXPENSE","amount":300000,"category":"Rent","description":"Rent","quantity":null,"unit":null,"confidence":0.95}]}
+"Niliuza magunia matano ya mchele kwa laki moja" -> {"transactions":[{"type":"INCOME","amount":100000,"category":"Sales","description":"Mchele","quantity":5,"unit":"magunia","confidence":0.95}]}
+"I bought 10 bottles of cooking oil for fifty thousand" -> {"transactions":[{"type":"EXPENSE","amount":50000,"category":"Inventory","description":"Cooking oil","quantity":10,"unit":"bottles","confidence":0.95}]}`
 
 const TRANSACTION_SCHEMA = {
   type: 'OBJECT',
@@ -37,6 +40,8 @@ const TRANSACTION_SCHEMA = {
       enum: ['Sales', 'Inventory', 'Rent', 'Operational', 'Other'],
     },
     description: { type: 'STRING' },
+    quantity: { type: 'INTEGER', nullable: true },
+    unit: { type: 'STRING', nullable: true },
     confidence: { type: 'NUMBER' },
   },
   required: ['category', 'description', 'confidence'],

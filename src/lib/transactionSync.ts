@@ -9,6 +9,8 @@ export interface ApiTransaction {
   amount: number
   category: TransactionCategory
   description: string
+  quantity?: number | null
+  unit?: string | null
   createdAt: string
 }
 
@@ -19,6 +21,8 @@ export function toLocalTransaction(api: ApiTransaction, pending: boolean): Local
     amount: api.amount,
     category: api.category,
     description: api.description,
+    quantity: api.quantity ?? null,
+    unit: api.unit ?? null,
     createdAt: api.createdAt,
     pending,
   }

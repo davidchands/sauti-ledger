@@ -8,6 +8,8 @@ export interface NewTransactionInput {
   amount: number
   category: 'Sales' | 'Inventory' | 'Rent' | 'Operational' | 'Other'
   description?: string
+  quantity?: number | null
+  unit?: string | null
   rawTranscript?: string
   language?: 'sw' | 'en'
   source: 'VOICE' | 'MANUAL'
@@ -42,6 +44,8 @@ export interface UpdateTransactionInput {
   amount?: number
   category?: 'Sales' | 'Inventory' | 'Rent' | 'Operational' | 'Other'
   description?: string
+  quantity?: number | null
+  unit?: string | null
   status?: 'PENDING' | 'CONFIRMED' | 'SYNCED'
 }
 

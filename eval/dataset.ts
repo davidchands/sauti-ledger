@@ -7,6 +7,8 @@ export interface EvalCase {
     type: TransactionType | null
     amount: number | null
     category?: TransactionCategory
+    /** Only checked when set — most cases don't mention a quantity at all. */
+    quantity?: number | null
   }
 }
 
@@ -150,5 +152,19 @@ export const evalDataset: EvalCase[] = [
   {
     transcript: 'I gave the supplier fifteen thousand',
     expected: { type: 'EXPENSE', amount: 15000 },
+  },
+
+  // Quantity — only set when the speaker actually states a count
+  {
+    transcript: 'Niliuza magunia matano ya mchele kwa laki moja',
+    expected: { type: 'INCOME', amount: 100000, category: 'Sales', quantity: 5 },
+  },
+  {
+    transcript: 'I bought 10 bottles of cooking oil for fifty thousand',
+    expected: { type: 'EXPENSE', amount: 50000, category: 'Inventory', quantity: 10 },
+  },
+  {
+    transcript: 'Nimeuza mchele kwa laki moja',
+    expected: { type: 'INCOME', amount: 100000, category: 'Sales', quantity: null },
   },
 ]

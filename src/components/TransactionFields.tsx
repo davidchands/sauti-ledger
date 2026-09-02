@@ -3,7 +3,7 @@ import type { Transaction, TransactionCategory, TransactionType } from '@/types/
 
 export type TransactionDraft = Pick<
   Transaction,
-  'type' | 'amount' | 'category' | 'description'
+  'type' | 'amount' | 'category' | 'description' | 'quantity' | 'unit'
 >
 
 const CATEGORIES: TransactionCategory[] = [
@@ -94,6 +94,38 @@ export function TransactionFields({ value, onChange }: TransactionFieldsProps) {
           className="rounded-xl border border-border px-3 py-2 text-sm text-text"
         />
       </label>
+
+      <div className="flex gap-2">
+        <label className="flex flex-1 flex-col gap-1">
+          <span className="text-xs font-medium text-text-muted">
+            {t('confirmation.quantityLabel')}
+          </span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            value={value.quantity ?? ''}
+            onChange={(event) =>
+              onChange({
+                ...value,
+                quantity: event.target.value === '' ? null : Number(event.target.value),
+              })
+            }
+            className="rounded-xl border border-border px-3 py-2 text-sm text-text"
+          />
+        </label>
+        <label className="flex flex-1 flex-col gap-1">
+          <span className="text-xs font-medium text-text-muted">{t('confirmation.unitLabel')}</span>
+          <input
+            type="text"
+            value={value.unit ?? ''}
+            onChange={(event) =>
+              onChange({ ...value, unit: event.target.value === '' ? null : event.target.value })
+            }
+            className="rounded-xl border border-border px-3 py-2 text-sm text-text"
+          />
+        </label>
+      </div>
     </div>
   )
 }

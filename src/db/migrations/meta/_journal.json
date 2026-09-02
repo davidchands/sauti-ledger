@@ -15,6 +15,13 @@
       "when": 1788124802845,
       "tag": "0001_nasty_jean_grey",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788339811108,
+      "tag": "0002_rare_azazel",
+      "breakpoints": true
     }
   ]
 }

@@ -19,6 +19,8 @@ const createSchema = z.object({
   amount: z.number().int().positive(),
   category: categoryEnum,
   description: z.string().max(280).optional(),
+  quantity: z.number().int().positive().nullable().optional(),
+  unit: z.string().max(40).nullable().optional(),
   // Voice-sourced transactions carry provenance (AI_SPEC.md); manual
   // entries omit these and default to MANUAL.
   source: z.enum(['MANUAL', 'VOICE']).optional(),
@@ -32,6 +34,8 @@ const updateSchema = z.object({
   amount: z.number().int().positive().optional(),
   category: categoryEnum.optional(),
   description: z.string().max(280).optional(),
+  quantity: z.number().int().positive().nullable().optional(),
+  unit: z.string().max(40).nullable().optional(),
 })
 
 transactionsRouter.get('/', async (req, res) => {

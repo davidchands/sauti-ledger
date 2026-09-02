@@ -46,8 +46,10 @@ async function main() {
       const amountMatches = actual.amount === expected.amount
       const categoryMatches =
         expected.category === undefined || actual.category === expected.category
+      const quantityMatches =
+        expected.quantity === undefined || actual.quantity === expected.quantity
 
-      const pass = typeMatches && amountMatches && categoryMatches
+      const pass = typeMatches && amountMatches && categoryMatches && quantityMatches
       results.push({
         transcript: testCase.transcript,
         pass,
@@ -58,6 +60,7 @@ async function main() {
               !typeMatches && `type: expected ${expected.type}, got ${actual.type}`,
               !amountMatches && `amount: expected ${expected.amount}, got ${actual.amount}`,
               !categoryMatches && `category: expected ${expected.category}, got ${actual.category}`,
+              !quantityMatches && `quantity: expected ${expected.quantity}, got ${actual.quantity}`,
             ]
               .filter(Boolean)
               .join('; '),

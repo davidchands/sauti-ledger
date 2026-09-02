@@ -103,7 +103,11 @@ export function TransactionConfirmation({
               {isIncome ? '+' : '−'} {formatTSh(editable.amount)}
             </p>
 
-            <p className="mt-1 text-base text-text-muted">{editable.description}</p>
+            <p className="mt-1 text-base text-text-muted">
+              {editable.quantity && editable.unit
+                ? `${editable.quantity} ${editable.unit} · ${editable.description}`
+                : editable.description}
+            </p>
 
             {saveState === 'error' && (
               <p className="mt-3 text-sm text-warning">{t('error.genericBody')}</p>

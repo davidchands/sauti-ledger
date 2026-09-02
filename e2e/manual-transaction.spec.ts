@@ -25,6 +25,9 @@ async function mockExtract(
 }
 
 async function createViaChat(page: Page, message: string) {
+  // Typing is a secondary entry method, tucked behind a toggle so it
+  // doesn't compete with the mic (the primary action).
+  await page.getByRole('button', { name: 'Or type instead' }).click()
   await page.getByPlaceholder('Type what happened…').fill(message)
   await page.getByRole('button', { name: 'Send' }).click()
   await expect(page.getByRole('dialog', { name: 'Confirm transaction' })).toBeVisible()
@@ -74,7 +77,7 @@ test.describe('manual transaction', () => {
     await expect(page.getByText('+ TSh 10,000')).toBeVisible()
 
     await page.getByText('Sales · Test item').click()
-    await page.getByRole('spinbutton').fill('40000')
+    await page.getByRole('spinbutton', { name: 'Amount' }).fill('40000')
     await page.getByRole('button', { name: 'Save' }).click()
 
     await expect(page.getByText('TSh 40,000', { exact: true })).toBeVisible()

@@ -27,6 +27,8 @@ export async function extractUsableItems(transcript: string): Promise<Extraction
         amount: item.amount,
         category: item.category,
         description: item.description,
+        quantity: item.quantity,
+        unit: item.unit,
       },
       confidence: item.confidence,
     }))

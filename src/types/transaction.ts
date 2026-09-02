@@ -1,6 +1,6 @@
 /**
- * View-layer shape only — the persisted schema (Drizzle, Neon) lands in
- * Phase 2 and will map onto the for display.
+ * View-layer shape only — the persisted schema (Drizzle, Neon) maps
+ * onto this for display.
  */
 export type TransactionType = 'INCOME' | 'EXPENSE'
 
@@ -12,5 +12,8 @@ export interface Transaction {
   amount: number
   category: TransactionCategory
   description: string
+  /** How many units, only when the speaker actually said a count ("5 bags") — null otherwise, never guessed. */
+  quantity?: number | null
+  unit?: string | null
   createdAt: string
 }

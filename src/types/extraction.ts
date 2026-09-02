@@ -12,6 +12,10 @@ export const extractedTransactionSchema = z.object({
   amount: z.number().int().positive().nullable(),
   category: z.enum(['Sales', 'Inventory', 'Rent', 'Operational', 'Other']),
   description: z.string(),
+  // Only set when the speaker actually stated a count ("magunia matano" /
+  // "5 bags") — null otherwise. Never inferred or guessed (AI_SPEC.md).
+  quantity: z.number().int().positive().nullable(),
+  unit: z.string().nullable(),
   confidence: z.number().min(0).max(1),
 })
 
