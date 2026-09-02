@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Mic } from 'lucide-react'
-import { motion } from 'motion/react'
+import { motion, useInView } from 'motion/react'
 import type { LandingContent, LandingExample } from '@/content/landingContent'
 import { useLanguage } from '@/i18n/useLanguage'
 
@@ -13,29 +13,31 @@ const STAGE_DURATIONS: Record<Stage, number> = {
 }
 
 /**
- * A real, restrained "live demo" — cycles through the same verified
- * examples used elsewhere (AI_SPEC.md § 6 / eval/dataset.ts), replaying
- * the actual transcribe → extract → auto-save flow shape (no
- * confirm-before-save step — DESIGN.md § 15) so a visitor can see the
- * product work without us fabricating output for arbitrary input.
+ * A real, restrained "live demo" — replays the actual transcribe →
+ * extract → auto-save flow shape (no confirm-before-save step —
+ * DESIGN.md § 15) using the same verified examples used elsewhere
+ * (AI_SPEC.md § 6 / eval/dataset.ts), so a visitor can see the product
+ * work without us fabricating output for arbitrary input.
+ *
+ * Plays once when scrolled into view, then holds on the saved result —
+ * it doesn't loop on a timer. A visitor drives further exploration
+ * themselves by tapping another example chip, which replays that one.
  */
 export function LandingExamples({ content }: { content: LandingContent }) {
   const { t } = useLanguage()
   const items = content.examples.items
   const [index, setIndex] = useState(0)
   const [stage, setStage] = useState<Stage>('transcribing')
+  const demoRef = useRef<HTMLDivElement>(null)
+  const inView = useInView(demoRef, { once: true, amount: 0.5 })
 
   useEffect(() => {
+    if (!inView || stage === 'result') return
     const timeout = setTimeout(() => {
-      if (stage === 'transcribing') setStage('extracting')
-      else if (stage === 'extracting') setStage('result')
-      else {
-        setStage('transcribing')
-        setIndex((i) => (i + 1) % items.length)
-      }
+      setStage(stage === 'transcribing' ? 'extracting' : 'result')
     }, STAGE_DURATIONS[stage])
     return () => clearTimeout(timeout)
-  }, [stage, items.length])
+  }, [stage, inView])
 
   const active = items[index]
 
@@ -64,6 +66,7 @@ export function LandingExamples({ content }: { content: LandingContent }) {
         </motion.div>
 
         <motion.div
+          ref={demoRef}
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
