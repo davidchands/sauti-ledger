@@ -18,12 +18,14 @@ Groq (Whisper): transcribes the recording
   ↓
 Gemini: reads the transcript and extracts type, amount, category, description
   ↓
-You confirm the result (never saved silently)
-  ↓
-Saved to your ledger, balance updates instantly
+Saved to your ledger instantly, balance updates right away (undo if it got it wrong)
 ```
 
 If the AI can't tell whether an amount was income or an expense, or can't make out the number at all, it asks instead of guessing. See [AI_SPEC.md](AI_SPEC.md) for the full behavior spec and the evaluation dataset that keeps it honest.
+
+## System architecture
+
+![Sauti Ledger system architecture, hand-sketched: a phone running the React PWA, offline caching via Dexie and a service worker, a Vercel serverless API in the middle handling transcription (Groq Whisper) and extraction (Gemini), auto-saving to Neon Postgres via Drizzle](docs/architecture-sketch.png)
 
 ## Tech stack
 
