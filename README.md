@@ -25,7 +25,7 @@ If the AI can't tell whether an amount was income or an expense, or can't make o
 
 ## System architecture
 
-![Sauti Ledger system architecture, hand-sketched: a phone running the React PWA, offline caching via Dexie and a service worker, a Vercel serverless API in the middle handling transcription (Groq Whisper) and extraction (Gemini), auto-saving to Neon Postgres via Drizzle](docs/architecture-sketch.png)
+![Sauti Ledger system architecture diagram: the Phone/PWA client and its offline layer (Dexie + service worker) on the left, the Vercel serverless API in the middle (identity via X-Device-Id, /api/transcribe, /api/extract, and ledger CRUD), external AI services (Groq Whisper, Google Gemini) and Neon Postgres via Drizzle on the right, server-only secrets, and a data-flow diagram of the main voice-to-saved-transaction path along the bottom](docs/architecture-sketch.png)
 
 ## Tech stack
 
