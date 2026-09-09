@@ -258,7 +258,7 @@ import { Router as Router2 } from "express";
 // server/lib/groq.ts
 var GROQ_TRANSCRIPTION_URL = "https://api.groq.com/openai/v1/audio/transcriptions";
 var MODEL = "whisper-large-v3";
-async function transcribeAudio(audio, mimeType) {
+async function transcribeAudio(audio, mimeType, languageHint) {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     throw new Error("GROQ_API_KEY is not set");
@@ -272,6 +272,9 @@ async function transcribeAudio(audio, mimeType) {
   );
   formData.append("model", MODEL);
   formData.append("response_format", "verbose_json");
+  if (languageHint) {
+    formData.append("language", languageHint);
+  }
   const response = await fetch(GROQ_TRANSCRIPTION_URL, {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}` },
@@ -320,7 +323,9 @@ transcribeRouter.post("/", async (req, res) => {
     }
     try {
       const audio = Buffer.concat(chunks);
-      const result = await transcribeAudio(audio, contentType);
+      const languageHintRaw = req.header("X-Language-Hint");
+      const languageHint = languageHintRaw === "sw" || languageHintRaw === "en" ? languageHintRaw : void 0;
+      const result = await transcribeAudio(audio, contentType, languageHint);
       res.json(result);
     } catch (error) {
       console.error("Transcription failed", error);

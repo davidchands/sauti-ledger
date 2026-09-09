@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { pickMimeType } from '@/lib/audioMimeType'
 import { transcribeAudio } from '@/services/transcriptionService'
+import { normalizeLanguage } from '@/lib/language'
 
 // Short enough that captions feel live, long enough that Groq gets a
 // usable amount of speech per chunk instead of mostly silence/onset noise.
@@ -35,6 +36,12 @@ export function useLiveTranscriptionChunks(stream: MediaStream | null) {
 
     activeRef.current = true
     let isFirstChunk = true
+    // Whisper auto-detects language per request, and a ~1.4s chunk is
+    // often too little audio to detect reliably on its own — without
+    // this, later chunks of the same utterance can flip-flop into the
+    // wrong language mid-caption. Locking to whatever the first chunk
+    // detects keeps the rest of the recording consistent.
+    let detectedLanguage: 'sw' | 'en' | undefined
 
     const recordChunk = () => {
       if (!activeRef.current) return
@@ -63,7 +70,10 @@ export function useLiveTranscriptionChunks(stream: MediaStream | null) {
         const blob = new Blob(chunks, { type: mimeType })
         if (blob.size > 0) {
           try {
-            const result = await transcribeAudio(blob)
+            const result = await transcribeAudio(blob, detectedLanguage)
+            if (!detectedLanguage) {
+              detectedLanguage = normalizeLanguage(result.language)
+            }
             // Applied even if recording already stopped — for a short
             // utterance, the mic is often released before this chunk's
             // transcript comes back, and that's exactly the caption the
