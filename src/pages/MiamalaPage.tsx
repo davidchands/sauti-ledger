@@ -234,7 +234,9 @@ export function MiamalaPage() {
           </div>
         )}
 
-        {voice.uiState === 'recording' && <LiveCaptionBubble caption={voice.caption} />}
+        {(voice.uiState === 'recording' ||
+          ((voice.uiState === 'transcribing' || voice.uiState === 'extracting') &&
+            voice.caption.trim() !== '')) && <LiveCaptionBubble caption={voice.caption} />}
 
         <VoiceButton
           uiState={voice.uiState}

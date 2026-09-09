@@ -4,7 +4,9 @@ import { transcribeAudio } from '@/services/transcriptionService'
 
 // Short enough that captions feel live, long enough that Groq gets a
 // usable amount of speech per chunk instead of mostly silence/onset noise.
-const CHUNK_MS = 2200
+// Kept well under a typical short utterance so the FIRST chunk usually
+// resolves before release, not after.
+const CHUNK_MS = 1400
 
 /**
  * On-screen live captions while the mic is held, built for screen
@@ -62,7 +64,12 @@ export function useLiveTranscriptionChunks(stream: MediaStream | null) {
         if (blob.size > 0) {
           try {
             const result = await transcribeAudio(blob)
-            if (activeRef.current && result.transcript) {
+            // Applied even if recording already stopped — for a short
+            // utterance, the mic is often released before this chunk's
+            // transcript comes back, and that's exactly the caption the
+            // user most needs to see (setState on an already-unmounted
+            // *display* is harmless; this hook itself stays mounted).
+            if (result.transcript) {
               setCaption((prev) => `${prev} ${result.transcript}`.trim())
             }
           } catch {
