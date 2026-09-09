@@ -38,12 +38,7 @@ transcribeRouter.post('/', async (req, res) => {
 
     try {
       const audio = Buffer.concat(chunks)
-      // Only set by the live-caption chunker, and only sw/en — see
-      // server/lib/groq.ts for why. Never trusted beyond that allowlist.
-      const languageHintRaw = req.header('X-Language-Hint')
-      const languageHint =
-        languageHintRaw === 'sw' || languageHintRaw === 'en' ? languageHintRaw : undefined
-      const result = await transcribeAudio(audio, contentType, languageHint)
+      const result = await transcribeAudio(audio, contentType)
       res.json(result)
     } catch (error) {
       console.error('Transcription failed', error)

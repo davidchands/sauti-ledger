@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAudioRecorder, type RecorderErrorReason } from './useAudioRecorder'
-import { useLiveTranscriptionChunks } from './useLiveTranscriptionChunks'
 import { transcribeAudio } from '@/services/transcriptionService'
 import { extractUsableItems, type ExtractionItem } from '@/lib/transactionExtraction'
 import { normalizeLanguage } from '@/lib/language'
@@ -78,10 +77,6 @@ export function useVoiceCapture(onExtracted: (result: VoiceExtraction) => void) 
   }, [])
 
   const recorder = useAudioRecorder(runPipeline)
-  // Reacts to recorder.stream directly (starts chunking once the mic is
-  // live, stops once it tears down) — no separate start/stop wiring
-  // needed here, unlike a hook with its own imperative start()/stop().
-  const liveCaption = useLiveTranscriptionChunks(recorder.stream)
 
   // Clears an error/clarify state — the user retries by holding the mic again.
   const retryFromRecording = useCallback(() => {
@@ -97,7 +92,6 @@ export function useVoiceCapture(onExtracted: (result: VoiceExtraction) => void) 
     recorderError: recorder.error as RecorderErrorReason | null,
     durationMs: recorder.durationMs,
     levels: recorder.levels,
-    caption: liveCaption.caption,
     start: recorder.start,
     stop: recorder.stop,
     cancel: recorder.cancel,

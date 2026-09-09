@@ -12,7 +12,6 @@ import { ErrorState } from '@/components/ErrorState'
 import { TransactionDetail } from '@/components/TransactionDetail'
 import { TransactionCalendar } from '@/components/TransactionCalendar'
 import { DailySummaryCard } from '@/components/DailySummaryCard'
-import { LiveCaptionBubble } from '@/components/LiveCaptionBubble'
 import { TransactionTypeFilter, type TransactionTypeFilterValue } from '@/components/TransactionTypeFilter'
 import { useLanguage } from '@/i18n/useLanguage'
 import { useTransactionsContext } from '@/hooks/useTransactionsContext'
@@ -233,10 +232,6 @@ export function MiamalaPage() {
             </button>
           </div>
         )}
-
-        {(voice.uiState === 'recording' ||
-          ((voice.uiState === 'transcribing' || voice.uiState === 'extracting') &&
-            voice.caption.trim() !== '')) && <LiveCaptionBubble caption={voice.caption} />}
 
         <VoiceButton
           uiState={voice.uiState}

@@ -23,10 +23,6 @@ export function useAudioRecorder(onRecorded: (blob: Blob) => void) {
   const [error, setError] = useState<RecorderErrorReason | null>(null)
   const [durationMs, setDurationMs] = useState(0)
   const [levels, setLevels] = useState<number[]>(() => Array(LEVEL_BAR_COUNT).fill(0))
-  // The live MediaStream, exposed so a second, independent MediaRecorder
-  // (the live-caption chunker) can attach to the same microphone input
-  // without prompting for permission or opening the mic twice.
-  const [stream, setStream] = useState<MediaStream | null>(null)
 
   const streamRef = useRef<MediaStream | null>(null)
   const recorderRef = useRef<MediaRecorder | null>(null)
@@ -50,7 +46,6 @@ export function useAudioRecorder(onRecorded: (blob: Blob) => void) {
   const teardownStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop())
     streamRef.current = null
-    setStream(null)
     audioContextRef.current?.close().catch(() => {})
     audioContextRef.current = null
     analyserRef.current = null
@@ -108,7 +103,6 @@ export function useAudioRecorder(onRecorded: (blob: Blob) => void) {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       streamRef.current = stream
-      setStream(stream)
 
       const audioContext = new AudioContext()
       const source = audioContext.createMediaStreamSource(stream)
@@ -182,5 +176,5 @@ export function useAudioRecorder(onRecorded: (blob: Blob) => void) {
     }
   }, [stopMetering, teardownStream])
 
-  return { phase, error, durationMs, levels, stream, start, stop, cancel, reset }
+  return { phase, error, durationMs, levels, start, stop, cancel, reset }
 }

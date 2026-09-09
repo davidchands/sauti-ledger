@@ -8,19 +8,12 @@ export interface TranscriptionResult {
 
 /**
  * Server-only. GROQ_API_KEY never reaches the client (AGENTS.md § 3).
- * No language hint is sent for the real, saved transcript — Whisper
- * auto-detects, which is what lets it handle Swahili/English
- * code-switching (AI_SPEC.md). `languageHint` exists only for the
- * on-screen live-caption chunker (useLiveTranscriptionChunks): short
- * (~1.4s) chunks are too little audio for reliable auto-detection on
- * their own, so once the first chunk of a recording detects a
- * language, later chunks in that same recording pass it back here to
- * stop them flip-flopping into the wrong language mid-utterance.
+ * No language hint is sent — Whisper auto-detects, which is what lets it
+ * handle Swahili/English code-switching (AI_SPEC.md).
  */
 export async function transcribeAudio(
   audio: Buffer,
   mimeType: string,
-  languageHint?: string,
 ): Promise<TranscriptionResult> {
   const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) {
@@ -43,9 +36,6 @@ export async function transcribeAudio(
   )
   formData.append('model', MODEL)
   formData.append('response_format', 'verbose_json')
-  if (languageHint) {
-    formData.append('language', languageHint)
-  }
 
   const response = await fetch(GROQ_TRANSCRIPTION_URL, {
     method: 'POST',
