@@ -76,7 +76,7 @@ export function MiamalaPage() {
     saveExtractedItems(result.items, { source: 'MANUAL', rawTranscript: result.rawTranscript })
   }
 
-  const voice = useVoiceCapture(handleVoiceExtracted, language)
+  const voice = useVoiceCapture(handleVoiceExtracted)
   const chat = useChatEntry(handleChatExtracted)
   useSpaceToRecord(voice.start, voice.stop, voice.cancel, !editing && !showCalendar)
 
@@ -234,9 +234,7 @@ export function MiamalaPage() {
           </div>
         )}
 
-        {voice.uiState === 'recording' && voice.isCaptionSupported && (
-          <LiveCaptionBubble caption={voice.caption} />
-        )}
+        {voice.uiState === 'recording' && <LiveCaptionBubble caption={voice.caption} />}
 
         <VoiceButton
           uiState={voice.uiState}

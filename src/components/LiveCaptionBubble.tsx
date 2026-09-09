@@ -5,11 +5,12 @@ interface LiveCaptionBubbleProps {
 }
 
 /**
- * On-screen live captions while the mic is held — purely a display of
- * useLiveCaption's cosmetic transcript (never the real Groq/Gemini
- * pipeline), built so a screen recording of the app reads clearly for
- * promo videos. Renders nothing when the caption engine isn't
- * supported in this browser, so the recording flow is unaffected.
+ * On-screen live captions while the mic is held — displays
+ * useLiveTranscriptionChunks' running transcript, built so a screen
+ * recording of the app reads clearly for promo videos. That hook
+ * reuses the same Groq Whisper pipeline that produces the real,
+ * saved transcript; this component only ever shows text, never
+ * feeds anything back into extraction.
  */
 export function LiveCaptionBubble({ caption }: LiveCaptionBubbleProps) {
   const { t } = useLanguage()
