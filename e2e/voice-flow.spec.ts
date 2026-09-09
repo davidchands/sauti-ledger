@@ -58,7 +58,9 @@ test.describe('voice transaction', () => {
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
     await page.mouse.down()
 
-    await expect(page.getByText('Listening…')).toBeVisible()
+    // Shown in both the live-caption bubble's badge and the label under
+    // the button at once — either match confirms recording started.
+    await expect(page.getByText('Listening…').first()).toBeVisible()
     // Above MIN_DURATION_MS (400ms) so the release isn't discarded as an
     // accidental tap.
     await page.waitForTimeout(600)
@@ -107,7 +109,7 @@ test.describe('voice transaction', () => {
 
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
     await page.mouse.down()
-    await expect(page.getByText('Listening…')).toBeVisible()
+    await expect(page.getByText('Listening…').first()).toBeVisible()
     await page.waitForTimeout(600)
     await page.mouse.up()
 
@@ -128,7 +130,7 @@ test.describe('voice transaction', () => {
 
     await page.keyboard.down('Space')
 
-    await expect(page.getByText('Listening…')).toBeVisible()
+    await expect(page.getByText('Listening…').first()).toBeVisible()
 
     await page.keyboard.press('Escape')
     await page.keyboard.up('Space')

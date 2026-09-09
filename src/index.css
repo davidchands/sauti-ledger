@@ -135,6 +135,45 @@ body {
   }
 }
 
+/* A playful bounce/wiggle while recording — screen-recording friendly,
+   distinct from the beam + pulse rings which stay put underneath it. */
+@keyframes mic-bounce {
+  0%,
+  100% {
+    transform: scale(1.1) translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.16) translateY(-3px) rotate(-3deg);
+  }
+  50% {
+    transform: scale(1.1) translateY(0) rotate(0deg);
+  }
+  75% {
+    transform: scale(1.16) translateY(-3px) rotate(3deg);
+  }
+}
+
+@keyframes caption-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes live-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

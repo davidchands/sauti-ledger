@@ -12,6 +12,7 @@ import { ErrorState } from '@/components/ErrorState'
 import { TransactionDetail } from '@/components/TransactionDetail'
 import { TransactionCalendar } from '@/components/TransactionCalendar'
 import { DailySummaryCard } from '@/components/DailySummaryCard'
+import { LiveCaptionBubble } from '@/components/LiveCaptionBubble'
 import { TransactionTypeFilter, type TransactionTypeFilterValue } from '@/components/TransactionTypeFilter'
 import { useLanguage } from '@/i18n/useLanguage'
 import { useTransactionsContext } from '@/hooks/useTransactionsContext'
@@ -75,7 +76,7 @@ export function MiamalaPage() {
     saveExtractedItems(result.items, { source: 'MANUAL', rawTranscript: result.rawTranscript })
   }
 
-  const voice = useVoiceCapture(handleVoiceExtracted)
+  const voice = useVoiceCapture(handleVoiceExtracted, language)
   const chat = useChatEntry(handleChatExtracted)
   useSpaceToRecord(voice.start, voice.stop, voice.cancel, !editing && !showCalendar)
 
@@ -231,6 +232,10 @@ export function MiamalaPage() {
               <X size={18} aria-hidden="true" />
             </button>
           </div>
+        )}
+
+        {voice.uiState === 'recording' && voice.isCaptionSupported && (
+          <LiveCaptionBubble caption={voice.caption} />
         )}
 
         <VoiceButton

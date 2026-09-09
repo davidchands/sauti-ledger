@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAudioRecorder, type RecorderErrorReason } from './useAudioRecorder'
+import { useLiveCaption } from './useLiveCaption'
 import { transcribeAudio } from '@/services/transcriptionService'
 import { extractUsableItems, type ExtractionItem } from '@/lib/transactionExtraction'
 import { normalizeLanguage } from '@/lib/language'
+
+/** A best-guess locale for the on-screen caption engine only — the real pipeline (Groq Whisper) never uses this and stays language-agnostic per AGENTS.md § 4. */
+const CAPTION_LOCALE: Record<'sw' | 'en', string> = { sw: 'sw-TZ', en: 'en-US' }
 
 /**
  * One recording can describe more than one transaction (AI_SPEC.md §
@@ -37,7 +41,10 @@ export type VoiceCaptureUiState =
  * hold-the-mic-button gesture and the desktop hold-Space gesture so both
  * surfaces get identical behavior from one implementation.
  */
-export function useVoiceCapture(onExtracted: (result: VoiceExtraction) => void) {
+export function useVoiceCapture(
+  onExtracted: (result: VoiceExtraction) => void,
+  uiLanguage: 'sw' | 'en' = 'sw',
+) {
   const [flow, setFlow] = useState<PipelineFlow>({ status: 'idle' })
   const onExtractedRef = useRef(onExtracted)
   useEffect(() => {
@@ -77,6 +84,7 @@ export function useVoiceCapture(onExtracted: (result: VoiceExtraction) => void) 
   }, [])
 
   const recorder = useAudioRecorder(runPipeline)
+  const liveCaption = useLiveCaption(CAPTION_LOCALE[uiLanguage])
 
   // Clears an error/clarify state — the user retries by holding the mic again.
   const retryFromRecording = useCallback(() => {
@@ -87,14 +95,34 @@ export function useVoiceCapture(onExtracted: (result: VoiceExtraction) => void) 
   const uiState: VoiceCaptureUiState =
     recorder.phase === 'error' ? 'recorderError' : flow.status !== 'idle' ? flow.status : recorder.phase
 
+  // Live captions ride alongside the recorder, purely for on-screen
+  // display (promo/screen-recording friendly) — they never feed the
+  // actual transcript/extraction pipeline above.
+  const start = useCallback(() => {
+    recorder.start()
+    liveCaption.start()
+  }, [recorder, liveCaption])
+
+  const stop = useCallback(() => {
+    recorder.stop()
+    liveCaption.stop()
+  }, [recorder, liveCaption])
+
+  const cancel = useCallback(() => {
+    recorder.cancel()
+    liveCaption.stop()
+  }, [recorder, liveCaption])
+
   return {
     uiState,
     recorderError: recorder.error as RecorderErrorReason | null,
     durationMs: recorder.durationMs,
     levels: recorder.levels,
-    start: recorder.start,
-    stop: recorder.stop,
-    cancel: recorder.cancel,
+    caption: liveCaption.caption,
+    isCaptionSupported: liveCaption.isSupported,
+    start,
+    stop,
+    cancel,
     retryFromRecording,
   }
 }

@@ -91,11 +91,13 @@ export function VoiceButton({
           onPointerCancel={onPressEnd}
           aria-label={label}
           className={cn(
-            'flex h-20 w-20 select-none items-center justify-center rounded-full transition-transform active:scale-95',
-            isRecording && 'scale-110 bg-expense text-white',
-            !isRecording && 'bg-text text-bg',
+            'flex h-20 w-20 select-none items-center justify-center rounded-full active:scale-95',
+            isRecording ? 'bg-expense text-white' : 'bg-text text-bg transition-transform',
           )}
-          style={{ touchAction: 'none' }}
+          style={{
+            touchAction: 'none',
+            ...(isRecording ? { animation: 'mic-bounce 1.4s ease-in-out infinite' } : null),
+          }}
         >
           {isRequesting ? (
             <Loader2 size={32} className="animate-spin" aria-hidden="true" />
