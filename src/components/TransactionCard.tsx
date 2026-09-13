@@ -1,5 +1,6 @@
 import { Package } from 'lucide-react'
-import { formatTSh } from '@/lib/currency'
+import { formatCurrency } from '@/lib/currency'
+import { useCurrency } from '@/currency/useCurrency'
 import { useLanguage } from '@/i18n/useLanguage'
 import type { Transaction } from '@/types/transaction'
 
@@ -16,6 +17,7 @@ interface TransactionCardProps {
 
 export function TransactionCard({ transaction }: TransactionCardProps) {
   const { t, language } = useLanguage()
+  const { currency } = useCurrency()
   const isIncome = transaction.type === 'INCOME'
   const hasQuantity = transaction.quantity != null && transaction.unit
 
@@ -24,7 +26,7 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <p className={`text-base font-semibold ${isIncome ? 'text-income' : 'text-expense'}`}>
-            {isIncome ? '+' : '−'} {formatTSh(transaction.amount)}
+            {isIncome ? '+' : '−'} {formatCurrency(transaction.amount, currency)}
           </p>
           {hasQuantity && (
             <span className="inline-flex shrink-0 items-center gap-1 rounded-md border border-border bg-surface px-1.5 py-0.5 text-xs font-semibold tabular-nums text-text-muted">

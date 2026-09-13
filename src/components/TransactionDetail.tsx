@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Trash2, Package, X } from 'lucide-react'
-import { formatTSh } from '@/lib/currency'
+import { formatCurrency, type CurrencyCode } from '@/lib/currency'
+import { useCurrency } from '@/currency/useCurrency'
 import { useLanguage } from '@/i18n/useLanguage'
 import type { Transaction, TransactionCategory, TransactionType } from '@/types/transaction'
 
@@ -20,6 +21,7 @@ interface TransactionDetailProps {
  */
 export function TransactionDetail({ transaction, onChange, onDelete, onClose }: TransactionDetailProps) {
   const { t } = useLanguage()
+  const { currency } = useCurrency()
   const isIncome = transaction.type === 'INCOME'
   const [confirmingDelete, setConfirmingDelete] = useState(false)
 
@@ -64,6 +66,7 @@ export function TransactionDetail({ transaction, onChange, onDelete, onClose }: 
         <EditableAmount
           amount={transaction.amount}
           isIncome={isIncome}
+          currency={currency}
           onChange={(amount) => onChange({ amount })}
         />
 
@@ -137,10 +140,12 @@ export function TransactionDetail({ transaction, onChange, onDelete, onClose }: 
 function EditableAmount({
   amount,
   isIncome,
+  currency,
   onChange,
 }: {
   amount: number
   isIncome: boolean
+  currency: CurrencyCode
   onChange: (amount: number) => void
 }) {
   const [editing, setEditing] = useState(false)
@@ -189,7 +194,7 @@ function EditableAmount({
       }}
       className={`mt-2 block text-4xl font-semibold tabular-nums ${isIncome ? 'text-income' : 'text-expense'}`}
     >
-      {isIncome ? '+' : '−'} {formatTSh(amount)}
+      {isIncome ? '+' : '−'} {formatCurrency(amount, currency)}
     </button>
   )
 }

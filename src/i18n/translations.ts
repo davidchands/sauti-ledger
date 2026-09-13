@@ -124,6 +124,9 @@ export const translations = {
     language: {
       switchTo: 'Badilisha lugha kwenda Kiingereza',
     },
+    currency: {
+      label: 'Sarafu',
+    },
   },
   en: {
     nav: {
@@ -250,6 +253,9 @@ export const translations = {
     language: {
       switchTo: 'Switch language to Swahili',
     },
+    currency: {
+      label: 'Currency',
+    },
   },
 } satisfies Record<'sw' | 'en', Dict>
 
@@ -339,6 +345,7 @@ type Dict = {
   daySummary: { closingBalance: string }
   filter: { all: string; income: string; expense: string; empty: string }
   language: { switchTo: string }
+  currency: { label: string }
 }
 
 export type Language = keyof typeof translations

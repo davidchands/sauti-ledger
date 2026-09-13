@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { BottomNavigation } from '@/components/BottomNavigation'
 import { Sidebar } from '@/components/Sidebar'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { CurrencySwitcher } from '@/components/CurrencySwitcher'
 import { SyncIndicator } from '@/components/SyncIndicator'
 import { TransactionsProvider } from '@/hooks/TransactionsProvider'
 
@@ -19,9 +20,10 @@ export function AppShell() {
 
         <div className="mx-auto flex w-full max-w-[430px] flex-1 flex-col lg:mx-0 lg:max-w-none">
           <header
-            className="flex justify-end px-5 pt-4 lg:hidden"
+            className="flex items-center justify-end gap-2 px-5 pt-4 lg:hidden"
             style={{ paddingTop: 'max(1rem, calc(env(safe-area-inset-top) + 0.5rem))' }}
           >
+            <CurrencySwitcher />
             <LanguageSwitcher />
           </header>
 

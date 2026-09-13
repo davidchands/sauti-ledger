@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { useLanguage } from '@/i18n/useLanguage'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { CurrencySwitcher } from '@/components/CurrencySwitcher'
 import { cn } from '@/lib/utils'
 
 /**
@@ -37,7 +38,8 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="mt-auto flex justify-start">
+      <div className="mt-auto flex flex-col items-start gap-2">
+        <CurrencySwitcher />
         <LanguageSwitcher />
       </div>
     </aside>

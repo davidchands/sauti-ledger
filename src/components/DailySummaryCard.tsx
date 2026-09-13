@@ -1,5 +1,6 @@
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-react'
-import { formatTSh } from '@/lib/currency'
+import { formatCurrency } from '@/lib/currency'
+import { useCurrency } from '@/currency/useCurrency'
 import { useLanguage } from '@/i18n/useLanguage'
 import type { DailySummary } from '@/lib/dailySummary'
 
@@ -16,6 +17,7 @@ interface DailySummaryCardProps {
  */
 export function DailySummaryCard({ summary }: DailySummaryCardProps) {
   const { t } = useLanguage()
+  const { currency } = useCurrency()
   const isPositive = summary.closingBalance >= 0
 
   return (
@@ -27,7 +29,7 @@ export function DailySummaryCard({ summary }: DailySummaryCardProps) {
             {t('ripoti.income')}
           </span>
           <p className="text-lg font-semibold tabular-nums text-income">
-            + {formatTSh(summary.income)}
+            + {formatCurrency(summary.income, currency)}
           </p>
         </div>
         <div className="flex flex-col gap-1 p-4">
@@ -36,7 +38,7 @@ export function DailySummaryCard({ summary }: DailySummaryCardProps) {
             {t('ripoti.expense')}
           </span>
           <p className="text-lg font-semibold tabular-nums text-expense">
-            − {formatTSh(summary.expense)}
+            − {formatCurrency(summary.expense, currency)}
           </p>
         </div>
       </div>
@@ -47,7 +49,7 @@ export function DailySummaryCard({ summary }: DailySummaryCardProps) {
           {t('daySummary.closingBalance')}
         </span>
         <p className={`text-xl font-bold tabular-nums ${isPositive ? 'text-text' : 'text-expense'}`}>
-          {formatTSh(summary.closingBalance)}
+          {formatCurrency(summary.closingBalance, currency)}
         </p>
       </div>
     </div>

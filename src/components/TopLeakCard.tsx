@@ -1,4 +1,5 @@
-import { formatTSh } from '@/lib/currency'
+import { formatCurrency } from '@/lib/currency'
+import { useCurrency } from '@/currency/useCurrency'
 import { useLanguage } from '@/i18n/useLanguage'
 import type { TranslationPath } from '@/i18n/translations'
 import type { TransactionCategory } from '@/types/transaction'
@@ -14,6 +15,7 @@ interface TopLeakCardProps {
 
 export function TopLeakCard({ leaks }: TopLeakCardProps) {
   const { t } = useLanguage()
+  const { currency } = useCurrency()
   const max = leaks[0]?.amount ?? 0
 
   return (
@@ -29,7 +31,7 @@ export function TopLeakCard({ leaks }: TopLeakCardProps) {
               <p className="text-sm font-medium text-text">
                 {t(`category.${category}` as TranslationPath)}
               </p>
-              <p className="text-sm font-medium text-text">{formatTSh(amount)}</p>
+              <p className="text-sm font-medium text-text">{formatCurrency(amount, currency)}</p>
             </div>
             <div className="mt-1.5 h-2 rounded-full bg-border">
               <div

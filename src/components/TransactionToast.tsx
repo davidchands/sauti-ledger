@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Check, Package } from 'lucide-react'
-import { formatTSh } from '@/lib/currency'
+import { formatCurrency } from '@/lib/currency'
+import { useCurrency } from '@/currency/useCurrency'
 import { useLanguage } from '@/i18n/useLanguage'
 import type { Transaction } from '@/types/transaction'
 
@@ -26,6 +27,7 @@ interface TransactionToastProps {
  */
 export function TransactionToast({ entry, onUndo, onExpire, onEdit }: TransactionToastProps) {
   const { t } = useLanguage()
+  const { currency } = useCurrency()
   const { transaction } = entry
   const isIncome = transaction.type === 'INCOME'
   const hasQuantity = transaction.quantity != null && transaction.unit
@@ -59,7 +61,7 @@ export function TransactionToast({ entry, onUndo, onExpire, onEdit }: Transactio
       >
         <div className="flex items-center gap-1.5">
           <p className={`text-sm font-semibold ${isIncome ? 'text-income' : 'text-expense'}`}>
-            {isIncome ? '+' : '−'} {formatTSh(transaction.amount)}
+            {isIncome ? '+' : '−'} {formatCurrency(transaction.amount, currency)}
           </p>
           {hasQuantity && (
             <span className="inline-flex shrink-0 items-center gap-1 rounded-md border border-border px-1 py-0.5 text-[11px] font-medium text-text-muted">
