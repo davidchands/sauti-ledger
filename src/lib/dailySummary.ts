@@ -1,4 +1,5 @@
 import type { Transaction } from '@/types/transaction'
+import { convertTransactionAmount, type CurrencyCode } from '@/lib/currency'
 
 export interface DailySummary {
   income: number
@@ -25,9 +26,14 @@ function isSameDay(a: Date, b: Date): boolean {
  * Income/expense for exactly this day, plus the closing balance — the
  * running total through the end of this day, so a merchant looking at a
  * past day sees what their balance actually was then, not just that
- * day's net movement.
+ * day's net movement. Every transaction converts into `currency` via
+ * its own frozen rate snapshot before being summed (src/lib/currency.ts).
  */
-export function computeDailySummary(transactions: Transaction[], day: Date): DailySummary {
+export function computeDailySummary(
+  transactions: Transaction[],
+  day: Date,
+  currency: CurrencyCode,
+): DailySummary {
   const cutoff = endOfDay(day)
   let income = 0
   let expense = 0
@@ -37,11 +43,12 @@ export function computeDailySummary(transactions: Transaction[], day: Date): Dai
     const createdAt = new Date(tx.createdAt)
     if (createdAt > cutoff) continue
 
-    closingBalance += tx.type === 'INCOME' ? tx.amount : -tx.amount
+    const amount = convertTransactionAmount(tx, currency)
+    closingBalance += tx.type === 'INCOME' ? amount : -amount
 
     if (isSameDay(createdAt, day)) {
-      if (tx.type === 'INCOME') income += tx.amount
-      else expense += tx.amount
+      if (tx.type === 'INCOME') income += amount
+      else expense += amount
     }
   }
 

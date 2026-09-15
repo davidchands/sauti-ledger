@@ -4,7 +4,14 @@ import { isNetworkError } from '@/lib/isNetworkError'
 import { localDb, type LocalTransaction, type OutboxEntry } from '@/lib/localDb'
 import { toLocalTransaction, syncOutbox, type ApiTransaction } from '@/lib/transactionSync'
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
+import type { CurrencyCode } from '@/lib/currency'
 import type { TransactionDraft } from '@/types/transaction'
+
+// Placeholder only, for the brief window an offline-created transaction
+// is shown before it syncs — the server always overwrites these with a
+// live rate snapshot on sync (server/lib/exchangeRates.ts has the same
+// fallback for when ITS live fetch fails, kept in sync with this one).
+const OFFLINE_FALLBACK_RATES = { rateUsdToTzs: 2500, rateEurToTzs: 2700 }
 
 /** Provenance for a transaction that came from AI extraction, spoken or typed, rather than the manual-entry form. */
 interface ExtractionProvenance {
@@ -109,6 +116,7 @@ export function useTransactions() {
   const create = useCallback(
     async (
       draft: TransactionDraft,
+      currency: CurrencyCode,
       provenance?: ExtractionProvenance,
     ): Promise<LocalTransaction | null> => {
       const tempId = `temp-${crypto.randomUUID()}`
@@ -116,12 +124,14 @@ export function useTransactions() {
         id: tempId,
         createdAt: new Date().toISOString(),
         pending: true,
+        currency,
+        ...OFFLINE_FALLBACK_RATES,
         ...draft,
       }
       await localDb.transactions.put(optimistic)
       await reloadFromCache()
 
-      const payload = { ...draft, ...provenance }
+      const payload = { ...draft, currency, ...provenance }
 
       try {
         const created = await apiClient.post<ApiTransaction>('/transactions', payload)
@@ -229,14 +239,8 @@ export function useTransactions() {
     [reloadFromCache],
   )
 
-  const balance = transactions.reduce(
-    (sum, t) => sum + (t.type === 'INCOME' ? t.amount : -t.amount),
-    0,
-  )
-
   return {
     transactions,
-    balance,
     state,
     pendingCount,
     isOnline,

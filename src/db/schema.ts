@@ -28,6 +28,8 @@ export const transactionStatusEnum = pgEnum('transaction_status', [
   'SYNCED',
 ])
 
+export const currencyEnum = pgEnum('currency', ['TZS', 'USD', 'EUR'])
+
 export const languageEnum = pgEnum('language', ['sw', 'en'])
 
 export const users = pgTable('users', {
@@ -60,8 +62,18 @@ export const transactions = pgTable('transactions', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   type: transactionTypeEnum('type').notNull(),
-  // Integer Tanzanian shillings — never floating point (AGENTS.md § 6).
+  // A plain integer — never floating point. Denominated in `currency`,
+  // never assumed to be shillings (AI_SPEC.md § 3a).
   amount: integer('amount').notNull(),
+  // The currency `amount` was recorded in, set once at creation from the
+  // app's currency setting at that moment — never edited afterward.
+  currency: currencyEnum('currency').notNull().default('TZS'),
+  // Exchange-rate snapshot frozen at creation time (server/lib/
+  // exchangeRates.ts) so a transaction's converted value never drifts
+  // as today's rates change — see README § multi-currency. Defaults
+  // exist only to backfill rows from before this column existed.
+  rateUsdToTzs: real('rate_usd_to_tzs').notNull().default(2500),
+  rateEurToTzs: real('rate_eur_to_tzs').notNull().default(2700),
   category: transactionCategoryEnum('category').notNull(),
   description: text('description').notNull().default(''),
   // How many units were involved, when the speaker actually said a count

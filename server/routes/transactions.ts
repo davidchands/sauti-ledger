@@ -7,16 +7,23 @@ import {
   updateTransaction,
   deleteTransaction,
 } from '../../src/db/queries/transactions'
+import { fetchExchangeRates } from '../lib/exchangeRates'
 import type { AuthedRequest } from '../resolveUser'
 
 export const transactionsRouter = Router()
 
 const categoryEnum = z.enum(['Sales', 'Inventory', 'Rent', 'Operational', 'Other'])
 const typeEnum = z.enum(['INCOME', 'EXPENSE'])
+const currencyEnum = z.enum(['TZS', 'USD', 'EUR'])
 
 const createSchema = z.object({
   type: typeEnum,
   amount: z.number().int().positive(),
+  // Whatever the app's currency setting was at the moment of recording
+  // (client-sent, not detected from speech — AI_SPEC.md § 3a). The
+  // server fetches a live rate snapshot for it below and freezes that
+  // onto the transaction forever.
+  currency: currencyEnum,
   category: categoryEnum,
   description: z.string().max(280).optional(),
   quantity: z.number().int().positive().nullable().optional(),
@@ -52,9 +59,12 @@ transactionsRouter.post('/', async (req, res) => {
     return
   }
 
+  const rates = await fetchExchangeRates()
+
   const created = await createTransaction({
     userId,
     ...parsed.data,
+    ...rates,
     source: parsed.data.source ?? 'MANUAL',
   })
   res.status(201).json(created)

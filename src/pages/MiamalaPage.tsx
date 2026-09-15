@@ -20,6 +20,8 @@ import { useSpaceToRecord } from '@/hooks/useSpaceToRecord'
 import { useChatEntry, type ChatExtraction } from '@/hooks/useChatEntry'
 import { dayGroupLabel } from '@/lib/groupTransactionsByDay'
 import { computeDailySummary } from '@/lib/dailySummary'
+import { computeBalance } from '@/lib/currency'
+import { useCurrency } from '@/currency/useCurrency'
 import type { ExtractionItem } from '@/lib/transactionExtraction'
 import type { Transaction, TransactionDraft } from '@/types/transaction'
 
@@ -35,8 +37,8 @@ function dateKey(date: Date): string {
 
 export function MiamalaPage() {
   const { t, language } = useLanguage()
-  const { transactions, balance, state, refresh, create, update, remove } =
-    useTransactionsContext()
+  const { currency } = useCurrency()
+  const { transactions, state, refresh, create, update, remove } = useTransactionsContext()
   const [editing, setEditing] = useState<Transaction | null>(null)
   const [selectedDate, setSelectedDate] = useState(() => startOfDay(new Date()))
   const [showCalendar, setShowCalendar] = useState(false)
@@ -56,7 +58,7 @@ export function MiamalaPage() {
     provenance: { source: 'VOICE' | 'MANUAL'; rawTranscript: string; language?: 'sw' | 'en' },
   ) => {
     for (const item of items) {
-      const created = await create(item.draft, { ...provenance, confidence: item.confidence })
+      const created = await create(item.draft, currency, { ...provenance, confidence: item.confidence })
       if (created) {
         setToasts((current) => [...current, { id: created.id, transaction: created }])
       }
@@ -114,6 +116,7 @@ export function MiamalaPage() {
     closeDetail()
   }
 
+  const balance = computeBalance(transactions, currency)
   const activeDays = new Set(transactions.map((tx) => dateKey(new Date(tx.createdAt))))
   const dayTransactions = transactions.filter(
     (tx) => dateKey(new Date(tx.createdAt)) === dateKey(selectedDate),
@@ -192,7 +195,7 @@ export function MiamalaPage() {
         )}
 
         {state === 'ready' && dayTransactions.length > 0 && (
-          <DailySummaryCard summary={computeDailySummary(transactions, selectedDate)} />
+          <DailySummaryCard summary={computeDailySummary(transactions, selectedDate, currency)} />
         )}
       </div>
 

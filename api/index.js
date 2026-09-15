@@ -15,6 +15,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 // src/db/schema.ts
 var schema_exports = {};
 __export(schema_exports, {
+  currencyEnum: () => currencyEnum,
   languageEnum: () => languageEnum,
   profiles: () => profiles,
   profilesRelations: () => profilesRelations,
@@ -52,6 +53,7 @@ var transactionStatusEnum = pgEnum("transaction_status", [
   "CONFIRMED",
   "SYNCED"
 ]);
+var currencyEnum = pgEnum("currency", ["TZS", "USD", "EUR"]);
 var languageEnum = pgEnum("language", ["sw", "en"]);
 var users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -77,8 +79,18 @@ var transactions = pgTable("transactions", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   type: transactionTypeEnum("type").notNull(),
-  // Integer Tanzanian shillings — never floating point (AGENTS.md § 6).
+  // A plain integer — never floating point. Denominated in `currency`,
+  // never assumed to be shillings (AI_SPEC.md § 3a).
   amount: integer("amount").notNull(),
+  // The currency `amount` was recorded in, set once at creation from the
+  // app's currency setting at that moment — never edited afterward.
+  currency: currencyEnum("currency").notNull().default("TZS"),
+  // Exchange-rate snapshot frozen at creation time (server/lib/
+  // exchangeRates.ts) so a transaction's converted value never drifts
+  // as today's rates change — see README § multi-currency. Defaults
+  // exist only to backfill rows from before this column existed.
+  rateUsdToTzs: real("rate_usd_to_tzs").notNull().default(2500),
+  rateEurToTzs: real("rate_eur_to_tzs").notNull().default(2700),
   category: transactionCategoryEnum("category").notNull(),
   description: text("description").notNull().default(""),
   // How many units were involved, when the speaker actually said a count
@@ -174,13 +186,40 @@ async function deleteTransaction(userId, id) {
   return deleted;
 }
 
+// server/lib/exchangeRates.ts
+var RATE_URL = "https://open.er-api.com/v6/latest/USD";
+var FETCH_TIMEOUT_MS = 3e3;
+var FALLBACK_RATES = { rateUsdToTzs: 2500, rateEurToTzs: 2700 };
+async function fetchExchangeRates() {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    const response = await fetch(RATE_URL, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!response.ok) return FALLBACK_RATES;
+    const data = await response.json();
+    const usdToTzs = data.rates?.TZS;
+    const usdToEur = data.rates?.EUR;
+    if (!usdToTzs || !usdToEur) return FALLBACK_RATES;
+    return { rateUsdToTzs: usdToTzs, rateEurToTzs: usdToTzs / usdToEur };
+  } catch {
+    return FALLBACK_RATES;
+  }
+}
+
 // server/routes/transactions.ts
 var transactionsRouter = Router();
 var categoryEnum = z.enum(["Sales", "Inventory", "Rent", "Operational", "Other"]);
 var typeEnum = z.enum(["INCOME", "EXPENSE"]);
+var currencyEnum2 = z.enum(["TZS", "USD", "EUR"]);
 var createSchema = z.object({
   type: typeEnum,
   amount: z.number().int().positive(),
+  // Whatever the app's currency setting was at the moment of recording
+  // (client-sent, not detected from speech — AI_SPEC.md § 3a). The
+  // server fetches a live rate snapshot for it below and freezes that
+  // onto the transaction forever.
+  currency: currencyEnum2,
   category: categoryEnum,
   description: z.string().max(280).optional(),
   quantity: z.number().int().positive().nullable().optional(),
@@ -212,9 +251,11 @@ transactionsRouter.post("/", async (req, res) => {
     res.status(400).json({ error: parsed.error.flatten() });
     return;
   }
+  const rates = await fetchExchangeRates();
   const created = await createTransaction({
     userId,
     ...parsed.data,
+    ...rates,
     source: parsed.data.source ?? "MANUAL"
   });
   res.status(201).json(created);

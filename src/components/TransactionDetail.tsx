@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Trash2, Package, X } from 'lucide-react'
-import { formatCurrency, type CurrencyCode } from '@/lib/currency'
+import { formatCurrency, convertAmount, convertTransactionAmount, type CurrencyCode } from '@/lib/currency'
 import { useCurrency } from '@/currency/useCurrency'
 import { useLanguage } from '@/i18n/useLanguage'
 import type { Transaction, TransactionCategory, TransactionType } from '@/types/transaction'
@@ -64,10 +64,19 @@ export function TransactionDetail({ transaction, onChange, onDelete, onClose }: 
         </div>
 
         <EditableAmount
-          amount={transaction.amount}
+          amount={convertTransactionAmount(transaction, currency)}
           isIncome={isIncome}
           currency={currency}
-          onChange={(amount) => onChange({ amount })}
+          onChange={(displayedAmount) => {
+            // The input shows/edits the amount in the app's current
+            // display currency for consistency with the rest of the UI
+            // (list, toast) — convert back to the currency this
+            // transaction was actually recorded in before saving, using
+            // its own frozen rate snapshot, so `currency`/rates on the
+            // record never change, only `amount` does.
+            const original = convertAmount(displayedAmount, currency, transaction.currency, transaction)
+            onChange({ amount: Math.round(original) })
+          }}
         />
 
         <EditableQuantity

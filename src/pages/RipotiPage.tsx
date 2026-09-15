@@ -6,6 +6,8 @@ import { LoadingIndicator } from '@/components/LoadingIndicator'
 import { ErrorState } from '@/components/ErrorState'
 import { useLanguage } from '@/i18n/useLanguage'
 import { useTransactionsContext } from '@/hooks/useTransactionsContext'
+import { useCurrency } from '@/currency/useCurrency'
+import { computeBalance, convertTransactionAmount } from '@/lib/currency'
 import type { TransactionCategory } from '@/types/transaction'
 
 function isThisWeek(iso: string): boolean {
@@ -25,7 +27,8 @@ function isThisWeek(iso: string): boolean {
  */
 export function RipotiPage() {
   const { t } = useLanguage()
-  const { transactions, balance, state, refresh } = useTransactionsContext()
+  const { currency } = useCurrency()
+  const { transactions, state, refresh } = useTransactionsContext()
 
   if (state === 'loading') {
     return (
@@ -51,21 +54,23 @@ export function RipotiPage() {
     )
   }
 
+  const balance = computeBalance(transactions, currency)
   const weekly = transactions.filter((tx) => isThisWeek(tx.createdAt))
 
   const income = weekly
     .filter((tx) => tx.type === 'INCOME')
-    .reduce((sum, tx) => sum + tx.amount, 0)
+    .reduce((sum, tx) => sum + convertTransactionAmount(tx, currency), 0)
   const expense = weekly
     .filter((tx) => tx.type === 'EXPENSE')
-    .reduce((sum, tx) => sum + tx.amount, 0)
+    .reduce((sum, tx) => sum + convertTransactionAmount(tx, currency), 0)
 
   const expenseByCategory = new Map<TransactionCategory, number>()
   for (const transaction of weekly) {
     if (transaction.type !== 'EXPENSE') continue
     expenseByCategory.set(
       transaction.category,
-      (expenseByCategory.get(transaction.category) ?? 0) + transaction.amount,
+      (expenseByCategory.get(transaction.category) ?? 0) +
+        convertTransactionAmount(transaction, currency),
     )
   }
   const leaks = [...expenseByCategory.entries()]

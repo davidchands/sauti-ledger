@@ -3,7 +3,7 @@ import { useLanguage } from '@/i18n/useLanguage'
 import { CURRENCIES, isCurrencyCode } from '@/lib/currency'
 
 /**
- * A native select, not a custom dropdown — six options is a short
+ * A native select, not a custom dropdown — three options is a short
  * enough list that the platform picker is the simplest, most
  * accessible choice, matching LanguageSwitcher's minimal pill style.
  */

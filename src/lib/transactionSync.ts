@@ -1,12 +1,16 @@
 import { apiClient } from './apiClient'
 import { isNetworkError } from './isNetworkError'
 import { localDb, type LocalTransaction } from './localDb'
+import type { CurrencyCode } from './currency'
 import type { TransactionCategory, TransactionType } from '@/types/transaction'
 
 export interface ApiTransaction {
   id: string
   type: TransactionType
   amount: number
+  currency: CurrencyCode
+  rateUsdToTzs: number
+  rateEurToTzs: number
   category: TransactionCategory
   description: string
   quantity?: number | null
@@ -19,6 +23,9 @@ export function toLocalTransaction(api: ApiTransaction, pending: boolean): Local
     id: api.id,
     type: api.type,
     amount: api.amount,
+    currency: api.currency,
+    rateUsdToTzs: api.rateUsdToTzs,
+    rateEurToTzs: api.rateEurToTzs,
     category: api.category,
     description: api.description,
     quantity: api.quantity ?? null,

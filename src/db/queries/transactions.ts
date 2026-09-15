@@ -6,6 +6,9 @@ export interface NewTransactionInput {
   userId: string
   type: 'INCOME' | 'EXPENSE'
   amount: number
+  currency: 'TZS' | 'USD' | 'EUR'
+  rateUsdToTzs: number
+  rateEurToTzs: number
   category: 'Sales' | 'Inventory' | 'Rent' | 'Operational' | 'Other'
   description?: string
   quantity?: number | null

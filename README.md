@@ -23,6 +23,10 @@ Saved to your ledger instantly, balance updates right away (undo if it got it wr
 
 If the AI can't tell whether an amount was income or an expense, or can't make out the number at all, it asks instead of guessing. See [AI_SPEC.md](AI_SPEC.md) for the full behavior spec and the evaluation dataset that keeps it honest.
 
+## Currency
+
+Sauti Ledger supports three currencies: TSh (Tanzanian Shilling, the default), USD, and EUR, picked from a switcher next to the language toggle. Every transaction remembers the currency it was actually recorded in, plus a live exchange-rate snapshot fetched once at that moment — frozen forever, so a transaction's converted value never drifts as real-world rates change later. Amounts are converted between currencies using each transaction's own snapshot, never today's rate, whenever you switch your display currency or view a transaction recorded in a different one.
+
 ## System architecture
 
 ![Sauti Ledger system architecture diagram: the Phone/PWA client and its offline layer (Dexie + service worker) on the left, the Vercel serverless API in the middle (identity via X-Device-Id, /api/transcribe, /api/extract, and ledger CRUD), external AI services (Groq Whisper, Google Gemini) and Neon Postgres via Drizzle on the right, server-only secrets, and a data-flow diagram of the main voice-to-saved-transaction path along the bottom](docs/architecture-sketch.png)
