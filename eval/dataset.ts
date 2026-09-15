@@ -69,6 +69,27 @@ export const evalDataset: EvalCase[] = [
     expected: { type: 'INCOME', amount: 80000, category: 'Sales' },
   },
 
+  // Non-shilling currency words — the app's currency selector (README/
+  // multi-currency feature) is a display-only label, never a hint to the
+  // AI pipeline, so the amount must extract the same regardless of which
+  // currency word the speaker uses.
+  {
+    transcript: 'I sold rice for 100 dollars',
+    expected: { type: 'INCOME', amount: 100, category: 'Sales' },
+  },
+  {
+    transcript: 'Bought fuel for 50 dollars',
+    expected: { type: 'EXPENSE', amount: 50, category: 'Operational' },
+  },
+  {
+    transcript: 'I sold rice for 20 pounds',
+    expected: { type: 'INCOME', amount: 20, category: 'Sales', quantity: null },
+  },
+  {
+    transcript: 'I sold rice for 20 euros',
+    expected: { type: 'INCOME', amount: 20, category: 'Sales' },
+  },
+
   // Mixed Swahili/English (code-switching)
   {
     transcript: 'Leo nimeuza twenty five thousand',

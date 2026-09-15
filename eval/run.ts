@@ -16,7 +16,7 @@ interface Result {
 }
 
 // Every dataset case here describes a single transaction (multi-transaction
-// extraction — AI_SPEC.md § 3a — isn't covered by this per-case dataset
+// extraction — AI_SPEC.md § 3b — isn't covered by this per-case dataset
 // shape), so a case fails outright if Gemini splits or merges unexpectedly.
 async function extract(transcript: string): Promise<ExtractedTransaction> {
   const response = await fetch(`${API_URL}/api/extract`, {

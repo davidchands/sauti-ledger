@@ -51,11 +51,28 @@ Gemini must return structured data matching the application's Zod schema, an arr
 }
 ```
 
-Amounts are always integer Tanzanian shillings. Never floating point.
+Amounts are always a plain integer. Never floating point.
 
-quantity/unit are only set when the speaker explicitly states a count of physical units, "magunia matano ya mchele" (5 sacks of rice), "chupa kumi" (10 bottles). A plain amount like "mchele elfu ishirini" (rice for 20,000) has no quantity, both stay null rather than inventing a count from the price.
+quantity/unit are only set when the speaker explicitly states a count of physical units, "magunia matano ya mchele" (5 sacks of rice), "chupa kumi" (10 bottles). A plain amount like "mchele elfu ishirini" (rice for 20,000) has no quantity, both stay null rather than inventing a count from the price. A currency word attached to the amount ("20 pounds", "50 dollars") is never a quantity/unit either — it names money, not a count of physical items.
 
-### 3a. Multiple transactions in one recording
+### 3a. Amounts are currency-agnostic
+
+The app's currency (TZS/KES/UGX/USD/EUR/GBP) is a display-only label the user picks separately (README § multi-currency) — it never reaches the extraction pipeline and never changes how an amount is read. Gemini extracts the plain number regardless of which currency word the speaker uses, including non-Tanzanian ones:
+
+```text
+"I sold rice for 100 dollars"
+→ INCOME, 100, Sales, "Rice"
+
+"I sold rice for 20 pounds"
+→ INCOME, 20, Sales, "Rice" (quantity/unit stay null — "pounds" here is money, not weight)
+
+"Bought fuel for 50 dollars"
+→ EXPENSE, 50, Operational, "Fuel"
+```
+
+A missing or unfamiliar currency word must never cause the amount to be treated as ambiguous — only a genuinely unstated or unclear number does that (Section 4).
+
+### 3b. Multiple transactions in one recording
 
 A merchant sometimes reports more than one transaction in a single recording, e.g. "Niliuza mchele elfu ishirini kisha nikanunua mafuta elfu tano" (sold rice for 20,000, then bought fuel for 5,000). The model returns one array item per distinct event it can identify.
 
