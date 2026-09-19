@@ -39,7 +39,7 @@ export function LandingHowItWorks({ content }: { content: LandingContent }) {
           whileInView="show"
           viewport={{ once: true, amount: 0.4 }}
           variants={container}
-          className="relative mt-14 grid gap-10 sm:grid-cols-3 sm:gap-6"
+          className="relative mt-12 grid gap-10 sm:grid-cols-3 sm:gap-6"
         >
           <motion.div
             aria-hidden="true"

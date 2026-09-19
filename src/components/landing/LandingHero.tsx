@@ -52,7 +52,7 @@ export function LandingHero({ content }: { content: LandingContent }) {
           transition={{ duration: 0.5 }}
           className="flex flex-col items-center"
         >
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-text-muted">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text-muted">
             <span
               className="h-1.5 w-1.5 rounded-full bg-[var(--landing-accent)]"
               aria-hidden="true"

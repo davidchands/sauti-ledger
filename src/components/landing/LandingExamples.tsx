@@ -142,7 +142,7 @@ function DemoCard({
                 {example.category} · {example.description}
               </p>
             </div>
-            <span className="rounded-full bg-income-bg px-3 py-1 text-xs font-semibold text-income">
+            <span className="rounded-full bg-income-bg px-3 py-1.5 text-xs font-semibold text-income">
               {t('mic.success')}
             </span>
           </div>
