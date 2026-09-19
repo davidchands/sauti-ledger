@@ -59,7 +59,7 @@ export function LandingExamples({ content }: { content: LandingContent }) {
           <p className="text-sm font-semibold text-[var(--landing-accent)]">
             {content.examples.eyebrow}
           </p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-text sm:text-4xl">
+          <h2 className="landing-display mt-2 text-3xl font-semibold tracking-tight text-text sm:text-4xl">
             {content.examples.title}
           </h2>
           <p className="mt-3 text-base text-text-muted">{content.examples.body}</p>

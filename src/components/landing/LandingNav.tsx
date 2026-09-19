@@ -5,7 +5,9 @@ import type { LandingContent } from '@/content/landingContent'
 export function LandingNav({ content }: { content: LandingContent }) {
   return (
     <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
-      <span className="text-lg font-semibold tracking-tight text-text">Sauti Ledger</span>
+      <span className="landing-display text-lg font-semibold tracking-tight text-text">
+        Sauti Ledger
+      </span>
 
       <nav className="hidden items-center gap-8 md:flex">
         <a href="#how-it-works" className="text-sm font-medium text-text-muted hover:text-text">

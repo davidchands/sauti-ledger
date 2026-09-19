@@ -63,7 +63,7 @@ export function LandingFeatures({ content }: { content: LandingContent }) {
         <p className="text-sm font-semibold text-[var(--landing-accent)]">
           {content.features.eyebrow}
         </p>
-        <h2 className="mt-2 max-w-xl text-3xl font-bold tracking-tight text-text sm:text-4xl">
+        <h2 className="landing-display mt-2 max-w-xl text-3xl font-semibold tracking-tight text-text sm:text-4xl">
           {content.features.title}
         </h2>
 

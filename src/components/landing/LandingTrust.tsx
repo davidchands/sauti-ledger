@@ -14,7 +14,7 @@ export function LandingTrust({ content }: { content: LandingContent }) {
         className="mx-auto flex w-full max-w-3xl flex-col items-center px-6 text-center"
       >
         <ShieldCheck size={28} className="text-white" aria-hidden="true" />
-        <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        <h2 className="landing-display mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           {content.trust.title}
         </h2>
         <p className="mt-4 text-base text-white/75">{content.trust.body}</p>

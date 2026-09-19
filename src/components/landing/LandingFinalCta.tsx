@@ -13,7 +13,7 @@ export function LandingFinalCta({ content }: { content: LandingContent }) {
         transition={{ duration: 0.5 }}
         className="mx-auto flex w-full max-w-3xl flex-col items-center px-6 text-center"
       >
-        <h2 className="text-3xl font-bold tracking-tight text-text sm:text-4xl">
+        <h2 className="landing-display text-3xl font-semibold tracking-tight text-text sm:text-4xl">
           {content.finalCta.title}
         </h2>
         <p className="mt-3 text-base text-text-muted">{content.finalCta.body}</p>
