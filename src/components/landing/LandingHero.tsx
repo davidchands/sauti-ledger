@@ -97,7 +97,7 @@ export function LandingHero({ content }: { content: LandingContent }) {
           </div>
         </motion.div>
 
-        <div className="mt-14 w-full max-w-[260px]">
+        <div className="mt-14 w-full">
           <PhoneMockup ariaLabel={content.hero.demoAriaLabel}>
             <PhoneVoiceDemo content={content} />
           </PhoneMockup>
