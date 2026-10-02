@@ -111,6 +111,7 @@ export const translations = {
       prevMonth: 'Mwezi uliopita',
       nextMonth: 'Mwezi ujao',
       jumpToday: 'Nenda leo',
+      backdateNotice: 'Itahifadhiwa kwa siku hii, si leo',
     },
     daySummary: {
       closingBalance: 'Salio la kufunga',
@@ -240,6 +241,7 @@ export const translations = {
       prevMonth: 'Previous month',
       nextMonth: 'Next month',
       jumpToday: 'Jump to today',
+      backdateNotice: 'Will be saved to this day, not today',
     },
     daySummary: {
       closingBalance: 'Closing balance',
@@ -341,7 +343,13 @@ type Dict = {
   error: { genericTitle: string; genericBody: string; retry: string }
   sync: { savedOnPhone: string; synced: string }
   toast: { undo: string }
-  calendar: { title: string; prevMonth: string; nextMonth: string; jumpToday: string }
+  calendar: {
+    title: string
+    prevMonth: string
+    nextMonth: string
+    jumpToday: string
+    backdateNotice: string
+  }
   daySummary: { closingBalance: string }
   filter: { all: string; income: string; expense: string; empty: string }
   language: { switchTo: string }

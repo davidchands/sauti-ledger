@@ -17,6 +17,8 @@ export interface NewTransactionInput {
   language?: 'sw' | 'en'
   source: 'VOICE' | 'MANUAL'
   confidence?: number
+  /** Backdating a past-day entry (MiamalaPage) — omitted, the column's own defaultNow() applies. */
+  createdAt?: Date
 }
 
 /**

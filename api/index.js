@@ -232,7 +232,15 @@ var createSchema = z.object({
   source: z.enum(["MANUAL", "VOICE"]).optional(),
   rawTranscript: z.string().max(2e3).optional(),
   language: z.enum(["sw", "en"]).optional(),
-  confidence: z.number().min(0).max(1).optional()
+  confidence: z.number().min(0).max(1).optional(),
+  // Only set when the client is backdating an entry to a day it's
+  // browsing via the calendar, never today's — "now" (the column
+  // default) covers the normal case. A 1-minute buffer absorbs clock
+  // skew between client and server without allowing genuinely future
+  // entries.
+  createdAt: z.string().datetime().refine((value) => new Date(value).getTime() <= Date.now() + 6e4, {
+    message: "createdAt cannot be in the future"
+  }).optional()
 });
 var updateSchema = z.object({
   type: typeEnum.optional(),
@@ -255,11 +263,13 @@ transactionsRouter.post("/", async (req, res) => {
     return;
   }
   const rates = await fetchExchangeRates();
+  const { createdAt, ...rest } = parsed.data;
   const created = await createTransaction({
     userId,
-    ...parsed.data,
+    ...rest,
     ...rates,
-    source: parsed.data.source ?? "MANUAL"
+    source: parsed.data.source ?? "MANUAL",
+    ...createdAt ? { createdAt: new Date(createdAt) } : {}
   });
   res.status(201).json(created);
 });

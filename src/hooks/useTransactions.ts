@@ -118,11 +118,14 @@ export function useTransactions() {
       draft: TransactionDraft,
       currency: CurrencyCode,
       provenance?: ExtractionProvenance,
+      // Set only when recording onto a past day being browsed via the
+      // calendar (MiamalaPage) — omitted, the server stamps "now".
+      createdAt?: Date,
     ): Promise<LocalTransaction | null> => {
       const tempId = `temp-${crypto.randomUUID()}`
       const optimistic: LocalTransaction = {
         id: tempId,
-        createdAt: new Date().toISOString(),
+        createdAt: (createdAt ?? new Date()).toISOString(),
         pending: true,
         currency,
         ...OFFLINE_FALLBACK_RATES,
@@ -131,7 +134,12 @@ export function useTransactions() {
       await localDb.transactions.put(optimistic)
       await reloadFromCache()
 
-      const payload = { ...draft, currency, ...provenance }
+      const payload = {
+        ...draft,
+        currency,
+        ...provenance,
+        ...(createdAt ? { createdAt: createdAt.toISOString() } : {}),
+      }
 
       try {
         const created = await apiClient.post<ApiTransaction>('/transactions', payload)

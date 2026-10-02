@@ -35,6 +35,20 @@ function dateKey(date: Date): string {
   return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
 }
 
+/**
+ * Null when `selectedDate` is today (the server just stamps "now").
+ * Otherwise the selected day's Y/M/D combined with the current
+ * time-of-day, so entries added to a past day still sort sensibly
+ * against each other within that day.
+ */
+function createdAtFor(selectedDate: Date): Date | undefined {
+  if (dateKey(selectedDate) === dateKey(new Date())) return undefined
+  const now = new Date()
+  const combined = new Date(selectedDate)
+  combined.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds())
+  return combined
+}
+
 export function MiamalaPage() {
   const { t, language } = useLanguage()
   const { currency } = useCurrency()
@@ -57,8 +71,14 @@ export function MiamalaPage() {
     items: ExtractionItem[],
     provenance: { source: 'VOICE' | 'MANUAL'; rawTranscript: string; language?: 'sw' | 'en' },
   ) => {
+    const createdAt = createdAtFor(selectedDate)
     for (const item of items) {
-      const created = await create(item.draft, currency, { ...provenance, confidence: item.confidence })
+      const created = await create(
+        item.draft,
+        currency,
+        { ...provenance, confidence: item.confidence },
+        createdAt,
+      )
       if (created) {
         setToasts((current) => [...current, { id: created.id, transaction: created }])
       }
@@ -200,6 +220,13 @@ export function MiamalaPage() {
       </div>
 
       <div className="flex flex-col items-center gap-3 px-5 py-6">
+        {!isToday && (
+          <span className="flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-xs font-medium text-text-muted">
+            <CalendarDays size={12} aria-hidden="true" />
+            {t('calendar.backdateNotice')}
+          </span>
+        )}
+
         <VoiceStatusPanel
           uiState={voice.uiState}
           recorderError={voice.recorderError}
