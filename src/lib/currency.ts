@@ -15,6 +15,11 @@ export const CURRENCIES: CurrencyOption[] = [
 
 export const DEFAULT_CURRENCY: CurrencyCode = 'TZS'
 
+/** Rounds to 2 decimal places (cents) — never more precision than that. */
+export function round2(amount: number): number {
+  return Math.round(amount * 100) / 100
+}
+
 export function isCurrencyCode(value: string): value is CurrencyCode {
   return CURRENCIES.some((c) => c.code === value)
 }
@@ -22,10 +27,17 @@ export function isCurrencyCode(value: string): value is CurrencyCode {
 /**
  * Grouping always uses en-US comma separators regardless of currency, so
  * the number itself reads the same no matter which symbol is picked.
+ * Shows up to 2 decimal places (cents) only when the amount actually
+ * has them — a whole-number TZS amount stays "TSh 20,000", not
+ * "TSh 20,000.00".
  */
 export function formatCurrency(amount: number, currency: CurrencyCode): string {
   const symbol = CURRENCIES.find((c) => c.code === currency)?.symbol ?? currency
-  return `${symbol} ${Math.round(amount).toLocaleString('en-US')}`
+  const formatted = amount.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })
+  return `${symbol} ${formatted}`
 }
 
 /**

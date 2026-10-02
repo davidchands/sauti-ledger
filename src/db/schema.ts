@@ -62,9 +62,11 @@ export const transactions = pgTable('transactions', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   type: transactionTypeEnum('type').notNull(),
-  // A plain integer — never floating point. Denominated in `currency`,
-  // never assumed to be shillings (AI_SPEC.md § 3a).
-  amount: integer('amount').notNull(),
+  // A plain number, up to 2 decimal places (e.g. cents) — most spoken
+  // amounts are whole numbers, but decimals are kept when stated.
+  // Denominated in `currency`, never assumed to be shillings
+  // (AI_SPEC.md § 3a).
+  amount: real('amount').notNull(),
   // The currency `amount` was recorded in, set once at creation from the
   // app's currency setting at that moment — never edited afterward.
   currency: currencyEnum('currency').notNull().default('TZS'),

@@ -90,6 +90,13 @@ export const evalDataset: EvalCase[] = [
     expected: { type: 'INCOME', amount: 20, category: 'Sales' },
   },
 
+  // Decimal amounts — most spoken amounts are whole numbers, but cents
+  // must be kept when stated explicitly, not rounded away.
+  {
+    transcript: 'I sold coffee for 2.50 dollars',
+    expected: { type: 'INCOME', amount: 2.5, category: 'Sales' },
+  },
+
   // Mixed Swahili/English (code-switching)
   {
     transcript: 'Leo nimeuza twenty five thousand',

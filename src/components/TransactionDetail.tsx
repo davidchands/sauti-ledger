@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Trash2, Package, X } from 'lucide-react'
-import { formatCurrency, convertAmount, convertTransactionAmount, type CurrencyCode } from '@/lib/currency'
+import {
+  formatCurrency,
+  convertAmount,
+  convertTransactionAmount,
+  round2,
+  type CurrencyCode,
+} from '@/lib/currency'
 import { useCurrency } from '@/currency/useCurrency'
 import { useLanguage } from '@/i18n/useLanguage'
 import type { Transaction, TransactionCategory, TransactionType } from '@/types/transaction'
@@ -75,7 +81,7 @@ export function TransactionDetail({ transaction, onChange, onDelete, onClose }: 
             // its own frozen rate snapshot, so `currency`/rates on the
             // record never change, only `amount` does.
             const original = convertAmount(displayedAmount, currency, transaction.currency, transaction)
-            onChange({ amount: Math.round(original) })
+            onChange({ amount: round2(original) })
           }}
         />
 
@@ -163,7 +169,7 @@ function EditableAmount({
 
   const commit = () => {
     const parsed = Number(draft)
-    if (Number.isFinite(parsed) && parsed > 0) onChange(Math.round(parsed))
+    if (Number.isFinite(parsed) && parsed > 0) onChange(round2(parsed))
     setEditing(false)
   }
 
@@ -176,7 +182,8 @@ function EditableAmount({
       <input
         ref={inputRef}
         type="number"
-        inputMode="numeric"
+        inputMode="decimal"
+        step="0.01"
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
         onBlur={commit}

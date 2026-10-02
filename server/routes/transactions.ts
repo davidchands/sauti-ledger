@@ -16,9 +16,13 @@ const categoryEnum = z.enum(['Sales', 'Inventory', 'Rent', 'Operational', 'Other
 const typeEnum = z.enum(['INCOME', 'EXPENSE'])
 const currencyEnum = z.enum(['TZS', 'USD', 'EUR'])
 
+// A plain number, up to 2 decimal places (cents) — never more precision
+// than that, whole floating-point noise from client input included.
+const amountSchema = z.number().positive().transform((v) => Math.round(v * 100) / 100)
+
 const createSchema = z.object({
   type: typeEnum,
-  amount: z.number().int().positive(),
+  amount: amountSchema,
   // Whatever the app's currency setting was at the moment of recording
   // (client-sent, not detected from speech — AI_SPEC.md § 3a). The
   // server fetches a live rate snapshot for it below and freezes that
@@ -38,7 +42,7 @@ const createSchema = z.object({
 
 const updateSchema = z.object({
   type: typeEnum.optional(),
-  amount: z.number().int().positive().optional(),
+  amount: amountSchema.optional(),
   category: categoryEnum.optional(),
   description: z.string().max(280).optional(),
   quantity: z.number().int().positive().nullable().optional(),

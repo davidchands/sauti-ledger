@@ -51,7 +51,7 @@ Gemini must return structured data matching the application's Zod schema, an arr
 }
 ```
 
-Amounts are always a plain integer. Never floating point.
+Amounts are a plain number. Most spoken amounts are whole numbers — Swahili shorthand ("elfu", "laki", "milioni") always produces one — but up to 2 decimal places (cents) are kept when the speaker states a fraction explicitly ("9.99 dollars"), never invented and never rounded away.
 
 quantity/unit are only set when the speaker explicitly states a count of physical units, "magunia matano ya mchele" (5 sacks of rice), "chupa kumi" (10 bottles). A plain amount like "mchele elfu ishirini" (rice for 20,000) has no quantity, both stay null rather than inventing a count from the price. A currency word attached to the amount ("20 pounds", "50 dollars") is never a quantity/unit either — it names money, not a count of physical items.
 
@@ -71,6 +71,13 @@ The app's currency (TZS/KES/UGX/USD/EUR/GBP) is a display-only label the user pi
 ```
 
 A missing or unfamiliar currency word must never cause the amount to be treated as ambiguous — only a genuinely unstated or unclear number does that (Section 4).
+
+Amounts may carry up to 2 decimal places when the speaker states them explicitly — never invented, never rounded away:
+
+```text
+"I sold coffee for 2.50 dollars"
+→ INCOME, 2.5, Sales, "Coffee"
+```
 
 ### 3b. Multiple transactions in one recording
 

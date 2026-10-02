@@ -8,7 +8,7 @@ const SYSTEM_INSTRUCTION = `You extract financial transactions from a Tanzanian 
 A recording usually describes a single transaction, but sometimes a merchant reports several in one breath (e.g. "Niliuza mchele elfu ishirini kisha nikanunua mafuta elfu tano" — sold rice for 20,000, then bought fuel for 5,000). Always return a JSON array under "transactions": one item for the common single-transaction case, multiple items only when the transcript clearly describes separate, distinct events. Never split a single amount or a single event into more than one item, and never merge two distinct events into one.
 
 Rules (apply to every item):
-- amount is always a plain integer, extracted regardless of which currency word (if any) the speaker uses — "shillings", "dollars", "pounds", "euros", "elfu"/"laki"/"milioni", or no currency word at all. The app's currency is a separate display label the user picks elsewhere and never affects how you read the number: "100 dollars" is amount 100, "20 pounds" is amount 20, exactly like "elfu ishirini" is amount 20000. Never refuse or null out an amount just because the currency word isn't Tanzanian shillings. Common shorthand: "20k" or "elfu ishirini" = 20000. "laki moja" = 100000. "milioni mbili" = 2000000.
+- amount is a plain number, extracted regardless of which currency word (if any) the speaker uses — "shillings", "dollars", "pounds", "euros", "elfu"/"laki"/"milioni", or no currency word at all. The app's currency is a separate display label the user picks elsewhere and never affects how you read the number: "100 dollars" is amount 100, "20 pounds" is amount 20, exactly like "elfu ishirini" is amount 20000. Never refuse or null out an amount just because the currency word isn't Tanzanian shillings. Most amounts are whole numbers — Swahili shorthand ("elfu", "laki", "milioni") always produces one. Keep up to 2 decimal places only when the speaker states a fraction of a unit explicitly, e.g. "9.99 dollars" = 9.99, "two fifty" said after a dollar amount = 2.50, "nusu ya elfu" (half of a thousand) = 500. Common shorthand: "20k" or "elfu ishirini" = 20000. "laki moja" = 100000. "milioni mbili" = 2000000.
 - type is INCOME if the speaker received/earned money (sold something, got paid), EXPENSE if they spent money (bought, paid for something).
 - category is one of: Sales (sold goods/services), Inventory (bought stock to resell), Rent (pango/kodi), Operational (fuel, transport, utilities, labor), Other.
 - description is a short 1-4 word summary of what the transaction was for, in the same language mix as the transcript.
@@ -31,13 +31,14 @@ Examples:
 "I bought 10 bottles of cooking oil for fifty thousand" -> {"transactions":[{"type":"EXPENSE","amount":50000,"category":"Inventory","description":"Cooking oil","quantity":10,"unit":"bottles","confidence":0.95}]}
 "I sold rice for 100 dollars" -> {"transactions":[{"type":"INCOME","amount":100,"category":"Sales","description":"Rice","quantity":null,"unit":null,"confidence":0.95}]}
 "I sold rice for 20 pounds" -> {"transactions":[{"type":"INCOME","amount":20,"category":"Sales","description":"Rice","quantity":null,"unit":null,"confidence":0.95}]}
-"Bought fuel for 50 dollars" -> {"transactions":[{"type":"EXPENSE","amount":50,"category":"Operational","description":"Fuel","quantity":null,"unit":null,"confidence":0.95}]}`
+"Bought fuel for 50 dollars" -> {"transactions":[{"type":"EXPENSE","amount":50,"category":"Operational","description":"Fuel","quantity":null,"unit":null,"confidence":0.95}]}
+"I sold coffee for 2.50 dollars" -> {"transactions":[{"type":"INCOME","amount":2.5,"category":"Sales","description":"Coffee","quantity":null,"unit":null,"confidence":0.95}]}`
 
 const TRANSACTION_SCHEMA = {
   type: 'OBJECT',
   properties: {
     type: { type: 'STRING', enum: ['INCOME', 'EXPENSE'], nullable: true },
-    amount: { type: 'INTEGER', nullable: true },
+    amount: { type: 'NUMBER', nullable: true },
     category: {
       type: 'STRING',
       enum: ['Sales', 'Inventory', 'Rent', 'Operational', 'Other'],

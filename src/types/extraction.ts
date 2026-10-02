@@ -9,7 +9,10 @@ import { z } from 'zod'
  */
 export const extractedTransactionSchema = z.object({
   type: z.enum(['INCOME', 'EXPENSE']).nullable(),
-  amount: z.number().int().positive().nullable(),
+  // A plain number — most spoken amounts are whole, but up to 2 decimal
+  // places (cents) are kept when the speaker states them explicitly
+  // (AI_SPEC.md § 3a).
+  amount: z.number().positive().nullable(),
   category: z.enum(['Sales', 'Inventory', 'Rent', 'Operational', 'Other']),
   description: z.string(),
   // Only set when the speaker actually stated a count ("magunia matano" /
